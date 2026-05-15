@@ -1,0 +1,8 @@
+{
+    "query_id": "q_cls_005",
+    "query": "优先选择已经启动分类服务的节点完成这张图片的分类",
+    "expected_task": "image_classification",
+    "constraints": {
+        "prefer_ready_container": true
+    }
+}

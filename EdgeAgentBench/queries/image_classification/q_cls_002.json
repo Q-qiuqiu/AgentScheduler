@@ -1,0 +1,5 @@
+{
+    "query_id": "q_cls_002",
+    "query": "帮我判断这张图属于什么类别",
+    "expected_task": "image_classification"
+}

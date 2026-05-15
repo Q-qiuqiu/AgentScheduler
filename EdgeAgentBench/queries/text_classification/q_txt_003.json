@@ -1,0 +1,5 @@
+{
+    "query_id": "q_txt_003",
+    "query": "选择 CPU 压力较小的节点处理这段文本",
+    "expected_task": "text_classification"
+}

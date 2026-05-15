@@ -1,0 +1,5 @@
+{
+    "query_id": "q_seg_001",
+    "query": "请对这张图片进行语义分割",
+    "expected_task": "semantic_segmentation"
+}

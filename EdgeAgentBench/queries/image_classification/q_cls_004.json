@@ -1,0 +1,10 @@
+{
+    "query_id": "q_cls_004",
+    "query": "请不要使用 node_1，对这张图片做分类",
+    "expected_task": "image_classification",
+    "constraints": {
+        "exclude_nodes": [
+            "node_1"
+        ]
+    }
+}

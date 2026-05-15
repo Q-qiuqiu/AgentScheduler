@@ -1,0 +1,5 @@
+{
+    "query_id": "q_seg_002",
+    "query": "帮我把图像中的不同区域分割出来",
+    "expected_task": "semantic_segmentation"
+}

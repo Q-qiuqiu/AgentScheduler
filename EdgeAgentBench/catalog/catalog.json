@@ -1,0 +1,56 @@
+{
+  "tasks": [
+    {
+      "task_type": "object_detection",
+      "description": "目标检测任务，用于判断输入图片中是否存在特定对象，并返回其位置",
+      "input_type": "image",
+      "container_name": "object-detection-container",
+      "required_accelerator": "NPU",
+      "preferred_resource": "NPU",
+      "supported_nodes": [
+        "RK3588_1",
+        "RK3588_2",
+        "ATLAS_L",
+        "ATLAS_H"
+      ]
+    },
+    {
+      "task_type": "image_classification",
+      "description": "图像分类任务，用于判断输入图片所属类别",
+      "input_type": "image",
+      "container_name": "image-classification-container",
+      "required_accelerator": "NPU",
+      "preferred_resource": "NPU",
+      "supported_nodes": [
+        "RK3588_1",
+        "RK3588_2",
+        "ATLAS_L",
+        "ATLAS_H"
+      ]
+    },
+    {
+      "task_type": "semantic_segmentation",
+      "description": "语义分割任务，用于对图像进行像素级分类",
+      "input_type": "image",
+      "container_name": "deeplabv3-container",
+      "required_accelerator": "NPU",
+      "preferred_resource": "NPU",
+      "supported_nodes": [
+        "ATLAS_L",
+        "ATLAS_H"
+      ]
+    },
+    {
+      "task_type": "text_classification",
+      "description": "文本分类任务，用于对输入文本进行类别判断",
+      "input_type": "text",
+      "container_name": "text-classification-container",
+      "required_accelerator": "NPU",
+      "preferred_resource": "NPU",
+      "supported_nodes": [
+        "ATLAS_L",
+        "ATLAS_H"
+      ]
+    }
+  ]
+}

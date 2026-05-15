@@ -1,0 +1,5 @@
+{
+    "query_id": "q_res_001",
+    "query": "当前哪个开发板最空闲？",
+    "expected_task": "resource_query"
+}
