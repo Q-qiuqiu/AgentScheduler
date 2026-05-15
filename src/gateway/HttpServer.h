@@ -25,7 +25,6 @@ private:
     static void HandleRegisterNode(const httplib::Request &req, httplib::Response &res);
     static void HandleHotStart(const httplib::Request &req, httplib::Response &res);
     static void HandleClusterResources(const httplib::Request &req, httplib::Response &res);
-    static void HandleStartSubAgent(const httplib::Request &req, httplib::Response &res);
     static void HandleScheduleTask(const httplib::Request &req, httplib::Response &res);
 
     std::string ip;

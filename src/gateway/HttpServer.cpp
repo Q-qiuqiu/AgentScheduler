@@ -144,7 +144,6 @@ bool HttpServer::Start() {
     svr.Post(REGISTER_NODE_ROUTE, this->HandleRegisterNode);
     svr.Post("/hot_start", this->HandleHotStart);
     svr.Get(CLUSTER_RESOURCES_ROUTE, this->HandleClusterResources);
-    svr.Post(START_SUB_AGENT_ROUTE, this->HandleStartSubAgent);
     svr.Get(SCHEDULE_TASK_ROUTE, this->HandleScheduleTask);
     svr.Post(SCHEDULE_TASK_ROUTE, this->HandleScheduleTask);
     spdlog::info("HttpServer started success，ip:{} port:{}",this->ip, this->port);
@@ -289,50 +288,6 @@ void HttpServer::HandleClusterResources(const httplib::Request &req, httplib::Re
 
     res.status = 200;
     res.set_content(response.dump(), "application/json");
-}
-
-void HttpServer::HandleStartSubAgent(const httplib::Request &req, httplib::Response &res) {
-    auto agent_name = req.get_param_value("agent_name");
-    auto target_global_id_str = req.get_param_value("target_global_id");
-    spdlog::info("Starting the sub agent: {}", agent_name);
-    if (agent_name.empty() || target_global_id_str.empty()) {
-        res.status = 400;
-        res.set_content("Missing agent_name or target_global_id parameter", "text/plain");
-        return;
-    }
-
-    boost::uuids::string_generator gen;
-    DeviceID target_device_id;
-    try {
-        target_device_id = gen(target_global_id_str);
-    } catch (const std::exception &) {
-        res.status = 400;
-        res.set_content("invalid target_global_id", "text/plain");
-        return;
-    }
-
-    auto srv_info_opt = Docker_scheduler::startSubAgentOnDevice(agent_name, target_device_id);
-    if (!srv_info_opt.has_value()) {
-        res.status = 400;
-        res.set_content("failed to start sub agent on target node", "text/plain");
-        return;
-    }
-
-    json response;
-    response["status"] = "success";
-    response["result"] = {
-        {"agent_name", agent_name},
-        {"target_global_id", target_global_id_str},
-        {"ip_address", srv_info_opt->ip},
-        {"port", srv_info_opt->port}
-    };
-    res.status = 200;
-    res.set_content(response.dump(), "application/json");
-    spdlog::info("Sub agent started successfully, agent_name:{}, target_global_id:{}, ip:{}, port:{}",
-                 agent_name,
-                 target_global_id_str,
-                 srv_info_opt->ip,
-                 srv_info_opt->port);
 }
 
 void HttpServer::HandleScheduleTask(const httplib::Request &req, httplib::Response &res) {

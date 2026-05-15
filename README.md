@@ -5,11 +5,13 @@ nku docker-scheduler
 # AgentScheduler 单智能体流程
 
 当前仓库保留一个单智能体入口，由智能体直接完成“理解请求 -> 选择工具 -> 选择节点 -> 通过 gateway 启动/复用工具容器 -> 汇总结果”的流程，不再拆分 main/sub agent。
+Agent 内部不是完全固定流水线，也不是完全自由 ReAct；它是受约束的状态机式工具调用循环。
 
 ## 关键文件
 
 - `agent/server/agent.py`：单智能体 HTTP 服务，接口为 `POST /v1/agent/chat`，健康检查为 `GET /health`。
-- `config_files/agent_info.json`：单智能体配置，描述可调度工具、工具入口、是否需要文件、runtime 容器配置。
+- `config_files/agent_info.json`：单智能体配置，描述可调度工具、工具入口、是否需要文件等任务语义信息。
+- `config_files/static_info.json`：集群静态任务部署配置，描述各设备类型支持的任务和调度开销。
 - `agent/tools/mcp_server.py`：本地 MCP 工具入口，提供 `get_cluster_resources`、`get_task_catalog`、`run_task_on_node`。
 - `src/gateway/HttpServer.cpp`：gateway 仍负责 `/quest`、`/quest_on_node`、`/schedule_task`、`/cluster_resources`、`/register_node` 等接口。
 
@@ -35,6 +37,19 @@ MCP 工具对应为：
 - `schedule_task`
 - `run_task_auto_schedule`
 - `run_task_on_node`
+
+## 受约束 Agent Loop
+
+`agent/server/agent.py` 使用状态机限制 LLM 的下一步动作：
+
+- `S0` Task Understanding：允许 `get_task_catalog`、`get_cluster_resources`、`final_response`
+- `S1` Task Catalog Retrieved：允许 `get_cluster_resources`、`schedule_task`、`final_response`
+- `S2` Resource Retrieved：允许 `get_task_catalog`、`schedule_task`、`final_response`
+- `S3` Node Scheduled：允许 `run_task_on_node`
+- `S4` Task Executed：允许 `final_response`
+- `Error`：允许 `retry`、`schedule_task`、`run_task_on_node`、`final_response`
+
+LLM 每轮只输出一个 JSON action；代码会校验 action 是否在当前状态白名单内，并校验 `task_type`、上传文件、`target_global_id` 等参数。这样可以支持查询集群状态、查询任务目录、预调度、执行任务等多种路径，但不会让 LLM 任意调用工具。
 
 ## 单智能体接口示例
 

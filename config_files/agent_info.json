@@ -84,42 +84,6 @@
         ],
         "description": "Semantic segmentation model for image masks."
       }
-    },
-    "runtime": {
-      "RK3588": {
-        "container_name": "single_agent_qwen3_1_7b",
-        "image": "qwen3_1.7b_docker:latest",
-        "startup_timeout_sec": 180,
-        "cmds": [
-          "bash",
-          "/workspace/agent/server/start_agent.sh"
-        ],
-        "args": [],
-        "host_config_privileged": true,
-        "env": [
-          "PYTHONUNBUFFERED=1",
-          "AGENT_PORT=8082",
-          "GATEWAY_HOST=127.0.0.1",
-          "GATEWAY_PORT=6666",
-          "LLM_API_URL=http://127.0.0.1:8081/v1/chat/completions",
-          "LLM_MODEL_NAME=rkllm-default",
-          "RKLLM_MODEL_PATH=/models/Qwen3-1.7B-rk3588-w8a8.rkllm",
-          "RKLLM_TARGET_PLATFORM=rk3588"
-        ],
-        "host_config_binds": [
-          "/root/AgentScheduler/agent:/workspace/agent",
-          "/root/AgentScheduler/config_files:/workspace/config_files",
-          "/dev/dri:/dev/dri",
-          "/proc/device-tree:/proc/device-tree:ro",
-          "/root/models/Qwen3-1.7B-rk3588-w8a8.rkllm:/models/Qwen3-1.7B-rk3588-w8a8.rkllm"
-        ],
-        "devices": [],
-        "host_ip": "0.0.0.0",
-        "host_port": 8082,
-        "container_port": 8082,
-        "has_tty": false,
-        "network_config": "bridge"
-      }
     }
   }
 }

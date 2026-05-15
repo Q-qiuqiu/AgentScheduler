@@ -8,15 +8,6 @@ import uuid
 from typing import Any
 
 
-TASK_TYPE_TO_TASK_ID = {
-    "YoloV5": "YoloV5",
-    "MobileNet": "MobileNet",
-    "ResNet50": "ResNet50",
-    "Bert": "Bert",
-    "deeplabv3": "deeplabv3",
-}
-
-
 def _gateway_host() -> str:
     return os.environ.get("GATEWAY_HOST", "127.0.0.1")
 
@@ -27,6 +18,45 @@ def _gateway_port() -> str:
 
 def _gateway_url(path: str) -> str:
     return f"http://{_gateway_host()}:{_gateway_port()}{path}"
+
+
+def _default_static_info_path() -> str:
+    return os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "config_files", "static_info.json"))
+
+
+def _default_agent_info_path() -> str:
+    return os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "config_files", "agent_info.json"))
+
+
+def _load_json_config(path: str, config_name: str) -> dict[str, Any]:
+    try:
+        with open(path, "r", encoding="utf-8") as file_obj:
+            payload = json.load(file_obj)
+    except OSError as exc:
+        raise RuntimeError(f"failed to read {config_name} from {path}: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"invalid JSON in {config_name} {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"{config_name} must be a JSON object")
+    return payload
+
+
+def task_id_for(task_type: str | None) -> str:
+    if not task_type:
+        raise RuntimeError("task_type is required")
+
+    static_info_path = os.environ.get("STATIC_INFO_PATH", _default_static_info_path())
+    static_info = _load_json_config(static_info_path, "static_info.json")
+    if task_type not in static_info:
+        raise RuntimeError(f"unsupported task_type: {task_type}")
+
+    agent_info_path = os.environ.get("AGENT_INFO_PATH", _default_agent_info_path())
+    agent_info = _load_json_config(agent_info_path, "agent_info.json").get("agent", {})
+    tools = agent_info.get("tools", {}) if isinstance(agent_info, dict) else {}
+    metadata = tools.get(task_type, {}) if isinstance(tools, dict) else {}
+    if isinstance(metadata, dict):
+        return metadata.get("task_id") or metadata.get("task_type") or task_type
+    return task_type
 
 
 def _add_form_field(body: bytearray, boundary: str, key: str, value: Any) -> None:
@@ -81,8 +111,7 @@ def run_task_on_node(arguments: dict[str, Any]) -> dict[str, Any]:
     file_field_name = arguments.get("file_field_name", "image")
     fields = arguments.get("fields") or {}
 
-    if task_type not in TASK_TYPE_TO_TASK_ID:
-        raise RuntimeError(f"unsupported task_type: {task_type}")
+    task_id = task_id_for(task_type)
     if not target_global_id:
         raise RuntimeError("target_global_id is required")
     if input_path and not os.path.exists(input_path):
@@ -93,7 +122,7 @@ def run_task_on_node(arguments: dict[str, Any]) -> dict[str, Any]:
     path = os.environ.get("GATEWAY_QUEST_ON_NODE_PATH", "/quest_on_node")
     query = urllib.parse.urlencode(
         {
-            "taskid": TASK_TYPE_TO_TASK_ID[task_type],
+            "taskid": task_id,
             "target_global_id": target_global_id,
             "real_url": real_url,
         }
@@ -122,11 +151,10 @@ def run_task_on_node(arguments: dict[str, Any]) -> dict[str, Any]:
 
 def schedule_task(arguments: dict[str, Any]) -> dict[str, Any]:
     task_type = arguments.get("task_type")
-    if task_type not in TASK_TYPE_TO_TASK_ID:
-        raise RuntimeError(f"unsupported task_type: {task_type}")
+    task_id = task_id_for(task_type)
 
     path = os.environ.get("GATEWAY_SCHEDULE_TASK_PATH", "/schedule_task")
-    query = urllib.parse.urlencode({"taskid": TASK_TYPE_TO_TASK_ID[task_type]})
+    query = urllib.parse.urlencode({"taskid": task_id})
     url = f"{_gateway_url(path)}?{query}"
     request = urllib.request.Request(url, data=b"", method="POST")
     request.add_header("Content-Length", "0")
@@ -153,8 +181,7 @@ def run_task_auto_schedule(arguments: dict[str, Any]) -> dict[str, Any]:
     file_field_name = arguments.get("file_field_name", "image")
     fields = arguments.get("fields") or {}
 
-    if task_type not in TASK_TYPE_TO_TASK_ID:
-        raise RuntimeError(f"unsupported task_type: {task_type}")
+    task_id = task_id_for(task_type)
     if input_path and not os.path.exists(input_path):
         raise RuntimeError(f"input_path does not exist: {input_path}")
     if not isinstance(fields, dict):
@@ -163,7 +190,7 @@ def run_task_auto_schedule(arguments: dict[str, Any]) -> dict[str, Any]:
     path = os.environ.get("GATEWAY_QUEST_PATH", "/quest")
     query = urllib.parse.urlencode(
         {
-            "taskid": TASK_TYPE_TO_TASK_ID[task_type],
+            "taskid": task_id,
             "real_url": real_url,
         }
     )

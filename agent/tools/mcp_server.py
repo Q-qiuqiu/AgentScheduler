@@ -73,7 +73,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                 },
                 {
                     "name": GET_TASK_CATALOG_TOOL,
-                    "description": "Fetch a compact task catalog from static_info.json. Each item contains device_type, model_name, task_type, and overhead. Optionally filter by available_device_types from get_cluster_resources.",
+                    "description": "Fetch a compact task catalog from JSON config files. static_info.json provides deployment and overhead data; agent_info.json provides task metadata. Optionally filter by available_device_types from get_cluster_resources.",
                     "inputSchema": {
                         "type": "object",
                         "properties": {
@@ -91,10 +91,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                     "inputSchema": {
                         "type": "object",
                         "properties": {
-                            "task_type": {
-                                "type": "string",
-                                "enum": ["Bert", "MobileNet", "ResNet50", "YoloV5", "deeplabv3"],
-                            },
+                            "task_type": {"type": "string"},
                         },
                         "required": ["task_type"],
                         "additionalProperties": False,
@@ -106,10 +103,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                     "inputSchema": {
                         "type": "object",
                         "properties": {
-                            "task_type": {
-                                "type": "string",
-                                "enum": ["Bert", "MobileNet", "ResNet50", "YoloV5", "deeplabv3"],
-                            },
+                            "task_type": {"type": "string"},
                             "input_path": {"type": "string"},
                             "real_url": {"type": "string", "default": "predict"},
                             "file_field_name": {"type": "string", "default": "image"},
@@ -128,10 +122,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                     "inputSchema": {
                         "type": "object",
                         "properties": {
-                            "task_type": {
-                                "type": "string",
-                                "enum": ["Bert", "MobileNet", "ResNet50", "YoloV5", "deeplabv3"],
-                            },
+                            "task_type": {"type": "string"},
                             "target_global_id": {"type": "string"},
                             "input_path": {"type": "string"},
                             "real_url": {"type": "string", "default": "predict"},

@@ -24,10 +24,6 @@ is_blocking = False
 LLM_API_URL = os.environ.get("LLM_API_URL", "http://127.0.0.1:8081/v1/chat/completions")
 LLM_MODEL_NAME = os.environ.get("LLM_MODEL_NAME", "rkllm-default")
 
-DIRECT_CHAT_ROUTE = "chat"
-UNSUPPORTED_TASK_ROUTE = "unsupported_task"
-
-
 def post_json(url, payload, timeout=180):
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(url, data=body, method="POST")
@@ -98,6 +94,7 @@ def call_mcp_server(requests, timeout=60):
 
 
 def call_mcp_tool(tool_name, arguments=None, timeout=60):
+    print(f"[INFO] {tool_name} TOOL CALLED", flush=True)
     responses = call_mcp_server(
         [
             {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}},
@@ -211,51 +208,6 @@ def load_agent_info():
     return agent_info
 
 
-def compact_tools_for_selection(agent_info):
-    compact = {}
-    for name, tool in agent_info["tools"].items():
-        compact[name] = {
-            "task_type": tool.get("task_type", name),
-            "tool_kind": tool.get("tool_kind"),
-            "requires_file": bool(tool.get("requires_file")),
-            "capabilities": tool.get("capabilities", []),
-            "description": tool.get("description", ""),
-        }
-    return compact
-
-
-def build_tool_selection_messages(user_text, has_file, agent_info):
-    return [
-        {
-            "role": "system",
-            "content": (
-                "You are a single-agent tool scheduler.\n"
-                "Decide whether the user request needs one configured tool or direct chat.\n"
-                "Return JSON only with this schema:\n"
-                "{\"route\":\"chat\",\"task_type\":\"\",\"reason\":\"<short reason>\"}\n"
-                "Rules:\n"
-                "1. route must be chat, unsupported_task, or execute_tool.\n"
-                "2. task_type must be one of the provided tools when route is execute_tool.\n"
-                "3. Choose YoloV5 for image object detection.\n"
-                "4. Choose MobileNet or ResNet50 for image classification; prefer MobileNet for speed and ResNet50 for accuracy.\n"
-                "5. Choose deeplabv3 for image semantic segmentation.\n"
-                "6. Choose Bert for text classification or text understanding model execution.\n"
-                "7. If the selected tool requires a file but has_file is false, choose unsupported_task.\n"
-                "8. Choose chat for normal conversation or questions that do not need edge tool execution.\n"
-                "9. Never output anything except a single JSON object."
-            ),
-        },
-        {
-            "role": "user",
-            "content": (
-                f"user_text:\n{user_text}\n\n"
-                f"has_file:\n{json.dumps(has_file)}\n\n"
-                f"tools:\n{json.dumps(compact_tools_for_selection(agent_info), ensure_ascii=False)}"
-            ),
-        },
-    ]
-
-
 def route_by_rules(user_text, has_file):
     normalized_text = user_text.lower()
     wants_text_model = bool(re.search(r"文本分类|句子分类|语义匹配|文本理解|classify text|text classification|bert", normalized_text))
@@ -267,7 +219,7 @@ def route_by_rules(user_text, has_file):
         return {"route": "execute_tool", "task_type": "Bert", "reason": "matched text model request", "_usage": zero_usage()}
     if wants_segmentation:
         return {
-            "route": "execute_tool" if has_file else UNSUPPORTED_TASK_ROUTE,
+            "route": "execute_tool" if has_file else "unsupported_task",
             "task_type": "deeplabv3" if has_file else "",
             "reason": "matched image segmentation request" if has_file else "image segmentation requires an uploaded image",
             "_usage": zero_usage(),
@@ -281,120 +233,6 @@ def route_by_rules(user_text, has_file):
 
 def zero_usage():
     return {"prompt_tokens": 0, "completion_tokens": 0}
-
-
-def select_route(user_text, has_file, forced_task_type=None):
-    agent_info = load_agent_info()
-    tools = agent_info["tools"]
-    if forced_task_type:
-        if forced_task_type not in tools:
-            raise RuntimeError(f"unsupported task_type: {forced_task_type}")
-        if tools[forced_task_type].get("requires_file") and not has_file:
-            return {"route": UNSUPPORTED_TASK_ROUTE, "task_type": "", "reason": f"{forced_task_type} requires an uploaded file", "_usage": zero_usage()}
-        return {"route": "execute_tool", "task_type": forced_task_type, "reason": "task_type explicitly requested by client", "_usage": zero_usage()}
-
-    rule_route = route_by_rules(user_text, has_file)
-    if rule_route is not None:
-        return rule_route
-
-    try:
-        model_result = call_llm(build_tool_selection_messages(user_text, has_file, agent_info))
-        selection = parse_json_object(model_result["content"])
-    except Exception as exc:
-        print(f"tool route selection failed: {exc}", flush=True)
-        return {"route": DIRECT_CHAT_ROUTE, "task_type": "", "reason": "route model failed; fallback to direct chat", "_usage": zero_usage()}
-
-    route = selection.get("route", DIRECT_CHAT_ROUTE)
-    task_type = selection.get("task_type", "")
-    if route == "execute_tool":
-        if task_type not in tools:
-            route = DIRECT_CHAT_ROUTE
-            task_type = ""
-            selection["reason"] = "model selected an unsupported task; fallback to direct chat"
-        elif tools[task_type].get("requires_file") and not has_file:
-            route = UNSUPPORTED_TASK_ROUTE
-            task_type = ""
-            selection["reason"] = "selected tool requires an uploaded file"
-    elif route not in {DIRECT_CHAT_ROUTE, UNSUPPORTED_TASK_ROUTE}:
-        route = DIRECT_CHAT_ROUTE
-        task_type = ""
-        selection["reason"] = "model selected an unsupported route; fallback to direct chat"
-
-    selection["route"] = route
-    selection["task_type"] = task_type
-    selection["_usage"] = {
-        "prompt_tokens": model_result["prompt_tokens"],
-        "completion_tokens": model_result["completion_tokens"],
-    }
-    return selection
-
-
-def build_direct_chat_messages(user_text, reason=None):
-    return [
-        {
-            "role": "system",
-            "content": (
-                "You are a single edge scheduling agent.\n"
-                "Answer the user directly in concise natural Chinese.\n"
-                "Do not mention JSON, internal routes, node ids, or debug details."
-            ),
-        },
-        {"role": "user", "content": f"user_text:\n{user_text}\n\nroute_reason:\n{reason or 'direct chat'}"},
-    ]
-
-
-def make_direct_chat_answer(user_text, reason=None):
-    model_result = call_llm(build_direct_chat_messages(user_text, reason))
-    return model_result["content"].strip(), model_result
-
-
-def execute_with_gateway_scheduler(task_type, user_text, input_path, text_fields):
-    agent_info = load_agent_info()
-    tool_profile = agent_info["tools"][task_type]
-    cluster_resources = json.loads(call_mcp_tool("get_cluster_resources", timeout=30))
-    available_device_types = sorted(
-        {
-            node.get("type")
-            for node in cluster_resources.get("result", [])
-            if isinstance(node, dict) and node.get("type")
-        }
-    )
-    task_catalog = json.loads(call_mcp_tool("get_task_catalog", {"available_device_types": available_device_types}, timeout=30))
-    if not any(item.get("task_type") == task_type for item in task_catalog.get("result", []) if isinstance(item, dict)):
-        raise RuntimeError(f"task_type {task_type} is not available on the current cluster")
-
-    schedule_result = json.loads(call_mcp_tool("schedule_task", {"task_type": task_type}, timeout=30))
-    scheduled_node = schedule_result.get("result", {})
-    target_global_id = scheduled_node.get("target_global_id")
-    if not target_global_id:
-        raise RuntimeError(f"gateway scheduler did not return target_global_id: {schedule_result}")
-
-    fields = dict(text_fields)
-    fields.setdefault("text", user_text)
-    tool_result = json.loads(
-        call_mcp_tool(
-            "run_task_on_node",
-            {
-                "task_type": task_type,
-                "target_global_id": target_global_id,
-                "input_path": input_path,
-                "real_url": tool_profile.get("real_url", "predict"),
-                "file_field_name": tool_profile.get("file_field_name", "image"),
-                "fields": fields,
-            },
-            timeout=150,
-        )
-    )
-    return {
-        "selected_execution": {
-            "task_type": task_type,
-            "target_global_id": target_global_id,
-            "real_url": tool_profile.get("real_url", "predict"),
-            "scheduled_node": scheduled_node,
-        },
-        "tool_result": tool_result,
-        "startup_failures": [],
-    }
 
 
 def build_result_summary_messages(user_text, selected_execution, tool_result):
@@ -473,6 +311,341 @@ def summarize_result(user_text, selected_execution, tool_result):
     return content, model_result
 
 
+STATE_ALLOWED_ACTIONS = {
+    "S0": {"get_task_catalog", "get_cluster_resources", "final_response"},
+    "S1": {"get_cluster_resources", "schedule_task", "final_response"},
+    "S2": {"get_task_catalog", "schedule_task", "final_response"},
+    "S3": {"run_task_on_node"},
+    "S4": {"final_response"},
+    "Error": {"retry", "schedule_task", "run_task_on_node", "final_response"},
+}
+
+ACTION_TIMEOUTS = {
+    "get_task_catalog": 30,
+    "get_cluster_resources": 30,
+    "schedule_task": 30,
+    "run_task_on_node": 150,
+}
+
+MAX_AGENT_STEPS = 8
+
+
+def infer_task_type_by_rules(user_text, has_file):
+    route = route_by_rules(user_text, has_file)
+    if route and route.get("route") == "execute_tool":
+        return route.get("task_type")
+    return None
+
+
+def compact_agent_context(context):
+    compact = {}
+    for key, value in context.items():
+        if key == "input_path":
+            compact[key] = "<uploaded_file>" if value else None
+        elif key in {"cluster_resources", "task_catalog"}:
+            compact[key] = value
+        elif key == "tool_result":
+            compact[key] = redact_large_binary_fields(value)
+        else:
+            compact[key] = value
+    return compact
+
+
+def build_constrained_action_messages(user_text, has_file, state, context, allowed_actions):
+    return [
+        {
+            "role": "system",
+            "content": (
+                "You are a constrained tool-calling edge agent.\n"
+                "You must choose exactly one next action from allowed_actions.\n"
+                "Return JSON only with this schema:\n"
+                "{\"action\":\"get_task_catalog\",\"arguments\":{},\"reason\":\"<short reason>\"}\n"
+                "State meanings:\n"
+                "S0 Task Understanding; S1 Task Catalog Retrieved; S2 Resource Retrieved; "
+                "S3 Node Scheduled; S4 Task Executed; S5 Final Response; Error Recovery.\n"
+                "Tool intent:\n"
+                "get_task_catalog gets supported task/model config from JSON config files; call it before choosing an unknown task_type.\n"
+                "get_cluster_resources gets live cluster resource state.\n"
+                "schedule_task asks gateway scheduler to choose a node for a task_type.\n"
+                "run_task_on_node runs the selected task on the scheduled node.\n"
+                "final_response ends the loop and answers the user.\n"
+                "Rules:\n"
+                "1. Never choose an action outside allowed_actions.\n"
+                "2. For schedule_task, include arguments.task_type from task_catalog or a client-forced task_type.\n"
+                "3. For image/file tools, only schedule them when has_file is true.\n"
+                "4. If the user only asks about cluster status, call get_cluster_resources then final_response.\n"
+                "5. If the user asks supported task types or models, call get_task_catalog then final_response.\n"
+                "6. If execution is needed, retrieve missing catalog/resources before scheduling when useful.\n"
+                "7. Never invent node ids, model outputs, or cluster status."
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"user_text:\n{user_text}\n\n"
+                f"has_file:\n{json.dumps(has_file)}\n\n"
+                f"state:\n{state}\n\n"
+                f"allowed_actions:\n{json.dumps(sorted(allowed_actions), ensure_ascii=False)}\n\n"
+                f"context:\n{json.dumps(compact_agent_context(context), ensure_ascii=False)}"
+            ),
+        },
+    ]
+
+
+def choose_constrained_action(user_text, has_file, state, context):
+    allowed_actions = STATE_ALLOWED_ACTIONS[state]
+    model_result = call_llm(build_constrained_action_messages(user_text, has_file, state, context, allowed_actions))
+    try:
+        action_payload = parse_json_object(model_result["content"])
+    except Exception as exc:
+        raise RuntimeError(f"action model returned invalid JSON: {exc}") from exc
+
+    action = action_payload.get("action")
+    if action not in allowed_actions:
+        if action == "get_task_catalog" and context.get("task_catalog") and "final_response" in allowed_actions:
+            return "final_response", {}, "task catalog already retrieved; answer from context", model_result
+        if action == "get_cluster_resources" and context.get("cluster_resources") and "final_response" in allowed_actions:
+            return "final_response", {}, "cluster resources already retrieved; answer from context", model_result
+        raise RuntimeError(f"action {action} is not allowed in state {state}; allowed={sorted(allowed_actions)}")
+    arguments = action_payload.get("arguments") or {}
+    if not isinstance(arguments, dict):
+        raise RuntimeError("action arguments must be an object")
+    return action, arguments, action_payload.get("reason", ""), model_result
+
+
+def next_state_after_action(state, action):
+    if action == "get_task_catalog":
+        return "S1"
+    if action == "get_cluster_resources":
+        return "S2"
+    if action == "schedule_task":
+        return "S3"
+    if action == "run_task_on_node":
+        return "S4"
+    if action == "final_response":
+        return "S5"
+    if action == "retry":
+        return "S0"
+    return state
+
+
+def resolve_task_type(arguments, context):
+    task_type = arguments.get("task_type") or context.get("task_type") or context.get("inferred_task_type")
+    if not task_type:
+        raise RuntimeError("task_type is required for this action")
+    task_catalog = context.get("task_catalog")
+    if isinstance(task_catalog, dict):
+        available_task_types = {
+            item.get("task_type")
+            for item in task_catalog.get("result", [])
+            if isinstance(item, dict) and item.get("task_type")
+        }
+        if available_task_types and task_type not in available_task_types:
+            raise RuntimeError(f"task_type {task_type} is not available in current task catalog")
+    return task_type
+
+
+def get_task_catalog_entry(task_type, context):
+    task_catalog = context.get("task_catalog")
+    if isinstance(task_catalog, dict):
+        for item in task_catalog.get("result", []):
+            if isinstance(item, dict) and item.get("task_type") == task_type:
+                return item
+    return {}
+
+
+def get_configured_tool_metadata(task_type):
+    return load_agent_info().get("tools", {}).get(task_type, {})
+
+
+def validate_task_input_requirements(task_type, has_file, context=None):
+    catalog_entry = get_task_catalog_entry(task_type, context or {})
+    tool_metadata = catalog_entry or get_configured_tool_metadata(task_type)
+    if tool_metadata.get("requires_file") and not has_file:
+        raise RuntimeError(f"{task_type} requires an uploaded image/file")
+
+
+def get_execution_metadata(task_type, context):
+    catalog_entry = get_task_catalog_entry(task_type, context)
+    configured_metadata = get_configured_tool_metadata(task_type)
+    return {
+        "real_url": catalog_entry.get("real_url") or configured_metadata.get("real_url") or "predict",
+        "file_field_name": catalog_entry.get("file_field_name") or configured_metadata.get("file_field_name") or "image",
+    }
+
+
+def run_constrained_tool_action(action, arguments, context, user_text, has_file, text_fields, input_path):
+    if action == "get_cluster_resources":
+        return json.loads(call_mcp_tool("get_cluster_resources", timeout=ACTION_TIMEOUTS[action]))
+
+    if action == "get_task_catalog":
+        available_device_types = None
+        cluster_resources = context.get("cluster_resources")
+        if isinstance(cluster_resources, dict):
+            available_device_types = sorted(
+                {
+                    node.get("type")
+                    for node in cluster_resources.get("result", [])
+                    if isinstance(node, dict) and node.get("type")
+                }
+            )
+        args = {}
+        if available_device_types:
+            args["available_device_types"] = available_device_types
+        return json.loads(call_mcp_tool("get_task_catalog", args, timeout=ACTION_TIMEOUTS[action]))
+
+    if action == "schedule_task":
+        task_type = resolve_task_type(arguments, context)
+        validate_task_input_requirements(task_type, has_file, context)
+        context["task_type"] = task_type
+        return json.loads(call_mcp_tool("schedule_task", {"task_type": task_type}, timeout=ACTION_TIMEOUTS[action]))
+
+    if action == "run_task_on_node":
+        task_type = resolve_task_type(arguments, context)
+        validate_task_input_requirements(task_type, has_file, context)
+        execution_metadata = get_execution_metadata(task_type, context)
+        scheduled_node = context.get("scheduled_node") or {}
+        target_global_id = arguments.get("target_global_id") or scheduled_node.get("target_global_id")
+        if not target_global_id:
+            raise RuntimeError("run_task_on_node requires a scheduled target_global_id")
+        fields = dict(text_fields)
+        fields.setdefault("text", user_text)
+        return json.loads(
+            call_mcp_tool(
+                "run_task_on_node",
+                {
+                    "task_type": task_type,
+                    "target_global_id": target_global_id,
+                    "input_path": input_path,
+                    "real_url": execution_metadata["real_url"],
+                    "file_field_name": execution_metadata["file_field_name"],
+                    "fields": fields,
+                },
+                timeout=ACTION_TIMEOUTS[action],
+            )
+        )
+
+    if action == "retry":
+        return {"status": "retry"}
+
+    raise RuntimeError(f"unsupported action executor: {action}")
+
+
+def build_loop_final_messages(user_text, context, trace=None):
+    user_content = f"user_text:\n{user_text}\n\ncontext:\n{json.dumps(compact_agent_context(context), ensure_ascii=False)}"
+    if trace is not None:
+        user_content = f"{user_content}\n\ntrace:\n{json.dumps(trace, ensure_ascii=False)}"
+
+    return [
+        {
+            "role": "system",
+            "content": (
+                "You are the final response generator for a constrained edge agent.\n"
+                "Answer in concise natural Chinese.\n"
+                "Use only the provided context.\n"
+                "Do not expose internal JSON unless the user explicitly asks for raw data.\n"
+                "For cluster status, summarize each node and resource usage.\n"
+                "For task catalog, summarize supported task types/models by device type.\n"
+                "For executed tasks, summarize the actual tool result."
+            ),
+        },
+        {"role": "user", "content": user_content},
+    ]
+
+
+def make_loop_final_response(user_text, context, trace, include_trace=False):
+    if context.get("tool_result") and context.get("selected_execution"):
+        return summarize_result(user_text, context["selected_execution"], context["tool_result"])
+    model_result = call_llm(build_loop_final_messages(user_text, context, trace if include_trace else None))
+    return model_result["content"].strip(), model_result
+
+
+def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, forced_task_type=None, debug_response=False):
+    if forced_task_type:
+        if not get_configured_tool_metadata(forced_task_type):
+            raise RuntimeError(f"unsupported task_type: {forced_task_type}")
+        validate_task_input_requirements(forced_task_type, has_file)
+    context = {
+        "has_file": has_file,
+        "input_path": input_path,
+        "inferred_task_type": forced_task_type or infer_task_type_by_rules(user_text, has_file),
+    }
+    trace = []
+    state = "S0"
+    total_usage = zero_usage()
+
+    for _ in range(MAX_AGENT_STEPS):
+        try:
+            action, arguments, reason, usage = choose_constrained_action(user_text, has_file, state, context)
+        except Exception as exc:
+            context["last_error"] = str(exc)
+            if state == "S0" and context.get("inferred_task_type"):
+                action, arguments, reason, usage = "get_task_catalog", {}, "fallback after invalid model action", zero_usage()
+            elif state in {"S1", "S2"} and context.get("inferred_task_type"):
+                action, arguments, reason, usage = "schedule_task", {"task_type": context["inferred_task_type"]}, "fallback after invalid model action", zero_usage()
+            elif state == "S3":
+                action, arguments, reason, usage = "run_task_on_node", {}, "fallback after invalid model action", zero_usage()
+            else:
+                final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
+                total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
+                total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
+                total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
+                return final_message, context, trace, total_usage
+        total_usage["prompt_tokens"] += usage.get("prompt_tokens", 0)
+        total_usage["completion_tokens"] += usage.get("completion_tokens", 0)
+        trace_item = {
+            "state": state,
+            "action": action,
+            "arguments": arguments,
+            "reason": reason,
+        }
+
+        if action == "final_response":
+            final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
+            total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
+            total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
+            total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
+            return final_message, context, trace, total_usage
+
+        try:
+            result = run_constrained_tool_action(action, arguments, context, user_text, has_file, text_fields, input_path)
+            trace_item["result"] = redact_large_binary_fields(result)
+            if action == "get_cluster_resources":
+                context["cluster_resources"] = result
+            elif action == "get_task_catalog":
+                context["task_catalog"] = result
+            elif action == "schedule_task":
+                context["schedule_result"] = result
+                context["scheduled_node"] = result.get("result", {})
+                context["task_type"] = resolve_task_type(arguments, context)
+            elif action == "run_task_on_node":
+                context["tool_result"] = result
+                scheduled_node = context.get("scheduled_node", {})
+                task_type = context.get("task_type") or context.get("inferred_task_type")
+                context["selected_execution"] = {
+                    "task_type": task_type,
+                    "target_global_id": scheduled_node.get("target_global_id"),
+                    "scheduled_node": scheduled_node,
+                    "real_url": get_execution_metadata(task_type, context)["real_url"],
+                }
+            state = next_state_after_action(state, action)
+        except Exception as exc:
+            trace_item["error"] = str(exc)
+            context["last_error"] = str(exc)
+            state = "Error"
+
+        trace.append(trace_item)
+
+        if state == "S5":
+            final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
+            total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
+            total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
+            total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
+            return final_message, context, trace, total_usage
+
+    raise RuntimeError(f"agent loop exceeded {MAX_AGENT_STEPS} steps; trace={trace}")
+
+
 def get_forced_task_type(text_fields):
     forced_task_type = (text_fields.get("task_type") or text_fields.get("tool") or "").strip()
     return forced_task_type or None
@@ -532,57 +705,28 @@ def agent_chat():
         if has_file:
             temp_input_path = save_uploaded_file(uploaded_file)
 
-        route_selection = select_route(user_text, has_file, forced_task_type)
-        route = route_selection["route"]
-        if route in {DIRECT_CHAT_ROUTE, UNSUPPORTED_TASK_ROUTE}:
-            final_message, final_usage = make_direct_chat_answer(user_text, route_selection.get("reason", ""))
-            response_payload = {
-                "object": "agent.chat",
-                "message": final_message,
-            }
-            if debug_response:
-                prompt_tokens = route_selection["_usage"]["prompt_tokens"] + final_usage.get("prompt_tokens", 0)
-                completion_tokens = route_selection["_usage"]["completion_tokens"] + final_usage.get("completion_tokens", 0)
-                response_payload.update({
-                    "route_selection": {
-                        "route": route,
-                        "reason": route_selection.get("reason", ""),
-                    },
-                    "usage": {
-                        "prompt_tokens": prompt_tokens,
-                        "completion_tokens": completion_tokens,
-                        "total_tokens": prompt_tokens + completion_tokens,
-                    },
-                })
-            return Response(json.dumps(response_payload, ensure_ascii=False), content_type="application/json")
+        final_message, loop_context, loop_trace, usage = run_constrained_agent_loop(
+            user_text,
+            has_file,
+            temp_input_path,
+            text_fields,
+            forced_task_type,
+            debug_response,
+        )
 
-        task_type = route_selection["task_type"]
-        execution = execute_with_gateway_scheduler(task_type, user_text, temp_input_path, text_fields)
-        final_message, summary_usage = summarize_result(user_text, execution["selected_execution"], execution["tool_result"])
-
-        prompt_tokens = route_selection["_usage"]["prompt_tokens"] + summary_usage.get("prompt_tokens", 0)
-        completion_tokens = route_selection["_usage"]["completion_tokens"] + summary_usage.get("completion_tokens", 0)
         response_payload = {
             "object": "agent.chat",
             "message": final_message,
         }
-        if execution["tool_result"].get("result_image"):
-            response_payload["result_image"] = execution["tool_result"]["result_image"]
+        tool_result = loop_context.get("tool_result")
+        if isinstance(tool_result, dict) and tool_result.get("result_image"):
+            response_payload["result_image"] = tool_result["result_image"]
         if debug_response:
             response_payload.update({
-                "route_selection": {
-                    "route": route_selection["route"],
-                    "task_type": task_type,
-                    "reason": route_selection.get("reason", ""),
-                },
-                "selected_execution": execution["selected_execution"],
-                "tool_result": redact_large_binary_fields(execution["tool_result"]),
-                "startup_failures": execution["startup_failures"],
-                "usage": {
-                    "prompt_tokens": prompt_tokens,
-                    "completion_tokens": completion_tokens,
-                    "total_tokens": prompt_tokens + completion_tokens,
-                },
+                "agent_mode": "constrained_react_loop",
+                "final_state_context": compact_agent_context(loop_context),
+                "trace": loop_trace,
+                "usage": usage,
             })
         return Response(json.dumps(response_payload, ensure_ascii=False), content_type="application/json")
     except Exception as exc:
