@@ -6,6 +6,7 @@ Minimal MCP server over `stdio` that exposes tools backed by separate modules:
 
 - `get_cluster_resources`
 - `get_task_catalog`
+- `get_task_overhead`
 - `schedule_task`
 - `run_task_auto_schedule`
 - `run_task_on_node`
@@ -14,6 +15,7 @@ Implementation modules:
 
 - `get_cluster_resources_tool.py`
 - `get_task_catalog_tool.py`
+- `get_task_overhead_tool.py`
 - `schedule_task_tool.py`
 - `run_task_auto_schedule_tool.py`
 - `run_task_on_node_tool.py`
@@ -46,6 +48,13 @@ It returns a flat list of items shaped like:
 Scheduler-only overhead fields from `static_info.json` are intentionally not returned to the agent.
 
 It can also be filtered by `available_device_types` so only models matching currently available node platforms are returned.
+
+`get_task_overhead` reads scheduler-only overhead data from `static_info.json`. It supports optional filters:
+
+- `task_type`: for example `YoloV5`, `MobileNet`, `ResNet50`, `Bert`, or `deeplabv3`
+- `device_type`: for example `RK3588`, `ATLAS_L`, or `ATLAS_H`
+
+It returns `proc_time`, `mem_usage`, `cpu_usage`, and `xpu_usage` only when explicitly requested through this dedicated tool.
 
 The default execution settings for `run_task_on_node` are:
 

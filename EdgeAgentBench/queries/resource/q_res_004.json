@@ -1,0 +1,5 @@
+{
+    "query_id": "q_res_004",
+    "query": "在RK3588上启动yolo需要多少资源？",
+    "expected_task": "resource_query"
+}

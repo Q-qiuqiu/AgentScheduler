@@ -1,5 +1,5 @@
 {
     "query_id": "q_res_002",
     "query": "当前系统支持哪些 AI 任务？",
-    "expected_task": "catalog_query"
+    "expected_task": "resource_query"
 }

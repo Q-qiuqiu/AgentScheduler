@@ -1,0 +1,10 @@
+{
+    "query_id": "q_det_005",
+    "query": "不要使用节点ATLAS_H，使用其他节点完成这张图片的目标检测",
+    "expected_task": "object_detection",
+    "constraints": {
+        "exclude_nodes": [
+            "ATLAS_H"
+        ]
+    }
+}

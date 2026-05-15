@@ -1,0 +1,5 @@
+{
+    "query_id": "q_res_003",
+    "query": "当前系统的资源使用情况如何？",
+    "expected_task": "resource_query"
+}

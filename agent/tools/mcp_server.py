@@ -5,6 +5,7 @@ from typing import Any
 
 from get_cluster_resources_tool import get_cluster_resources
 from get_task_catalog_tool import get_task_catalog
+from get_task_overhead_tool import get_task_overhead
 from run_task_auto_schedule_tool import run_task_auto_schedule
 from run_task_on_node_tool import run_task_on_node
 from schedule_task_tool import schedule_task
@@ -12,6 +13,7 @@ from schedule_task_tool import schedule_task
 
 GET_CLUSTER_RESOURCES_TOOL = "get_cluster_resources"
 GET_TASK_CATALOG_TOOL = "get_task_catalog"
+GET_TASK_OVERHEAD_TOOL = "get_task_overhead"
 SCHEDULE_TASK_TOOL = "schedule_task"
 RUN_TASK_ON_NODE_TOOL = "run_task_on_node"
 RUN_TASK_AUTO_SCHEDULE_TOOL = "run_task_auto_schedule"
@@ -88,6 +90,18 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                     },
                 },
                 {
+                    "name": GET_TASK_OVERHEAD_TOOL,
+                    "description": "Fetch scheduler-only task overhead data from static_info.json. Use this only when the user explicitly asks for resource cost, overhead, or startup/resource requirements for a task on a device type.",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "task_type": {"type": "string"},
+                            "device_type": {"type": "string"},
+                        },
+                        "additionalProperties": False,
+                    },
+                },
+                {
                     "name": SCHEDULE_TASK_TOOL,
                     "description": "Ask the gateway scheduler to select the best target board for a task_type. This does not start the tool container or run inference.",
                     "inputSchema": {
@@ -152,6 +166,8 @@ def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]
             return tool_response_text(get_cluster_resources(arguments), request_id)
         if name == GET_TASK_CATALOG_TOOL:
             return tool_response_text(get_task_catalog(arguments), request_id)
+        if name == GET_TASK_OVERHEAD_TOOL:
+            return tool_response_text(get_task_overhead(arguments), request_id)
         if name == SCHEDULE_TASK_TOOL:
             return tool_response_text(schedule_task(arguments), request_id)
         if name == RUN_TASK_AUTO_SCHEDULE_TOOL:

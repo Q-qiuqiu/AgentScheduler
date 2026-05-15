@@ -1,5 +1,5 @@
 {
     "query_id": "q_txt_003",
-    "query": "选择 CPU 压力较小的节点处理这段文本",
+    "query": "布加迪威龙是世界上最快的跑车，帮我对这句话做文本分类",
     "expected_task": "text_classification"
 }

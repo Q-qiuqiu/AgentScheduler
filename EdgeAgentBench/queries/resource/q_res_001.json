@@ -1,5 +1,5 @@
 {
     "query_id": "q_res_001",
-    "query": "当前哪个开发板最空闲？",
+    "query": "当前系统内有多少个节点？",
     "expected_task": "resource_query"
 }

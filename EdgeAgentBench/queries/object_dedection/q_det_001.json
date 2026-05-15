@@ -1,5 +1,5 @@
 {
-    "query_id": "q_cls_001",
-    "query": "请对这张图片进行分类",
-    "expected_task": "image_classification"
+    "query_id": "q_det_001",
+    "query": "请对这张图片进行目标检测",
+    "expected_task": "object_detection"
 }

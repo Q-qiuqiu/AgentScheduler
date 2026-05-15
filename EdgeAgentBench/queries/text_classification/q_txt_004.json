@@ -1,0 +1,5 @@
+{
+    "query_id": "q_txt_004",
+    "query": "一个人如果拥有了强健的体魄，坚定的信念，就一定会成功，帮我对这句话做文本分类",
+    "expected_task": "text_classification"
+}

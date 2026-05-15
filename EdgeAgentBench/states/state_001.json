@@ -1,50 +1,70 @@
 {
   "state_id": "state_001",
-  "description": "RK3588_1 资源较空闲，适合执行图像分类任务",
+  "description": "全局低负载，RK3588_1 已预热图像分类容器，适合验证低负载下的热容器优先策略",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.25,
-      "mem_used": 0.40,
-      "npu_used": 0.20,
-      "support_tasks": ["image_classification", "text_classification"],
-      "ready_containers": ["image_classification"],
-      "network_latency": 0.10
+      "cpu_used": 0.18,
+      "mem_used": 0.24,
+      "npu_used": 0.16,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "image_classification"
+      ],
+      "network_latency": 1
     },
     {
       "node_id": "RK3588_2",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.70,
-      "mem_used": 0.65,
-      "npu_used": 0.80,
-      "support_tasks": ["image_classification", "semantic_segmentation"],
+      "cpu_used": 0.22,
+      "mem_used": 0.28,
+      "npu_used": 0.2,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
       "ready_containers": [],
-      "network_latency": 0.20
+      "network_latency": 1
     },
     {
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.55,
-      "mem_used": 0.50,
-      "npu_used": 0.35,
-      "support_tasks": ["semantic_segmentation"],
-      "ready_containers": ["semantic_segmentation"],
-      "network_latency": 0.15
+      "cpu_used": 0.2,
+      "mem_used": 0.3,
+      "npu_used": 0.18,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [
+        "semantic_segmentation"
+      ],
+      "network_latency": 1
     },
     {
       "node_id": "ATLAS_H",
       "platform": "Orange Pi aipro",
       "online": true,
-      "cpu_used": 0.55,
-      "mem_used": 0.50,
-      "npu_used": 0.35,
-      "support_tasks": ["semantic_segmentation"],
-      "ready_containers": ["semantic_segmentation"],
-      "network_latency": 0.15
+      "cpu_used": 0.16,
+      "mem_used": 0.22,
+      "npu_used": 0.14,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
     }
   ]
 }

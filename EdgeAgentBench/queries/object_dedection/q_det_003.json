@@ -1,0 +1,5 @@
+{
+    "query_id": "q_det_003",
+    "query": "用当前最合适的开发板跑一下目标检测任务",
+    "expected_task": "object_detection"
+}

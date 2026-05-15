@@ -1,0 +1,5 @@
+{
+    "query_id": "q_det_002",
+    "query": "帮我对这张图片进行检测，告诉我物体的位置",
+    "expected_task": "object_detection"
+}

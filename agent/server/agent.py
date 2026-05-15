@@ -312,16 +312,17 @@ def summarize_result(user_text, selected_execution, tool_result):
 
 
 STATE_ALLOWED_ACTIONS = {
-    "S0": {"get_task_catalog", "get_cluster_resources", "final_response"},
-    "S1": {"get_cluster_resources", "schedule_task", "final_response"},
-    "S2": {"get_task_catalog", "schedule_task", "final_response"},
+    "S0": {"get_task_catalog", "get_task_overhead", "get_cluster_resources", "final_response"},
+    "S1": {"get_cluster_resources", "get_task_overhead", "schedule_task", "final_response"},
+    "S2": {"get_task_catalog", "get_task_overhead", "schedule_task", "final_response"},
     "S3": {"run_task_on_node"},
     "S4": {"final_response"},
-    "Error": {"retry", "schedule_task", "run_task_on_node", "final_response"},
+    "Error": {"retry", "get_task_overhead", "schedule_task", "run_task_on_node", "final_response"},
 }
 
 ACTION_TIMEOUTS = {
     "get_task_catalog": 30,
+    "get_task_overhead": 30,
     "get_cluster_resources": 30,
     "schedule_task": 30,
     "run_task_on_node": 150,
@@ -365,6 +366,7 @@ def build_constrained_action_messages(user_text, has_file, state, context, allow
                 "S3 Node Scheduled; S4 Task Executed; S5 Final Response; Error Recovery.\n"
                 "Tool intent:\n"
                 "get_task_catalog gets supported task/model config from JSON config files; call it before choosing an unknown task_type.\n"
+                "get_task_overhead gets scheduler-only task overhead/resource-cost data when the user explicitly asks resource cost or startup requirements.\n"
                 "get_cluster_resources gets live cluster resource state.\n"
                 "schedule_task asks gateway scheduler to choose a node for a task_type.\n"
                 "run_task_on_node runs the selected task on the scheduled node.\n"
@@ -375,8 +377,9 @@ def build_constrained_action_messages(user_text, has_file, state, context, allow
                 "3. For image/file tools, only schedule them when has_file is true.\n"
                 "4. If the user only asks about cluster status, call get_cluster_resources then final_response.\n"
                 "5. If the user asks supported task types or models, call get_task_catalog then final_response.\n"
-                "6. If execution is needed, retrieve missing catalog/resources before scheduling when useful.\n"
-                "7. Never invent node ids, model outputs, or cluster status."
+                "6. If the user asks overhead, resource cost, or startup requirements for a task, call get_task_overhead then final_response.\n"
+                "7. If execution is needed, retrieve missing catalog/resources before scheduling when useful.\n"
+                "8. Never invent node ids, model outputs, overhead data, or cluster status."
             ),
         },
         {
@@ -431,6 +434,8 @@ def choose_constrained_action(user_text, has_file, state, context):
 
 def next_state_after_action(state, action):
     if action == "get_task_catalog":
+        return "S1"
+    if action == "get_task_overhead":
         return "S1"
     if action == "get_cluster_resources":
         return "S2"
@@ -510,6 +515,9 @@ def run_constrained_tool_action(action, arguments, context, user_text, has_file,
             args["available_device_types"] = available_device_types
         return json.loads(call_mcp_tool("get_task_catalog", args, timeout=ACTION_TIMEOUTS[action]))
 
+    if action == "get_task_overhead":
+        return json.loads(call_mcp_tool("get_task_overhead", arguments, timeout=ACTION_TIMEOUTS[action]))
+
     if action == "schedule_task":
         task_type = resolve_task_type(arguments, context)
         validate_task_input_requirements(task_type, has_file, context)
@@ -562,6 +570,7 @@ def build_loop_final_messages(user_text, context, trace=None):
                 "Do not expose internal JSON unless the user explicitly asks for raw data.\n"
                 "For cluster status, summarize each node and resource usage.\n"
                 "For task catalog, summarize supported task types/models by device type.\n"
+                "For task overhead, summarize proc_time, mem_usage, cpu_usage, and xpu_usage by task and device type.\n"
                 "For executed tasks, summarize the actual tool result."
             ),
         },
@@ -630,6 +639,8 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
                 context["cluster_resources"] = result
             elif action == "get_task_catalog":
                 context["task_catalog"] = result
+            elif action == "get_task_overhead":
+                context["task_overhead"] = result
             elif action == "schedule_task":
                 context["schedule_result"] = result
                 context["scheduled_node"] = result.get("result", {})
