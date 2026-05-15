@@ -12,9 +12,15 @@ Minimal MCP server over `stdio` that exposes tools backed by separate modules:
 
 Implementation modules:
 
-- `cluster_resource_tool.py`
-- `task_catalog_tool.py`
-- `tool_execute_tool.py`
+- `get_cluster_resources_tool.py`
+- `get_task_catalog_tool.py`
+- `schedule_task_tool.py`
+- `run_task_auto_schedule_tool.py`
+- `run_task_on_node_tool.py`
+
+Shared helpers that are not MCP tools:
+
+- `tool_common.py`
 
 The tool reads cluster state from the gateway HTTP API:
 
@@ -23,14 +29,21 @@ The tool reads cluster state from the gateway HTTP API:
 
 `get_task_catalog` reads compact task metadata from:
 
-- default file: `/root/AgentScheduler/config_files/static_info.json`
+- task metadata file: `/root/AgentScheduler/config_files/agent_info.json`
 
 It returns a flat list of items shaped like:
 
 - `device_type`
 - `model_name`
 - `task_type`
-- `overhead`
+- `tool_kind`
+- `requires_file`
+- `file_field_name`
+- `real_url`
+- `capabilities`
+- `description`
+
+Scheduler-only overhead fields from `static_info.json` are intentionally not returned to the agent.
 
 It can also be filtered by `available_device_types` so only models matching currently available node platforms are returned.
 
@@ -55,7 +68,11 @@ Optional environment variables:
 - `GATEWAY_HOST`
 - `GATEWAY_PORT`
 - `GATEWAY_CLUSTER_RESOURCES_PATH`
+- `GATEWAY_SCHEDULE_TASK_PATH`
+- `GATEWAY_QUEST_PATH`
 - `GATEWAY_QUEST_ON_NODE_PATH`
+- `STATIC_INFO_PATH`
+- `AGENT_INFO_PATH`
 
 Run manually:
 

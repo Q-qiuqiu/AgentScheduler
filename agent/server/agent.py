@@ -402,6 +402,12 @@ def choose_constrained_action(user_text, has_file, state, context):
 
     action = action_payload.get("action")
     if action not in allowed_actions:
+        if context.get("inferred_task_type") and not context.get("tool_result"):
+            task_type = context["inferred_task_type"]
+            if state in {"S1", "S2"} and "schedule_task" in allowed_actions:
+                return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
+            if state == "S3" and "run_task_on_node" in allowed_actions:
+                return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
         if action == "get_task_catalog" and context.get("task_catalog") and "final_response" in allowed_actions:
             return "final_response", {}, "task catalog already retrieved; answer from context", model_result
         if action == "get_cluster_resources" and context.get("cluster_resources") and "final_response" in allowed_actions:
@@ -410,6 +416,16 @@ def choose_constrained_action(user_text, has_file, state, context):
     arguments = action_payload.get("arguments") or {}
     if not isinstance(arguments, dict):
         raise RuntimeError("action arguments must be an object")
+
+    if action == "final_response" and context.get("inferred_task_type") and not context.get("tool_result"):
+        task_type = context["inferred_task_type"]
+        if state == "S0" and "get_task_catalog" in allowed_actions:
+            return "get_task_catalog", {}, "execution request must load task catalog before final response", model_result
+        if state in {"S1", "S2"} and "schedule_task" in allowed_actions:
+            return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
+        if state == "S3" and "run_task_on_node" in allowed_actions:
+            return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
+
     return action, arguments, action_payload.get("reason", ""), model_result
 
 

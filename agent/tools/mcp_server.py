@@ -3,9 +3,11 @@ import json
 import sys
 from typing import Any
 
-from cluster_resource_tool import fetch_cluster_resources
-from task_catalog_tool import fetch_task_catalog
-from tool_execute_tool import run_task_auto_schedule, run_task_on_node, schedule_task
+from get_cluster_resources_tool import get_cluster_resources
+from get_task_catalog_tool import get_task_catalog
+from run_task_auto_schedule_tool import run_task_auto_schedule
+from run_task_on_node_tool import run_task_on_node
+from schedule_task_tool import schedule_task
 
 
 GET_CLUSTER_RESOURCES_TOOL = "get_cluster_resources"
@@ -73,7 +75,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                 },
                 {
                     "name": GET_TASK_CATALOG_TOOL,
-                    "description": "Fetch a compact task catalog from JSON config files. static_info.json provides deployment and overhead data; agent_info.json provides task metadata. Optionally filter by available_device_types from get_cluster_resources.",
+                    "description": "Fetch a compact task catalog from JSON config files. The catalog exposes task metadata needed by the agent, but hides scheduler-only overhead data. Optionally filter by available_device_types from get_cluster_resources.",
                     "inputSchema": {
                         "type": "object",
                         "properties": {
@@ -147,9 +149,9 @@ def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]
 
     try:
         if name == GET_CLUSTER_RESOURCES_TOOL:
-            return tool_response_text(fetch_cluster_resources(), request_id)
+            return tool_response_text(get_cluster_resources(arguments), request_id)
         if name == GET_TASK_CATALOG_TOOL:
-            return tool_response_text(fetch_task_catalog(arguments.get("available_device_types")), request_id)
+            return tool_response_text(get_task_catalog(arguments), request_id)
         if name == SCHEDULE_TASK_TOOL:
             return tool_response_text(schedule_task(arguments), request_id)
         if name == RUN_TASK_AUTO_SCHEDULE_TOOL:
