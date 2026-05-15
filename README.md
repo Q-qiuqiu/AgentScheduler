@@ -2,6 +2,61 @@
 # docker-scheduler
 nku docker-scheduler
 
+# AgentScheduler 单智能体流程
+
+当前仓库保留一个单智能体入口，由智能体直接完成“理解请求 -> 选择工具 -> 选择节点 -> 通过 gateway 启动/复用工具容器 -> 汇总结果”的流程，不再拆分 main/sub agent。
+
+## 关键文件
+
+- `agent/server/agent.py`：单智能体 HTTP 服务，接口为 `POST /v1/agent/chat`，健康检查为 `GET /health`。
+- `config_files/agent_info.json`：单智能体配置，描述可调度工具、工具入口、是否需要文件、runtime 容器配置。
+- `agent/tools/mcp_server.py`：本地 MCP 工具入口，提供 `get_cluster_resources`、`get_task_catalog`、`run_task_on_node`。
+- `src/gateway/HttpServer.cpp`：gateway 仍负责 `/quest`、`/quest_on_node`、`/schedule_task`、`/cluster_resources`、`/register_node` 等接口。
+
+## Gateway 调度接口
+
+只获取调度结果，不启动工具容器：
+
+```bash
+curl -X POST "http://127.0.0.1:6666/schedule_task?taskid=YoloV5"
+```
+
+自动调度并执行工具：
+
+```bash
+curl -F "image=@/path/to/image.jpg" \
+     -X POST "http://127.0.0.1:6666/quest?taskid=YoloV5&real_url=predict"
+```
+
+MCP 工具对应为：
+
+- `get_cluster_resources`
+- `get_task_catalog`
+- `schedule_task`
+- `run_task_auto_schedule`
+- `run_task_on_node`
+
+## 单智能体接口示例
+
+图片工具：
+
+```bash
+curl -F "text=检测图片里的物体" \
+     -F "image=@/path/to/image.jpg" \
+     -F "debug=true" \
+     http://127.0.0.1:8082/v1/agent/chat
+```
+
+文本工具：
+
+```bash
+curl -F "text=请对这句话做文本分类：这家店体验很好" \
+     -F "debug=true" \
+     http://127.0.0.1:8082/v1/agent/chat
+```
+
+可以用 `task_type` 强制指定工具，例如 `YoloV5`、`MobileNet`、`ResNet50`、`Bert`、`deeplabv3`。
+
 #docker API
 
 docker接口文档:https://docs.docker.com/reference/api/engine/version/v1.47/

@@ -59,6 +59,13 @@ bool ForwardMultipartRequest(const httplib::Request &req,
     for (auto file: req.files) {
         items.push_back(file.second);
     }
+    for (const auto &param: req.params) {
+        const auto &key = param.first;
+        if (key == "taskid" || key == "target_global_id" || key == "real_url") {
+            continue;
+        }
+        items.push_back({key, param.second, "", ""});
+    }
 
     httplib::Result response;
     try {
@@ -138,6 +145,8 @@ bool HttpServer::Start() {
     svr.Post("/hot_start", this->HandleHotStart);
     svr.Get(CLUSTER_RESOURCES_ROUTE, this->HandleClusterResources);
     svr.Post(START_SUB_AGENT_ROUTE, this->HandleStartSubAgent);
+    svr.Get(SCHEDULE_TASK_ROUTE, this->HandleScheduleTask);
+    svr.Post(SCHEDULE_TASK_ROUTE, this->HandleScheduleTask);
     spdlog::info("HttpServer started success，ip:{} port:{}",this->ip, this->port);
     auto result = svr.listen(this->ip, this->port);
     if (!result) {
@@ -324,4 +333,46 @@ void HttpServer::HandleStartSubAgent(const httplib::Request &req, httplib::Respo
                  target_global_id_str,
                  srv_info_opt->ip,
                  srv_info_opt->port);
+}
+
+void HttpServer::HandleScheduleTask(const httplib::Request &req, httplib::Response &res) {
+    auto task_type_str = req.get_param_value("taskid");
+    TaskType task_type;
+    try {
+        task_type = StrToTaskType(task_type_str);
+    } catch (const std::invalid_argument &) {
+        res.status = 400;
+        res.set_content("invalid format taskid", "text/plain");
+        return;
+    }
+
+    if (task_type == TaskType::Unknown) {
+        res.status = 400;
+        res.set_content("Missing or invalid taskid parameter", "text/plain");
+        return;
+    }
+
+    auto device_opt = Docker_scheduler::scheduleDeviceByTType(task_type);
+    if (!device_opt.has_value()) {
+        res.status = 400;
+        res.set_content("failed to schedule a target device", "text/plain");
+        return;
+    }
+
+    const auto &device = device_opt.value();
+    json response;
+    response["status"] = "success";
+    response["result"] = {
+        {"task_type", task_type_str},
+        {"target_global_id", boost::uuids::to_string(device.global_id)},
+        {"type", json(device.type)},
+        {"ip_address", device.ip_address},
+        {"agent_port", device.agent_port}
+    };
+    res.status = 200;
+    res.set_content(response.dump(), "application/json");
+    spdlog::info("Scheduled task successfully, task_type:{}, target_global_id:{}, ip:{}",
+                 task_type_str,
+                 boost::uuids::to_string(device.global_id),
+                 device.ip_address);
 }

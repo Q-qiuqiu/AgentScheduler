@@ -4,15 +4,15 @@ import sys
 from typing import Any
 
 from cluster_resource_tool import fetch_cluster_resources
-from start_sub_agent_tool import start_sub_agent
 from task_catalog_tool import fetch_task_catalog
-from vision_execute_tool import run_vision_task_on_node
+from tool_execute_tool import run_task_auto_schedule, run_task_on_node, schedule_task
 
 
 GET_CLUSTER_RESOURCES_TOOL = "get_cluster_resources"
 GET_TASK_CATALOG_TOOL = "get_task_catalog"
-RUN_VISION_TASK_ON_NODE_TOOL = "run_vision_task_on_node"
-START_SUB_AGENT_TOOL = "start_sub_agent"
+SCHEDULE_TASK_TOOL = "schedule_task"
+RUN_TASK_ON_NODE_TOOL = "run_task_on_node"
+RUN_TASK_AUTO_SCHEDULE_TOOL = "run_task_auto_schedule"
 
 
 def make_response(request_id: Any, result: dict[str, Any]) -> dict[str, Any]:
@@ -86,21 +86,45 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                     },
                 },
                 {
-                    "name": START_SUB_AGENT_TOOL,
-                    "description": "Start a configured sub agent on the selected board through the gateway and return the reachable address information.",
+                    "name": SCHEDULE_TASK_TOOL,
+                    "description": "Ask the gateway scheduler to select the best target board for a task_type. This does not start the tool container or run inference.",
                     "inputSchema": {
                         "type": "object",
                         "properties": {
-                            "agent_name": {"type": "string"},
-                            "target_global_id": {"type": "string"},
+                            "task_type": {
+                                "type": "string",
+                                "enum": ["Bert", "MobileNet", "ResNet50", "YoloV5", "deeplabv3"],
+                            },
                         },
-                        "required": ["agent_name", "target_global_id"],
+                        "required": ["task_type"],
                         "additionalProperties": False,
                     },
                 },
                 {
-                    "name": RUN_VISION_TASK_ON_NODE_TOOL,
-                    "description": "Run a vision task on a specific board selected by the model. The gateway will create or reuse the target container on that board and forward the image inference request.",
+                    "name": RUN_TASK_AUTO_SCHEDULE_TOOL,
+                    "description": "Run a configured task through the gateway scheduler. The caller provides task_type and request payload only; the gateway selects the target board, creates or reuses the container, and forwards the request.",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "task_type": {
+                                "type": "string",
+                                "enum": ["Bert", "MobileNet", "ResNet50", "YoloV5", "deeplabv3"],
+                            },
+                            "input_path": {"type": "string"},
+                            "real_url": {"type": "string", "default": "predict"},
+                            "file_field_name": {"type": "string", "default": "image"},
+                            "fields": {
+                                "type": "object",
+                                "additionalProperties": {"type": "string"},
+                            },
+                        },
+                        "required": ["task_type"],
+                        "additionalProperties": False,
+                    },
+                },
+                {
+                    "name": RUN_TASK_ON_NODE_TOOL,
+                    "description": "Run a configured task tool on a specific board. Prefer run_task_auto_schedule unless the target_global_id is explicitly required.",
                     "inputSchema": {
                         "type": "object",
                         "properties": {
@@ -109,11 +133,15 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                                 "enum": ["Bert", "MobileNet", "ResNet50", "YoloV5", "deeplabv3"],
                             },
                             "target_global_id": {"type": "string"},
-                            "image_path": {"type": "string"},
+                            "input_path": {"type": "string"},
                             "real_url": {"type": "string", "default": "predict"},
                             "file_field_name": {"type": "string", "default": "image"},
+                            "fields": {
+                                "type": "object",
+                                "additionalProperties": {"type": "string"},
+                            },
                         },
-                        "required": ["task_type", "target_global_id", "image_path"],
+                        "required": ["task_type", "target_global_id"],
                         "additionalProperties": False,
                     },
                 },
@@ -131,10 +159,12 @@ def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]
             return tool_response_text(fetch_cluster_resources(), request_id)
         if name == GET_TASK_CATALOG_TOOL:
             return tool_response_text(fetch_task_catalog(arguments.get("available_device_types")), request_id)
-        if name == START_SUB_AGENT_TOOL:
-            return tool_response_text(start_sub_agent(arguments), request_id)
-        if name == RUN_VISION_TASK_ON_NODE_TOOL:
-            return tool_response_text(run_vision_task_on_node(arguments), request_id)
+        if name == SCHEDULE_TASK_TOOL:
+            return tool_response_text(schedule_task(arguments), request_id)
+        if name == RUN_TASK_AUTO_SCHEDULE_TOOL:
+            return tool_response_text(run_task_auto_schedule(arguments), request_id)
+        if name == RUN_TASK_ON_NODE_TOOL:
+            return tool_response_text(run_task_on_node(arguments), request_id)
         return make_error(request_id, -32602, f"unknown tool: {name}")
     except RuntimeError as exc:
         return tool_response_error(str(exc), request_id)

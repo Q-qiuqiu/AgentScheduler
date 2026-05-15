@@ -1,0 +1,125 @@
+{
+  "agent": {
+    "name": "single_agent",
+    "description": "Single agent that selects a configured tool, chooses a target board from cluster resources, starts the tool through the gateway, and returns the execution result.",
+    "api": {
+      "chat": "/v1/agent/chat",
+      "health": "/health",
+      "method": "POST",
+      "content_type": "multipart/form-data",
+      "fields": {
+        "text": "User request text. Aliases: prompt, query, message, instruction.",
+        "image": "Optional image/file input for vision and segmentation tools.",
+        "debug": "Optional boolean. When true, include scheduling and tool debug fields."
+      }
+    },
+    "selection_policy": {
+      "route_rules_first": true,
+      "llm_fallback": true,
+      "failover": true,
+      "prefer_lower_proc_time": true,
+      "prefer_lower_current_mem_usage": true
+    },
+    "tools": {
+      "YoloV5": {
+        "task_type": "YoloV5",
+        "tool_kind": "vision_model",
+        "requires_file": true,
+        "file_field_name": "image",
+        "real_url": "predict",
+        "capabilities": [
+          "object_detection",
+          "multi_object_detection",
+          "bounding_box_estimation"
+        ],
+        "description": "Object detection model for locating targets in an image."
+      },
+      "MobileNet": {
+        "task_type": "MobileNet",
+        "tool_kind": "vision_model",
+        "requires_file": true,
+        "file_field_name": "image",
+        "real_url": "predict",
+        "capabilities": [
+          "image_classification",
+          "lightweight_classification",
+          "fast_inference"
+        ],
+        "description": "Fast image classification model."
+      },
+      "ResNet50": {
+        "task_type": "ResNet50",
+        "tool_kind": "vision_model",
+        "requires_file": true,
+        "file_field_name": "image",
+        "real_url": "predict",
+        "capabilities": [
+          "image_classification",
+          "single_label_classification"
+        ],
+        "description": "Image classification model with stronger accuracy but higher overhead than MobileNet."
+      },
+      "Bert": {
+        "task_type": "Bert",
+        "tool_kind": "text_model",
+        "requires_file": false,
+        "real_url": "predict",
+        "capabilities": [
+          "text_classification",
+          "sentence_understanding",
+          "semantic_matching"
+        ],
+        "description": "Text understanding and classification model."
+      },
+      "deeplabv3": {
+        "task_type": "deeplabv3",
+        "tool_kind": "segmentation_model",
+        "requires_file": true,
+        "file_field_name": "image",
+        "real_url": "segmentation",
+        "capabilities": [
+          "semantic_segmentation",
+          "mask_generation",
+          "segmentation_image_output"
+        ],
+        "description": "Semantic segmentation model for image masks."
+      }
+    },
+    "runtime": {
+      "RK3588": {
+        "container_name": "single_agent_qwen3_1_7b",
+        "image": "qwen3_1.7b_docker:latest",
+        "startup_timeout_sec": 180,
+        "cmds": [
+          "bash",
+          "/workspace/agent/server/start_agent.sh"
+        ],
+        "args": [],
+        "host_config_privileged": true,
+        "env": [
+          "PYTHONUNBUFFERED=1",
+          "AGENT_PORT=8082",
+          "GATEWAY_HOST=127.0.0.1",
+          "GATEWAY_PORT=6666",
+          "LLM_API_URL=http://127.0.0.1:8081/v1/chat/completions",
+          "LLM_MODEL_NAME=rkllm-default",
+          "RKLLM_MODEL_PATH=/models/Qwen3-1.7B-rk3588-w8a8.rkllm",
+          "RKLLM_TARGET_PLATFORM=rk3588"
+        ],
+        "host_config_binds": [
+          "/root/AgentScheduler/agent:/workspace/agent",
+          "/root/AgentScheduler/config_files:/workspace/config_files",
+          "/dev/dri:/dev/dri",
+          "/proc/device-tree:/proc/device-tree:ro",
+          "/root/models/Qwen3-1.7B-rk3588-w8a8.rkllm:/models/Qwen3-1.7B-rk3588-w8a8.rkllm"
+        ],
+        "devices": [],
+        "host_ip": "0.0.0.0",
+        "host_port": 8082,
+        "container_port": 8082,
+        "has_tty": false,
+        "network_config": "bridge"
+      }
+    }
+  }
+}

@@ -820,6 +820,70 @@ json Docker_scheduler::getClusterResources() {
     return nodes;
 }
 
+std::optional<Device> Docker_scheduler::scheduleDeviceByTType(TaskType ttype) {
+    if (ttype == TaskType::Unknown || static_info.find(ttype) == static_info.end()) {
+        spdlog::error("Cannot schedule unknown or unsupported task type:{}", to_string(nlohmann::json(ttype)));
+        return std::nullopt;
+    }
+    if (tdMap.find(ttype) == tdMap.end() || tdMap[ttype].empty()) {
+        spdlog::error("No registered device supports task type:{}", to_string(nlohmann::json(ttype)));
+        return std::nullopt;
+    }
+
+    std::shared_lock<std::shared_mutex> lock(devs_mutex);
+    std::optional<Device> best_device;
+    double best_score = std::numeric_limits<double>::max();
+
+    for (const auto &[device_id, device]: device_static_info) {
+        auto task_profile_it = static_info[ttype].find(device.type);
+        if (task_profile_it == static_info[ttype].end()) {
+            continue;
+        }
+
+        double cpu_used = 0.0;
+        double mem_used = 0.0;
+        double xpu_used = 0.0;
+        auto status_it = device_status.find(device_id);
+        if (status_it != device_status.end()) {
+            cpu_used = status_it->second.cpu_used;
+            mem_used = status_it->second.mem_used;
+            xpu_used = status_it->second.xpu_used;
+        }
+
+        const auto srv_it = tdMap[ttype].find(device_id);
+        const bool cold_start = srv_it == tdMap[ttype].end() ||
+                                srv_it->second.dev_srv_info_status == DevSrvInfoStatus::NoExist;
+        if (cold_start) {
+            const auto &overhead = task_profile_it->second.taskOverhead;
+            cpu_used += overhead.cpu_usage;
+            mem_used += overhead.mem_usage;
+            xpu_used += overhead.xpu_usage;
+        }
+
+        if (cpu_used > 1.0 || mem_used > 1.0 || xpu_used > 1.0) {
+            continue;
+        }
+
+        const double score = cpu_used + xpu_used + 0.1 * mem_used;
+        if (!best_device.has_value() || score < best_score) {
+            best_device = device;
+            best_score = score;
+        }
+    }
+
+    if (!best_device.has_value()) {
+        spdlog::error("No device has enough remaining resources for task type:{}",
+                      to_string(nlohmann::json(ttype)));
+        return std::nullopt;
+    }
+
+    spdlog::info("Gateway scheduler selected device, task_type:{}, target_global_id:{}, score:{}",
+                 to_string(nlohmann::json(ttype)),
+                 boost::uuids::to_string(best_device->global_id),
+                 best_score);
+    return best_device;
+}
+
 std::optional<SrvInfo> Docker_scheduler::startSubAgentOnDevice(const std::string &agent_name, const DeviceID &device_id) {
     auto device_opt = getDeviceById(device_id);
    

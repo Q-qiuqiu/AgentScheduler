@@ -13,7 +13,8 @@ import tiktoken
 app = Flask(__name__)
 
 # Set the dynamic library path
-rkllm_lib = ctypes.CDLL('lib/librkllmrt.so')
+SERVER_DIR = os.path.dirname(os.path.abspath(__file__))
+rkllm_lib = ctypes.CDLL(os.path.join(SERVER_DIR, 'lib', 'librkllmrt.so'))
 
 # Define the structures from the library
 RKLLM_Handle_t = ctypes.c_void_p
