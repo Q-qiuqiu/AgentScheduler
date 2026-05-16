@@ -1,30 +1,14 @@
 {
   "state_id": "state_012",
-  "description": "Atlas_L 离线，Atlas_H 独自承担分割与文本任务，适合验证异构必选任务的故障恢复",
+  "description": "RK3588_1 NPU 高负载，变体 4，验证目标检测/分类是否避开单个 NPU 热点",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.25,
-      "mem_used": 0.34,
-      "npu_used": 0.22,
-      "support_tasks": [
-        "object_detection",
-        "image_classification"
-      ],
-      "ready_containers": [
-        "image_classification"
-      ],
-      "network_latency": 1
-    },
-    {
-      "node_id": "RK3588_2",
-      "platform": "RK3588",
-      "online": true,
-      "cpu_used": 0.29,
-      "mem_used": 0.36,
-      "npu_used": 0.25,
+      "cpu_used": 0.54,
+      "mem_used": 0.5,
+      "npu_used": 0.94,
       "support_tasks": [
         "object_detection",
         "image_classification"
@@ -35,12 +19,29 @@
       "network_latency": 1
     },
     {
+      "node_id": "RK3588_2",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.26,
+      "mem_used": 0.4,
+      "npu_used": 0.27,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "object_detection",
+        "image_classification"
+      ],
+      "network_latency": 1
+    },
+    {
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
-      "online": false,
-      "cpu_used": 1.0,
-      "mem_used": 1.0,
-      "npu_used": 1.0,
+      "online": true,
+      "cpu_used": 0.38,
+      "mem_used": 0.36,
+      "npu_used": 0.33,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -54,9 +55,9 @@
       "node_id": "ATLAS_H",
       "platform": "Orange Pi aipro",
       "online": true,
-      "cpu_used": 0.35,
-      "mem_used": 0.44,
-      "npu_used": 0.31,
+      "cpu_used": 0.26,
+      "mem_used": 0.4,
+      "npu_used": 0.27,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -64,6 +65,7 @@
         "text_classification"
       ],
       "ready_containers": [
+        "object_detection",
         "semantic_segmentation",
         "text_classification"
       ],

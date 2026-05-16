@@ -1,36 +1,34 @@
 {
   "state_id": "state_003",
-  "description": "RK3588_2 NPU 热点，RK3588_1 轻载，适合验证同构反向迁移",
+  "description": "全局低负载，变体 3，验证低负载下热容器与资源余量的基础选择",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.24,
-      "mem_used": 0.34,
-      "npu_used": 0.22,
+      "cpu_used": 0.15,
+      "mem_used": 0.29,
+      "npu_used": 0.14,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
-      "ready_containers": [
-        "image_classification"
-      ],
+      "ready_containers": [],
       "network_latency": 1
     },
     {
       "node_id": "RK3588_2",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.52,
-      "mem_used": 0.58,
-      "npu_used": 0.91,
+      "cpu_used": 0.21,
+      "mem_used": 0.19,
+      "npu_used": 0.18,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
       "ready_containers": [
-        "object_detection"
+        "image_classification"
       ],
       "network_latency": 1
     },
@@ -38,9 +36,9 @@
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.45,
-      "mem_used": 0.48,
-      "npu_used": 0.42,
+      "cpu_used": 0.15,
+      "mem_used": 0.29,
+      "npu_used": 0.14,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -48,7 +46,8 @@
         "text_classification"
       ],
       "ready_containers": [
-        "text_classification"
+        "object_detection",
+        "semantic_segmentation"
       ],
       "network_latency": 1
     },
@@ -56,9 +55,9 @@
       "node_id": "ATLAS_H",
       "platform": "Orange Pi aipro",
       "online": true,
-      "cpu_used": 0.34,
-      "mem_used": 0.36,
-      "npu_used": 0.28,
+      "cpu_used": 0.21,
+      "mem_used": 0.19,
+      "npu_used": 0.18,
       "support_tasks": [
         "object_detection",
         "image_classification",

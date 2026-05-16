@@ -63,6 +63,12 @@ The default execution settings for `run_task_on_node` are:
 
 `schedule_task` calls the gateway `/schedule_task` endpoint and returns the board selected by the gateway scheduler for a `task_type`.
 
+Optional scheduling constraints:
+
+- `exclude_nodes`: node ids or device types that must not be selected, such as `RK3588` or `ATLAS_L`
+- `require_node`: one node id or device type that must be selected from, such as `ATLAS_H`
+- `require_nodes`: a list of allowed node ids or device types
+
 `run_task_auto_schedule` calls the gateway `/quest` endpoint. The caller only supplies the task payload; gateway scheduling chooses the target board and starts or reuses the tool container.
 
 `run_task_on_node` accepts:

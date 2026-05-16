@@ -108,6 +108,20 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                         "type": "object",
                         "properties": {
                             "task_type": {"type": "string"},
+                            "exclude_nodes": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Node ids or device types that must not be selected, for example RK3588 or ATLAS_L.",
+                            },
+                            "require_node": {
+                                "type": "string",
+                                "description": "A node id or device type that must be selected from, for example ATLAS_H.",
+                            },
+                            "require_nodes": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Node ids or device types that are allowed candidates.",
+                            },
                         },
                         "required": ["task_type"],
                         "additionalProperties": False,

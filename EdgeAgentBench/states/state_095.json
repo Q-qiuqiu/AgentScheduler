@@ -1,0 +1,71 @@
+{
+  "state_id": "state_095",
+  "description": "多节点 NPU 碎片化，变体 3，验证多个加速器临界节点下的候选过滤",
+  "nodes": [
+    {
+      "node_id": "RK3588_1",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.47,
+      "mem_used": 0.57,
+      "npu_used": 0.86,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    },
+    {
+      "node_id": "RK3588_2",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.49,
+      "mem_used": 0.43,
+      "npu_used": 0.86,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "image_classification"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "Atlas 200DK",
+      "online": true,
+      "cpu_used": 0.51,
+      "mem_used": 0.61,
+      "npu_used": 0.88,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [
+        "object_detection",
+        "semantic_segmentation"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_H",
+      "platform": "Orange Pi aipro",
+      "online": true,
+      "cpu_used": 0.35,
+      "mem_used": 0.33,
+      "npu_used": 0.36,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    }
+  ]
+}

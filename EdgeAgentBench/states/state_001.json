@@ -1,6 +1,6 @@
 {
   "state_id": "state_001",
-  "description": "全局低负载，RK3588_1 已预热图像分类容器，适合验证低负载下的热容器优先策略",
+  "description": "全局低负载，变体 1，验证低负载下热容器与资源余量的基础选择",
   "nodes": [
     {
       "node_id": "RK3588_1",
@@ -22,23 +22,25 @@
       "node_id": "RK3588_2",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.22,
-      "mem_used": 0.28,
-      "npu_used": 0.2,
+      "cpu_used": 0.18,
+      "mem_used": 0.24,
+      "npu_used": 0.16,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
-      "ready_containers": [],
+      "ready_containers": [
+        "object_detection"
+      ],
       "network_latency": 1
     },
     {
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.2,
-      "mem_used": 0.3,
-      "npu_used": 0.18,
+      "cpu_used": 0.18,
+      "mem_used": 0.24,
+      "npu_used": 0.16,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -54,16 +56,18 @@
       "node_id": "ATLAS_H",
       "platform": "Orange Pi aipro",
       "online": true,
-      "cpu_used": 0.16,
-      "mem_used": 0.22,
-      "npu_used": 0.14,
+      "cpu_used": 0.18,
+      "mem_used": 0.24,
+      "npu_used": 0.16,
       "support_tasks": [
         "object_detection",
         "image_classification",
         "semantic_segmentation",
         "text_classification"
       ],
-      "ready_containers": [],
+      "ready_containers": [
+        "text_classification"
+      ],
       "network_latency": 1
     }
   ]

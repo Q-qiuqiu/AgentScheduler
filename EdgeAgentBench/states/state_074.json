@@ -1,0 +1,66 @@
+{
+  "state_id": "state_074",
+  "description": "所有容器冷启动，变体 2，验证没有预热容器时纯资源余量与 overhead 的影响",
+  "nodes": [
+    {
+      "node_id": "RK3588_1",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.32,
+      "mem_used": 0.37,
+      "npu_used": 0.31,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    },
+    {
+      "node_id": "RK3588_2",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.24,
+      "mem_used": 0.31,
+      "npu_used": 0.21,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "Atlas 200DK",
+      "online": true,
+      "cpu_used": 0.32,
+      "mem_used": 0.37,
+      "npu_used": 0.31,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_H",
+      "platform": "Orange Pi aipro",
+      "online": true,
+      "cpu_used": 0.24,
+      "mem_used": 0.31,
+      "npu_used": 0.21,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    }
+  ]
+}

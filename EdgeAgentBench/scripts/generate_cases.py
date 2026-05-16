@@ -29,7 +29,8 @@ ORACLE = {
     "notes": [
         "network_latency is fixed to 1 in all states and is intentionally ignored",
         "lower score is better",
-        "nodes are excluded when either node_id or platform matches an exclude_nodes constraint"
+        "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+        "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
     ]
 }
 
@@ -70,6 +71,16 @@ def is_excluded(node, constraints):
     return node.get("node_id") in excluded or node.get("platform") in excluded
 
 
+def is_required(node, constraints):
+    required = set((constraints or {}).get("require_nodes", []))
+    require_node = (constraints or {}).get("require_node")
+    if require_node:
+        required.add(require_node)
+    if not required:
+        return True
+    return node.get("node_id") in required or node.get("platform") in required
+
+
 def score_node(node, task_type):
     cold_start_penalty = 0 if task_type in node.get("ready_containers", []) else 1
     weights = ORACLE["weights"]
@@ -96,6 +107,8 @@ def build_execution_ground_truth(query, state, catalog_tasks):
         if task_type not in node.get("support_tasks", []):
             continue
         if is_excluded(node, constraints):
+            continue
+        if not is_required(node, constraints):
             continue
 
         score = round(score_node(node, task_type), 4)

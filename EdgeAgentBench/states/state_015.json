@@ -1,14 +1,14 @@
 {
   "state_id": "state_015",
-  "description": "目标检测容器只在 RK3588_2 预热，但 Atlas_H 资源更充足，适合验证目标检测的热容器与异构资源权衡",
+  "description": "RK3588_2 NPU 高负载，变体 3，验证同构 RK 节点间的热点迁移能力",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.48,
-      "mem_used": 0.52,
-      "npu_used": 0.46,
+      "cpu_used": 0.29,
+      "mem_used": 0.43,
+      "npu_used": 0.28,
       "support_tasks": [
         "object_detection",
         "image_classification"
@@ -20,15 +20,15 @@
       "node_id": "RK3588_2",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.58,
-      "mem_used": 0.61,
-      "npu_used": 0.64,
+      "cpu_used": 0.51,
+      "mem_used": 0.47,
+      "npu_used": 0.93,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
       "ready_containers": [
-        "object_detection"
+        "image_classification"
       ],
       "network_latency": 1
     },
@@ -36,9 +36,9 @@
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.5,
-      "mem_used": 0.55,
-      "npu_used": 0.48,
+      "cpu_used": 0.29,
+      "mem_used": 0.43,
+      "npu_used": 0.28,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -46,6 +46,7 @@
         "text_classification"
       ],
       "ready_containers": [
+        "object_detection",
         "semantic_segmentation"
       ],
       "network_latency": 1
@@ -54,9 +55,9 @@
       "node_id": "ATLAS_H",
       "platform": "Orange Pi aipro",
       "online": true,
-      "cpu_used": 0.21,
-      "mem_used": 0.3,
-      "npu_used": 0.18,
+      "cpu_used": 0.35,
+      "mem_used": 0.33,
+      "npu_used": 0.32,
       "support_tasks": [
         "object_detection",
         "image_classification",

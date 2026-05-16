@@ -1,0 +1,69 @@
+{
+  "benchmark": "EdgeAgentBench",
+  "version": "0.1",
+  "oracle": {
+    "name": "least_loaded_hot_container_oracle",
+    "objective": "minimize weighted load while respecting online status, task support, and query constraints",
+    "weights": {
+      "npu_used": 0.5,
+      "cpu_used": 0.2,
+      "mem_used": 0.2,
+      "cold_start_penalty": 0.1
+    },
+    "notes": [
+      "network_latency is fixed to 1 in all states and is intentionally ignored",
+      "lower score is better",
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
+    ]
+  },
+  "case_id": "state_054_q_det_004",
+  "state_id": "state_054",
+  "query_id": "q_det_004",
+  "query": "不要使用 RK3588，用其他节点对这张图片做目标检测",
+  "query_path": "queries/object_dedection/q_det_004.json",
+  "state_path": "states/state_054.json",
+  "expected_task": "object_detection",
+  "constraints": {
+    "exclude_nodes": [
+      "RK3588"
+    ]
+  },
+  "ground_truth": {
+    "intent": "execute_task",
+    "should_schedule": true,
+    "expected_tools": [
+      "get_task_catalog",
+      "schedule_task",
+      "run_task_on_node"
+    ],
+    "expected_task": "object_detection",
+    "eligible_nodes": [
+      "ATLAS_L",
+      "ATLAS_H"
+    ],
+    "selected_node": "ATLAS_L",
+    "selected_platform": "Atlas 200DK",
+    "ranking": [
+      {
+        "node_id": "ATLAS_L",
+        "platform": "Atlas 200DK",
+        "score": 0.429,
+        "ready_container": false,
+        "cpu_used": 0.36,
+        "mem_used": 0.41,
+        "npu_used": 0.35
+      },
+      {
+        "node_id": "ATLAS_H",
+        "platform": "Orange Pi aipro",
+        "score": 0.499,
+        "ready_container": false,
+        "cpu_used": 0.84,
+        "mem_used": 0.43,
+        "npu_used": 0.29
+      }
+    ],
+    "oracle_score": 0.429
+  }
+}

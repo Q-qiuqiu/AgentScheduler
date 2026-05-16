@@ -1,0 +1,75 @@
+{
+  "state_id": "state_052",
+  "description": "ATLAS_L CPU 高负载，变体 4，验证 Atlas_L CPU 辅助开销对调度的影响",
+  "nodes": [
+    {
+      "node_id": "RK3588_1",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.38,
+      "mem_used": 0.36,
+      "npu_used": 0.33,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "object_detection"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "RK3588_2",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.26,
+      "mem_used": 0.4,
+      "npu_used": 0.27,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "object_detection",
+        "image_classification"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "Atlas 200DK",
+      "online": true,
+      "cpu_used": 0.94,
+      "mem_used": 0.44,
+      "npu_used": 0.37,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_H",
+      "platform": "Orange Pi aipro",
+      "online": true,
+      "cpu_used": 0.26,
+      "mem_used": 0.4,
+      "npu_used": 0.27,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [
+        "object_detection",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "network_latency": 1
+    }
+  ]
+}

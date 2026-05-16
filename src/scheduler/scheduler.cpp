@@ -821,6 +821,13 @@ json Docker_scheduler::getClusterResources() {
 }
 
 std::optional<Device> Docker_scheduler::scheduleDeviceByTType(TaskType ttype) {
+    return scheduleDeviceByTType(ttype, {}, {});
+}
+
+std::optional<Device> Docker_scheduler::scheduleDeviceByTType(
+        TaskType ttype,
+        const std::set<std::string> &exclude_nodes,
+        const std::set<std::string> &require_nodes) {
     if (ttype == TaskType::Unknown || static_info.find(ttype) == static_info.end()) {
         spdlog::error("Cannot schedule unknown or unsupported task type:{}", to_string(nlohmann::json(ttype)));
         return std::nullopt;
@@ -835,6 +842,18 @@ std::optional<Device> Docker_scheduler::scheduleDeviceByTType(TaskType ttype) {
     double best_score = std::numeric_limits<double>::max();
 
     for (const auto &[device_id, device]: device_static_info) {
+        const std::string device_id_str = boost::uuids::to_string(device_id);
+        const std::string device_type_str = to_string(nlohmann::json(device.type));
+        if (exclude_nodes.find(device_id_str) != exclude_nodes.end() ||
+            exclude_nodes.find(device_type_str) != exclude_nodes.end()) {
+            continue;
+        }
+        if (!require_nodes.empty() &&
+            require_nodes.find(device_id_str) == require_nodes.end() &&
+            require_nodes.find(device_type_str) == require_nodes.end()) {
+            continue;
+        }
+
         auto task_profile_it = static_info[ttype].find(device.type);
         if (task_profile_it == static_info[ttype].end()) {
             continue;
@@ -872,15 +891,19 @@ std::optional<Device> Docker_scheduler::scheduleDeviceByTType(TaskType ttype) {
     }
 
     if (!best_device.has_value()) {
-        spdlog::error("No device has enough remaining resources for task type:{}",
-                      to_string(nlohmann::json(ttype)));
+        spdlog::error("No device has enough remaining resources for task type:{}, exclude_count:{}, require_count:{}",
+                      to_string(nlohmann::json(ttype)),
+                      exclude_nodes.size(),
+                      require_nodes.size());
         return std::nullopt;
     }
 
-    spdlog::info("Gateway scheduler selected device, task_type:{}, target_global_id:{}, score:{}",
+    spdlog::info("Gateway scheduler selected device, task_type:{}, target_global_id:{}, score:{}, exclude_count:{}, require_count:{}",
                  to_string(nlohmann::json(ttype)),
                  boost::uuids::to_string(best_device->global_id),
-                 best_score);
+                 best_score,
+                 exclude_nodes.size(),
+                 require_nodes.size());
     return best_device;
 }
 

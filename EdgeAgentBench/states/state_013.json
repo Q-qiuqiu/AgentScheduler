@@ -1,34 +1,36 @@
 {
   "state_id": "state_013",
-  "description": "只有 Atlas 节点支持文本任务且 Atlas_L 已预热，适合验证任务能力约束优先于普通负载",
+  "description": "RK3588_2 NPU 高负载，变体 1，验证同构 RK 节点间的热点迁移能力",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.12,
-      "mem_used": 0.2,
-      "npu_used": 0.1,
-      "support_tasks": [
-        "object_detection",
-        "image_classification"
-      ],
-      "ready_containers": [],
-      "network_latency": 1
-    },
-    {
-      "node_id": "RK3588_2",
-      "platform": "RK3588",
-      "online": true,
-      "cpu_used": 0.14,
-      "mem_used": 0.23,
-      "npu_used": 0.11,
+      "cpu_used": 0.32,
+      "mem_used": 0.38,
+      "npu_used": 0.3,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
       "ready_containers": [
         "image_classification"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "RK3588_2",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.48,
+      "mem_used": 0.52,
+      "npu_used": 0.91,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "object_detection"
       ],
       "network_latency": 1
     },
@@ -36,9 +38,27 @@
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.38,
-      "mem_used": 0.46,
-      "npu_used": 0.34,
+      "cpu_used": 0.32,
+      "mem_used": 0.38,
+      "npu_used": 0.3,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [
+        "semantic_segmentation"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_H",
+      "platform": "Orange Pi aipro",
+      "online": true,
+      "cpu_used": 0.32,
+      "mem_used": 0.38,
+      "npu_used": 0.3,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -48,22 +68,6 @@
       "ready_containers": [
         "text_classification"
       ],
-      "network_latency": 1
-    },
-    {
-      "node_id": "ATLAS_H",
-      "platform": "Orange Pi aipro",
-      "online": true,
-      "cpu_used": 0.3,
-      "mem_used": 0.41,
-      "npu_used": 0.29,
-      "support_tasks": [
-        "object_detection",
-        "image_classification",
-        "semantic_segmentation",
-        "text_classification"
-      ],
-      "ready_containers": [],
       "network_latency": 1
     }
   ]

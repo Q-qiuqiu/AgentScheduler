@@ -13,7 +13,8 @@
     "notes": [
       "network_latency is fixed to 1 in all states and is intentionally ignored",
       "lower score is better",
-      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint"
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
     ]
   },
   "case_id": "state_013_q_cls_003",
@@ -34,51 +35,51 @@
     ],
     "expected_task": "image_classification",
     "eligible_nodes": [
-      "RK3588_2",
       "RK3588_1",
       "ATLAS_H",
-      "ATLAS_L"
+      "ATLAS_L",
+      "RK3588_2"
     ],
-    "selected_node": "RK3588_2",
+    "selected_node": "RK3588_1",
     "selected_platform": "RK3588",
     "ranking": [
       {
-        "node_id": "RK3588_2",
-        "platform": "RK3588",
-        "score": 0.129,
-        "ready_container": true,
-        "cpu_used": 0.14,
-        "mem_used": 0.23,
-        "npu_used": 0.11
-      },
-      {
         "node_id": "RK3588_1",
         "platform": "RK3588",
-        "score": 0.214,
-        "ready_container": false,
-        "cpu_used": 0.12,
-        "mem_used": 0.2,
-        "npu_used": 0.1
+        "score": 0.29,
+        "ready_container": true,
+        "cpu_used": 0.32,
+        "mem_used": 0.38,
+        "npu_used": 0.3
       },
       {
         "node_id": "ATLAS_H",
         "platform": "Orange Pi aipro",
-        "score": 0.387,
+        "score": 0.39,
         "ready_container": false,
-        "cpu_used": 0.3,
-        "mem_used": 0.41,
-        "npu_used": 0.29
+        "cpu_used": 0.32,
+        "mem_used": 0.38,
+        "npu_used": 0.3
       },
       {
         "node_id": "ATLAS_L",
         "platform": "Atlas 200DK",
-        "score": 0.438,
+        "score": 0.39,
         "ready_container": false,
-        "cpu_used": 0.38,
-        "mem_used": 0.46,
-        "npu_used": 0.34
+        "cpu_used": 0.32,
+        "mem_used": 0.38,
+        "npu_used": 0.3
+      },
+      {
+        "node_id": "RK3588_2",
+        "platform": "RK3588",
+        "score": 0.755,
+        "ready_container": false,
+        "cpu_used": 0.48,
+        "mem_used": 0.52,
+        "npu_used": 0.91
       }
     ],
-    "oracle_score": 0.129
+    "oracle_score": 0.29
   }
 }

@@ -13,7 +13,8 @@
     "notes": [
       "network_latency is fixed to 1 in all states and is intentionally ignored",
       "lower score is better",
-      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint"
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
     ]
   },
   "case_id": "state_012_q_res_004",

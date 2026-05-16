@@ -16,7 +16,10 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 AGENT_DIR = os.path.normpath(os.path.join(BASE_DIR, ".."))
 REPO_ROOT = os.path.normpath(os.path.join(AGENT_DIR, ".."))
-DEFAULT_MCP_SERVER_PATH = os.path.join(AGENT_DIR, "tools", "mcp_server.py")
+DEFAULT_MCP_SERVER_PATH = os.environ.get(
+    "MCP_SERVER_PATH",
+    os.path.join(AGENT_DIR, "tools", "mcp_server.py"),
+)
 DEFAULT_AGENT_INFO_PATH = os.path.join(REPO_ROOT, "config_files", "agent_info.json")
 
 lock = threading.Lock()
@@ -338,6 +341,33 @@ def infer_task_type_by_rules(user_text, has_file):
     return None
 
 
+def infer_schedule_constraints_by_rules(user_text):
+    constraints = {}
+    platform_patterns = [
+        ("RK3588", r"RK3588|rk3588"),
+        ("ATLAS_L", r"ATLAS[_ -]?L|Atlas[_ -]?L|atlas[_ -]?l"),
+        ("ATLAS_H", r"ATLAS[_ -]?H|Atlas[_ -]?H|atlas[_ -]?h"),
+    ]
+    exclude_nodes = []
+    require_nodes = []
+    exclude_context = bool(re.search(r"不要|别用|不能用|不使用|排除|exclude|without|do not use", user_text, re.IGNORECASE))
+    require_context = bool(re.search(r"必须|指定|只用|仅用|使用|在.*上|require|only|must", user_text, re.IGNORECASE))
+
+    for platform, pattern in platform_patterns:
+        if not re.search(pattern, user_text):
+            continue
+        if exclude_context:
+            exclude_nodes.append(platform)
+        elif require_context:
+            require_nodes.append(platform)
+
+    if exclude_nodes:
+        constraints["exclude_nodes"] = sorted(set(exclude_nodes))
+    if require_nodes:
+        constraints["require_nodes"] = sorted(set(require_nodes))
+    return constraints
+
+
 def compact_agent_context(context):
     compact = {}
     for key, value in context.items():
@@ -374,12 +404,13 @@ def build_constrained_action_messages(user_text, has_file, state, context, allow
                 "Rules:\n"
                 "1. Never choose an action outside allowed_actions.\n"
                 "2. For schedule_task, include arguments.task_type from task_catalog or a client-forced task_type.\n"
-                "3. For image/file tools, only schedule them when has_file is true.\n"
-                "4. If the user only asks about cluster status, call get_cluster_resources then final_response.\n"
-                "5. If the user asks supported task types or models, call get_task_catalog then final_response.\n"
-                "6. If the user asks overhead, resource cost, or startup requirements for a task, call get_task_overhead then final_response.\n"
-                "7. If execution is needed, retrieve missing catalog/resources before scheduling when useful.\n"
-                "8. Never invent node ids, model outputs, overhead data, or cluster status."
+                "3. For schedule_task, preserve user constraints: exclude_nodes for forbidden node ids/device types and require_node or require_nodes for required node ids/device types.\n"
+                "4. For image/file tools, only schedule them when has_file is true.\n"
+                "5. If the user only asks about cluster status, call get_cluster_resources then final_response.\n"
+                "6. If the user asks supported task types or models, call get_task_catalog then final_response.\n"
+                "7. If the user asks overhead, resource cost, or startup requirements for a task, call get_task_overhead then final_response.\n"
+                "8. If execution is needed, retrieve missing catalog/resources before scheduling when useful.\n"
+                "9. Never invent node ids, model outputs, overhead data, or cluster status."
             ),
         },
         {
@@ -411,6 +442,10 @@ def choose_constrained_action(user_text, has_file, state, context):
                 return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
             if state == "S3" and "run_task_on_node" in allowed_actions:
                 return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
+            if state == "Error" and context.get("scheduled_node") and "run_task_on_node" in allowed_actions:
+                return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
+            if state == "Error" and "schedule_task" in allowed_actions:
+                return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
         if action == "get_task_catalog" and context.get("task_catalog") and "final_response" in allowed_actions:
             return "final_response", {}, "task catalog already retrieved; answer from context", model_result
         if action == "get_cluster_resources" and context.get("cluster_resources") and "final_response" in allowed_actions:
@@ -428,6 +463,10 @@ def choose_constrained_action(user_text, has_file, state, context):
             return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
         if state == "S3" and "run_task_on_node" in allowed_actions:
             return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
+        if state == "Error" and context.get("scheduled_node") and "run_task_on_node" in allowed_actions:
+            return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
+        if state == "Error" and "schedule_task" in allowed_actions:
+            return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
 
     return action, arguments, action_payload.get("reason", ""), model_result
 
@@ -522,7 +561,15 @@ def run_constrained_tool_action(action, arguments, context, user_text, has_file,
         task_type = resolve_task_type(arguments, context)
         validate_task_input_requirements(task_type, has_file, context)
         context["task_type"] = task_type
-        return json.loads(call_mcp_tool("schedule_task", {"task_type": task_type}, timeout=ACTION_TIMEOUTS[action]))
+        schedule_args = {
+            key: arguments[key]
+            for key in ("exclude_nodes", "require_node", "require_nodes")
+            if key in arguments
+        }
+        for key, value in context.get("schedule_constraints", {}).items():
+            schedule_args.setdefault(key, value)
+        schedule_args["task_type"] = task_type
+        return json.loads(call_mcp_tool("schedule_task", schedule_args, timeout=ACTION_TIMEOUTS[action]))
 
     if action == "run_task_on_node":
         task_type = resolve_task_type(arguments, context)
@@ -594,6 +641,7 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
         "has_file": has_file,
         "input_path": input_path,
         "inferred_task_type": forced_task_type or infer_task_type_by_rules(user_text, has_file),
+        "schedule_constraints": infer_schedule_constraints_by_rules(user_text),
     }
     trace = []
     state = "S0"
@@ -607,7 +655,8 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
             if state == "S0" and context.get("inferred_task_type"):
                 action, arguments, reason, usage = "get_task_catalog", {}, "fallback after invalid model action", zero_usage()
             elif state in {"S1", "S2"} and context.get("inferred_task_type"):
-                action, arguments, reason, usage = "schedule_task", {"task_type": context["inferred_task_type"]}, "fallback after invalid model action", zero_usage()
+                arguments = {"task_type": context["inferred_task_type"], **context.get("schedule_constraints", {})}
+                action, arguments, reason, usage = "schedule_task", arguments, "fallback after invalid model action", zero_usage()
             elif state == "S3":
                 action, arguments, reason, usage = "run_task_on_node", {}, "fallback after invalid model action", zero_usage()
             else:

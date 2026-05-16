@@ -13,7 +13,8 @@
     "notes": [
       "network_latency is fixed to 1 in all states and is intentionally ignored",
       "lower score is better",
-      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint"
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
     ]
   },
   "case_id": "state_018_q_det_005",
@@ -48,31 +49,31 @@
       {
         "node_id": "RK3588_1",
         "platform": "RK3588",
-        "score": 0.257,
+        "score": 0.329,
         "ready_container": true,
-        "cpu_used": 0.3,
-        "mem_used": 0.36,
-        "npu_used": 0.25
+        "cpu_used": 0.36,
+        "mem_used": 0.41,
+        "npu_used": 0.35
       },
       {
         "node_id": "RK3588_2",
         "platform": "RK3588",
-        "score": 0.712,
-        "ready_container": true,
-        "cpu_used": 0.76,
-        "mem_used": 0.7,
-        "npu_used": 0.84
+        "score": 0.351,
+        "ready_container": false,
+        "cpu_used": 0.28,
+        "mem_used": 0.35,
+        "npu_used": 0.25
       },
       {
         "node_id": "ATLAS_L",
         "platform": "Atlas 200DK",
-        "score": 0.792,
+        "score": 0.794,
         "ready_container": false,
-        "cpu_used": 0.72,
-        "mem_used": 0.69,
-        "npu_used": 0.82
+        "cpu_used": 0.52,
+        "mem_used": 0.55,
+        "npu_used": 0.96
       }
     ],
-    "oracle_score": 0.257
+    "oracle_score": 0.329
   }
 }

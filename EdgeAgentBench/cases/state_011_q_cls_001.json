@@ -13,7 +13,8 @@
     "notes": [
       "network_latency is fixed to 1 in all states and is intentionally ignored",
       "lower score is better",
-      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint"
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
     ]
   },
   "case_id": "state_011_q_cls_001",
@@ -35,8 +36,9 @@
     "expected_task": "image_classification",
     "eligible_nodes": [
       "RK3588_2",
+      "ATLAS_L",
       "ATLAS_H",
-      "ATLAS_L"
+      "RK3588_1"
     ],
     "selected_node": "RK3588_2",
     "selected_platform": "RK3588",
@@ -44,31 +46,40 @@
       {
         "node_id": "RK3588_2",
         "platform": "RK3588",
-        "score": 0.382,
+        "score": 0.296,
+        "ready_container": true,
+        "cpu_used": 0.35,
+        "mem_used": 0.33,
+        "npu_used": 0.32
+      },
+      {
+        "node_id": "ATLAS_L",
+        "platform": "Atlas 200DK",
+        "score": 0.384,
         "ready_container": false,
-        "cpu_used": 0.32,
-        "mem_used": 0.39,
+        "cpu_used": 0.29,
+        "mem_used": 0.43,
         "npu_used": 0.28
       },
       {
         "node_id": "ATLAS_H",
         "platform": "Orange Pi aipro",
-        "score": 0.463,
+        "score": 0.396,
         "ready_container": false,
-        "cpu_used": 0.41,
-        "mem_used": 0.48,
-        "npu_used": 0.37
+        "cpu_used": 0.35,
+        "mem_used": 0.33,
+        "npu_used": 0.32
       },
       {
-        "node_id": "ATLAS_L",
-        "platform": "Atlas 200DK",
-        "score": 0.488,
+        "node_id": "RK3588_1",
+        "platform": "RK3588",
+        "score": 0.749,
         "ready_container": false,
-        "cpu_used": 0.44,
-        "mem_used": 0.5,
-        "npu_used": 0.4
+        "cpu_used": 0.45,
+        "mem_used": 0.57,
+        "npu_used": 0.89
       }
     ],
-    "oracle_score": 0.382
+    "oracle_score": 0.296
   }
 }

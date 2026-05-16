@@ -1,0 +1,71 @@
+{
+  "state_id": "state_099",
+  "description": "CPU/内存/NPU 混合压力，变体 3，验证现实混合负载下的综合调度收益",
+  "nodes": [
+    {
+      "node_id": "RK3588_1",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.52,
+      "mem_used": 0.63,
+      "npu_used": 0.84,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    },
+    {
+      "node_id": "RK3588_2",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.31,
+      "mem_used": 0.31,
+      "npu_used": 0.26,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "image_classification"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "Atlas 200DK",
+      "online": true,
+      "cpu_used": 0.75,
+      "mem_used": 0.59,
+      "npu_used": 0.48,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [
+        "object_detection",
+        "semantic_segmentation"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_H",
+      "platform": "Orange Pi aipro",
+      "online": true,
+      "cpu_used": 0.45,
+      "mem_used": 0.83,
+      "npu_used": 0.38,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    }
+  ]
+}

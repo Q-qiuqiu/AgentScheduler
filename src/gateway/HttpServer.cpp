@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <cstring>
+#include <set>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 #include <utility>
@@ -14,6 +15,31 @@
 using json = nlohmann::json;
 
 namespace {
+
+std::string Trim(const std::string &value) {
+    const auto start = value.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos) {
+        return "";
+    }
+    const auto end = value.find_last_not_of(" \t\r\n");
+    return value.substr(start, end - start + 1);
+}
+
+std::set<std::string> ParseStringSetParam(const httplib::Request &req, const std::string &key) {
+    std::set<std::string> values;
+    auto range = req.params.equal_range(key);
+    for (auto it = range.first; it != range.second; ++it) {
+        std::stringstream stream(it->second);
+        std::string item;
+        while (std::getline(stream, item, ',')) {
+            item = Trim(item);
+            if (!item.empty()) {
+                values.insert(item);
+            }
+        }
+    }
+    return values;
+}
 
 std::string Base64Encode(const std::string &input) {
     static constexpr char kBase64Chars[] =
@@ -307,7 +333,12 @@ void HttpServer::HandleScheduleTask(const httplib::Request &req, httplib::Respon
         return;
     }
 
-    auto device_opt = Docker_scheduler::scheduleDeviceByTType(task_type);
+    auto exclude_nodes = ParseStringSetParam(req, "exclude_nodes");
+    auto require_nodes = ParseStringSetParam(req, "require_node");
+    auto require_nodes_alias = ParseStringSetParam(req, "require_nodes");
+    require_nodes.insert(require_nodes_alias.begin(), require_nodes_alias.end());
+
+    auto device_opt = Docker_scheduler::scheduleDeviceByTType(task_type, exclude_nodes, require_nodes);
     if (!device_opt.has_value()) {
         res.status = 400;
         res.set_content("failed to schedule a target device", "text/plain");
@@ -322,7 +353,9 @@ void HttpServer::HandleScheduleTask(const httplib::Request &req, httplib::Respon
         {"target_global_id", boost::uuids::to_string(device.global_id)},
         {"type", json(device.type)},
         {"ip_address", device.ip_address},
-        {"agent_port", device.agent_port}
+        {"agent_port", device.agent_port},
+        {"exclude_nodes", exclude_nodes},
+        {"require_nodes", require_nodes}
     };
     res.status = 200;
     res.set_content(response.dump(), "application/json");

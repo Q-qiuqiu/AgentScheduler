@@ -13,7 +13,8 @@
     "notes": [
       "network_latency is fixed to 1 in all states and is intentionally ignored",
       "lower score is better",
-      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint"
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
     ]
   },
   "case_id": "state_007_q_seg_005",
@@ -43,22 +44,22 @@
       {
         "node_id": "ATLAS_L",
         "platform": "Atlas 200DK",
-        "score": 0.218,
+        "score": 0.39,
         "ready_container": true,
-        "cpu_used": 0.24,
-        "mem_used": 0.3,
-        "npu_used": 0.22
+        "cpu_used": 0.42,
+        "mem_used": 0.53,
+        "npu_used": 0.4
       },
       {
         "node_id": "ATLAS_H",
         "platform": "Orange Pi aipro",
-        "score": 0.298,
+        "score": 0.502,
         "ready_container": false,
-        "cpu_used": 0.21,
-        "mem_used": 0.28,
-        "npu_used": 0.2
+        "cpu_used": 0.48,
+        "mem_used": 0.43,
+        "npu_used": 0.44
       }
     ],
-    "oracle_score": 0.218
+    "oracle_score": 0.39
   }
 }

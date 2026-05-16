@@ -1,0 +1,85 @@
+{
+  "benchmark": "EdgeAgentBench",
+  "version": "0.1",
+  "oracle": {
+    "name": "least_loaded_hot_container_oracle",
+    "objective": "minimize weighted load while respecting online status, task support, and query constraints",
+    "weights": {
+      "npu_used": 0.5,
+      "cpu_used": 0.2,
+      "mem_used": 0.2,
+      "cold_start_penalty": 0.1
+    },
+    "notes": [
+      "network_latency is fixed to 1 in all states and is intentionally ignored",
+      "lower score is better",
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
+    ]
+  },
+  "case_id": "state_025_q_cls_003",
+  "state_id": "state_025",
+  "query_id": "q_cls_003",
+  "query": "用当前最合适的开发板跑一下图像分类任务",
+  "query_path": "queries/image_classification/q_cls_003.json",
+  "state_path": "states/state_025.json",
+  "expected_task": "image_classification",
+  "constraints": {},
+  "ground_truth": {
+    "intent": "execute_task",
+    "should_schedule": true,
+    "expected_tools": [
+      "get_task_catalog",
+      "schedule_task",
+      "run_task_on_node"
+    ],
+    "expected_task": "image_classification",
+    "eligible_nodes": [
+      "ATLAS_H",
+      "ATLAS_L",
+      "RK3588_2",
+      "RK3588_1"
+    ],
+    "selected_node": "ATLAS_H",
+    "selected_platform": "Orange Pi aipro",
+    "ranking": [
+      {
+        "node_id": "ATLAS_H",
+        "platform": "Orange Pi aipro",
+        "score": 0.39,
+        "ready_container": false,
+        "cpu_used": 0.32,
+        "mem_used": 0.38,
+        "npu_used": 0.3
+      },
+      {
+        "node_id": "ATLAS_L",
+        "platform": "Atlas 200DK",
+        "score": 0.39,
+        "ready_container": false,
+        "cpu_used": 0.32,
+        "mem_used": 0.38,
+        "npu_used": 0.3
+      },
+      {
+        "node_id": "RK3588_2",
+        "platform": "RK3588",
+        "score": 0.39,
+        "ready_container": false,
+        "cpu_used": 0.32,
+        "mem_used": 0.38,
+        "npu_used": 0.3
+      },
+      {
+        "node_id": "RK3588_1",
+        "platform": "RK3588",
+        "score": 0.444,
+        "ready_container": true,
+        "cpu_used": 0.42,
+        "mem_used": 0.9,
+        "npu_used": 0.36
+      }
+    ],
+    "oracle_score": 0.39
+  }
+}

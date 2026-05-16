@@ -1,0 +1,75 @@
+{
+  "state_id": "state_040",
+  "description": "ATLAS_H 内存压力，变体 4，验证高性能节点内存不足时的降级选择",
+  "nodes": [
+    {
+      "node_id": "RK3588_1",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.38,
+      "mem_used": 0.36,
+      "npu_used": 0.33,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "object_detection"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "RK3588_2",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.26,
+      "mem_used": 0.4,
+      "npu_used": 0.27,
+      "support_tasks": [
+        "object_detection",
+        "image_classification"
+      ],
+      "ready_containers": [
+        "object_detection",
+        "image_classification"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "Atlas 200DK",
+      "online": true,
+      "cpu_used": 0.38,
+      "mem_used": 0.36,
+      "npu_used": 0.33,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_H",
+      "platform": "Orange Pi aipro",
+      "online": true,
+      "cpu_used": 0.36,
+      "mem_used": 0.92,
+      "npu_used": 0.33,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [
+        "object_detection",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "network_latency": 1
+    }
+  ]
+}

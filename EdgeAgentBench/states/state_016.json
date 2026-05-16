@@ -1,20 +1,20 @@
 {
   "state_id": "state_016",
-  "description": "图像分类容器多节点预热但负载差异明显，适合验证在热容器集合中的最优节点选择",
+  "description": "RK3588_2 NPU 高负载，变体 4，验证同构 RK 节点间的热点迁移能力",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.63,
-      "mem_used": 0.58,
-      "npu_used": 0.66,
+      "cpu_used": 0.38,
+      "mem_used": 0.36,
+      "npu_used": 0.33,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
       "ready_containers": [
-        "image_classification"
+        "object_detection"
       ],
       "network_latency": 1
     },
@@ -22,14 +22,15 @@
       "node_id": "RK3588_2",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.34,
-      "mem_used": 0.4,
-      "npu_used": 0.31,
+      "cpu_used": 0.42,
+      "mem_used": 0.54,
+      "npu_used": 0.88,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
       "ready_containers": [
+        "object_detection",
         "image_classification"
       ],
       "network_latency": 1
@@ -38,27 +39,25 @@
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.49,
-      "mem_used": 0.53,
-      "npu_used": 0.45,
+      "cpu_used": 0.38,
+      "mem_used": 0.36,
+      "npu_used": 0.33,
       "support_tasks": [
         "object_detection",
         "image_classification",
         "semantic_segmentation",
         "text_classification"
       ],
-      "ready_containers": [
-        "image_classification"
-      ],
+      "ready_containers": [],
       "network_latency": 1
     },
     {
       "node_id": "ATLAS_H",
       "platform": "Orange Pi aipro",
       "online": true,
-      "cpu_used": 0.39,
-      "mem_used": 0.44,
-      "npu_used": 0.35,
+      "cpu_used": 0.26,
+      "mem_used": 0.4,
+      "npu_used": 0.27,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -66,7 +65,9 @@
         "text_classification"
       ],
       "ready_containers": [
-        "image_classification"
+        "object_detection",
+        "semantic_segmentation",
+        "text_classification"
       ],
       "network_latency": 1
     }

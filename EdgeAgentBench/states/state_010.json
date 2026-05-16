@@ -1,20 +1,21 @@
 {
   "state_id": "state_010",
-  "description": "NPU 普遍高负载，仅 Atlas_H 保持可用余量，适合验证拥塞场景下的最小风险选择",
+  "description": "RK3588_1 NPU 高负载，变体 2，验证目标检测/分类是否避开单个 NPU 热点",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.62,
-      "mem_used": 0.58,
-      "npu_used": 0.92,
+      "cpu_used": 0.52,
+      "mem_used": 0.55,
+      "npu_used": 0.96,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
       "ready_containers": [
-        "object_detection"
+        "object_detection",
+        "image_classification"
       ],
       "network_latency": 1
     },
@@ -22,25 +23,23 @@
       "node_id": "RK3588_2",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.59,
-      "mem_used": 0.6,
-      "npu_used": 0.89,
+      "cpu_used": 0.28,
+      "mem_used": 0.35,
+      "npu_used": 0.25,
       "support_tasks": [
         "object_detection",
         "image_classification"
       ],
-      "ready_containers": [
-        "image_classification"
-      ],
+      "ready_containers": [],
       "network_latency": 1
     },
     {
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.66,
-      "mem_used": 0.64,
-      "npu_used": 0.94,
+      "cpu_used": 0.36,
+      "mem_used": 0.41,
+      "npu_used": 0.35,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -56,9 +55,9 @@
       "node_id": "ATLAS_H",
       "platform": "Orange Pi aipro",
       "online": true,
-      "cpu_used": 0.47,
-      "mem_used": 0.52,
-      "npu_used": 0.58,
+      "cpu_used": 0.28,
+      "mem_used": 0.35,
+      "npu_used": 0.25,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -66,7 +65,7 @@
         "text_classification"
       ],
       "ready_containers": [
-        "object_detection"
+        "semantic_segmentation"
       ],
       "network_latency": 1
     }

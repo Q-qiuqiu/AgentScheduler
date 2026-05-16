@@ -1,14 +1,14 @@
 {
   "state_id": "state_005",
-  "description": "Atlas_H 算力空闲且预热语义分割，Atlas_L 资源紧张，适合验证异构高性能节点选择",
+  "description": "全局中等负载，变体 1，验证常规稳定运行状态下的调度选择",
   "nodes": [
     {
       "node_id": "RK3588_1",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.36,
-      "mem_used": 0.42,
-      "npu_used": 0.33,
+      "cpu_used": 0.45,
+      "mem_used": 0.48,
+      "npu_used": 0.42,
       "support_tasks": [
         "object_detection",
         "image_classification"
@@ -22,9 +22,9 @@
       "node_id": "RK3588_2",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.4,
-      "mem_used": 0.46,
-      "npu_used": 0.38,
+      "cpu_used": 0.45,
+      "mem_used": 0.48,
+      "npu_used": 0.42,
       "support_tasks": [
         "object_detection",
         "image_classification"
@@ -38,28 +38,9 @@
       "node_id": "ATLAS_L",
       "platform": "Atlas 200DK",
       "online": true,
-      "cpu_used": 0.74,
-      "mem_used": 0.81,
-      "npu_used": 0.86,
-      "support_tasks": [
-        "object_detection",
-        "image_classification",
-        "semantic_segmentation",
-        "text_classification"
-      ],
-      "ready_containers": [
-        "semantic_segmentation",
-        "text_classification"
-      ],
-      "network_latency": 1
-    },
-    {
-      "node_id": "ATLAS_H",
-      "platform": "Orange Pi aipro",
-      "online": true,
-      "cpu_used": 0.26,
-      "mem_used": 0.29,
-      "npu_used": 0.19,
+      "cpu_used": 0.45,
+      "mem_used": 0.48,
+      "npu_used": 0.42,
       "support_tasks": [
         "object_detection",
         "image_classification",
@@ -68,6 +49,24 @@
       ],
       "ready_containers": [
         "semantic_segmentation"
+      ],
+      "network_latency": 1
+    },
+    {
+      "node_id": "ATLAS_H",
+      "platform": "Orange Pi aipro",
+      "online": true,
+      "cpu_used": 0.45,
+      "mem_used": 0.48,
+      "npu_used": 0.42,
+      "support_tasks": [
+        "object_detection",
+        "image_classification",
+        "semantic_segmentation",
+        "text_classification"
+      ],
+      "ready_containers": [
+        "text_classification"
       ],
       "network_latency": 1
     }

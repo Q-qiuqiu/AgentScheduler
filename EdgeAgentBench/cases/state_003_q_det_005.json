@@ -13,7 +13,8 @@
     "notes": [
       "network_latency is fixed to 1 in all states and is intentionally ignored",
       "lower score is better",
-      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint"
+      "nodes are excluded when either node_id or platform matches an exclude_nodes constraint",
+      "nodes are allowed only when node_id or platform matches require_node or require_nodes constraints"
     ]
   },
   "case_id": "state_003_q_det_005",
@@ -38,41 +39,41 @@
     ],
     "expected_task": "object_detection",
     "eligible_nodes": [
-      "RK3588_1",
       "ATLAS_L",
+      "RK3588_1",
       "RK3588_2"
     ],
-    "selected_node": "RK3588_1",
-    "selected_platform": "RK3588",
+    "selected_node": "ATLAS_L",
+    "selected_platform": "Atlas 200DK",
     "ranking": [
-      {
-        "node_id": "RK3588_1",
-        "platform": "RK3588",
-        "score": 0.326,
-        "ready_container": false,
-        "cpu_used": 0.24,
-        "mem_used": 0.34,
-        "npu_used": 0.22
-      },
       {
         "node_id": "ATLAS_L",
         "platform": "Atlas 200DK",
-        "score": 0.496,
+        "score": 0.158,
+        "ready_container": true,
+        "cpu_used": 0.15,
+        "mem_used": 0.29,
+        "npu_used": 0.14
+      },
+      {
+        "node_id": "RK3588_1",
+        "platform": "RK3588",
+        "score": 0.258,
         "ready_container": false,
-        "cpu_used": 0.45,
-        "mem_used": 0.48,
-        "npu_used": 0.42
+        "cpu_used": 0.15,
+        "mem_used": 0.29,
+        "npu_used": 0.14
       },
       {
         "node_id": "RK3588_2",
         "platform": "RK3588",
-        "score": 0.675,
-        "ready_container": true,
-        "cpu_used": 0.52,
-        "mem_used": 0.58,
-        "npu_used": 0.91
+        "score": 0.27,
+        "ready_container": false,
+        "cpu_used": 0.21,
+        "mem_used": 0.19,
+        "npu_used": 0.18
       }
     ],
-    "oracle_score": 0.326
+    "oracle_score": 0.158
   }
 }
