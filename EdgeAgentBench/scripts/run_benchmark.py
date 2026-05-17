@@ -2,6 +2,7 @@
 import argparse
 import csv
 import json
+import random
 from pathlib import Path
 from typing import Any
 
@@ -119,16 +120,16 @@ def case_oracle_prediction(case: dict[str, Any], state: dict[str, Any], honor_co
     }
 
 
-def scheduler_prediction(
+def feasible_scheduler_candidates(
     case: dict[str, Any],
     state: dict[str, Any],
     static_info: dict[str, Any],
     honor_constraints: bool,
-) -> dict[str, Any]:
+) -> list[dict[str, Any]]:
     task = case["expected_task"]
     model_name = TASK_TO_MODEL[task]
     model_profile = static_info.get(model_name, {})
-    ranked = []
+    candidates = []
 
     for node in candidate_nodes(case, state, honor_constraints):
         platform = normalize_platform(node.get("platform"))
@@ -146,21 +147,38 @@ def scheduler_prediction(
             mem_after += overhead.get("mem_usage", 0)
             npu_after += overhead.get("xpu_usage", 0)
 
-        feasible = cpu_after <= 1 and mem_after <= 1 and npu_after <= 1
-        if not feasible:
+        if cpu_after > 1 or mem_after > 1 or npu_after > 1:
             continue
 
+        candidates.append({
+            "node": node,
+            "detail": {
+                "cpu_after": round(cpu_after, 4),
+                "mem_after": round(mem_after, 4),
+                "npu_after": round(npu_after, 4),
+                "cold_start": cold_start,
+                "model_name": model_name,
+                "device_type": platform,
+            },
+        })
+    return candidates
+
+
+def scheduler_prediction(
+    case: dict[str, Any],
+    state: dict[str, Any],
+    static_info: dict[str, Any],
+    honor_constraints: bool,
+) -> dict[str, Any]:
+    ranked = []
+
+    for item in feasible_scheduler_candidates(case, state, static_info, honor_constraints):
+        node = item["node"]
+        detail = item["detail"]
         # Mirrors gateway scheduleDeviceByTType: choose min CPU + XPU + 0.1 * MEM
         # among feasible devices.
-        score = round(cpu_after + npu_after + 0.1 * mem_after, 4)
-        ranked.append((score, node, {
-            "cpu_after": round(cpu_after, 4),
-            "mem_after": round(mem_after, 4),
-            "npu_after": round(npu_after, 4),
-            "cold_start": cold_start,
-            "model_name": model_name,
-            "device_type": platform,
-        }))
+        score = round(detail["cpu_after"] + detail["npu_after"] + 0.1 * detail["mem_after"], 4)
+        ranked.append((score, node, detail))
 
     ranked.sort(key=lambda item: (item[0], item[1].get("node_id", "")))
     if not ranked:
@@ -175,11 +193,80 @@ def scheduler_prediction(
     }
 
 
+def random_prediction(
+    case: dict[str, Any],
+    state: dict[str, Any],
+    static_info: dict[str, Any],
+    honor_constraints: bool,
+    rng: random.Random,
+) -> dict[str, Any]:
+    candidates = feasible_scheduler_candidates(case, state, static_info, honor_constraints)
+    candidates.sort(key=lambda item: item["node"].get("node_id", ""))
+    if not candidates:
+        return {"selected_node": None, "selected_platform": None, "score": None, "eligible_nodes": []}
+
+    selected = rng.choice(candidates)
+    node = selected["node"]
+    return {
+        "selected_node": node.get("node_id"),
+        "selected_platform": node.get("platform"),
+        "score": None,
+        "eligible_nodes": [item["node"].get("node_id") for item in candidates],
+        "detail": selected["detail"],
+    }
+
+
+def round_robin_prediction(
+    case: dict[str, Any],
+    state: dict[str, Any],
+    static_info: dict[str, Any],
+    honor_constraints: bool,
+    runner_state: dict[str, Any],
+) -> dict[str, Any]:
+    candidates = feasible_scheduler_candidates(case, state, static_info, honor_constraints)
+    if not candidates:
+        return {"selected_node": None, "selected_platform": None, "score": None, "eligible_nodes": []}
+
+    candidate_by_id = {item["node"].get("node_id"): item for item in candidates}
+    node_order = runner_state.setdefault("round_robin_node_order", [
+        "RK3588_1",
+        "RK3588_2",
+        "ATLAS_L",
+        "ATLAS_H",
+    ])
+    index = runner_state.setdefault("round_robin_index", 0)
+
+    selected = None
+    selected_index = index
+    for offset in range(len(node_order)):
+        candidate_index = (index + offset) % len(node_order)
+        node_id = node_order[candidate_index]
+        if node_id in candidate_by_id:
+            selected = candidate_by_id[node_id]
+            selected_index = candidate_index
+            break
+
+    if selected is None:
+        candidates.sort(key=lambda item: item["node"].get("node_id", ""))
+        selected = candidates[0]
+
+    runner_state["round_robin_index"] = (selected_index + 1) % len(node_order)
+    node = selected["node"]
+    return {
+        "selected_node": node.get("node_id"),
+        "selected_platform": node.get("platform"),
+        "score": None,
+        "eligible_nodes": [item["node"].get("node_id") for item in candidates],
+        "detail": selected["detail"],
+    }
+
+
 def evaluate_case(
     case: dict[str, Any],
     policy: str,
     static_info: dict[str, Any],
     honor_constraints: bool,
+    runner_state: dict[str, Any],
 ) -> dict[str, Any]:
     gt = case["ground_truth"]
     expected_task = case["expected_task"]
@@ -207,6 +294,22 @@ def evaluate_case(
         prediction = case_oracle_prediction(case, state, honor_constraints)
     elif policy == "scheduler":
         prediction = scheduler_prediction(case, state, static_info, honor_constraints)
+    elif policy == "random":
+        prediction = random_prediction(
+            case,
+            state,
+            static_info,
+            honor_constraints,
+            runner_state["rng"],
+        )
+    elif policy == "round_robin":
+        prediction = round_robin_prediction(
+            case,
+            state,
+            static_info,
+            honor_constraints,
+            runner_state,
+        )
     else:
         raise RuntimeError(f"unsupported policy: {policy}")
 
@@ -280,7 +383,7 @@ def main() -> int:
     parser.add_argument("--case-pattern", default="state_*.json", help="Glob pattern for case files")
     parser.add_argument(
         "--policy",
-        choices=["ground_truth", "case_oracle", "scheduler"],
+        choices=["ground_truth", "case_oracle", "scheduler", "random", "round_robin"],
         default="scheduler",
         help="Prediction policy to evaluate against case ground truth",
     )
@@ -291,17 +394,20 @@ def main() -> int:
     )
     parser.add_argument("--output", default=str(BENCH_ROOT / "results" / "runner_results.csv"))
     parser.add_argument("--failures", type=int, default=10, help="Number of failures to print")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed used by random baseline")
     parser.add_argument("--strict", action="store_true", help="Exit with code 1 when any case fails")
     args = parser.parse_args()
 
     cases = load_cases(Path(args.case_dir), args.case_pattern)
     static_info = load_static_info()
+    runner_state = {"rng": random.Random(args.seed)}
     rows = [
         evaluate_case(
             case,
             args.policy,
             static_info,
             honor_constraints=not args.ignore_constraints,
+            runner_state=runner_state,
         )
         for case in cases
     ]
@@ -310,6 +416,7 @@ def main() -> int:
 
     print(json.dumps({
         "policy": args.policy,
+        "seed": args.seed if args.policy == "random" else None,
         "case_count": len(cases),
         "output": args.output,
         **summary,

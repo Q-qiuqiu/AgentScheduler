@@ -292,6 +292,41 @@ It applies static overhead from `/root/AgentScheduler/config_files/static_info.j
 python3 scripts/run_benchmark.py --policy scheduler
 ```
 
+`random`
+
+Baseline policy. It first filters nodes with the same feasibility rules as the scheduler, including task support, online status, query constraints, cold-start overhead, and CPU/MEM/XPU limits. It then randomly chooses one feasible node. Use `--seed` for reproducible results.
+
+```bash
+python3 scripts/run_benchmark.py \
+  --policy random \
+  --seed 42 \
+  --output results/random_results.csv
+```
+
+`round_robin`
+
+Baseline policy. It first applies the same feasibility filter as the scheduler, then rotates through this fixed node order:
+
+```text
+RK3588_1 -> RK3588_2 -> ATLAS_L -> ATLAS_H
+```
+
+If the current node is infeasible for the case, it skips to the next feasible node in the rotation.
+
+```bash
+python3 scripts/run_benchmark.py \
+  --policy round_robin \
+  --output results/round_robin_results.csv
+```
+
+Run the scheduler and both baselines:
+
+```bash
+python3 scripts/run_benchmark.py --policy scheduler --output results/scheduler_results.csv
+python3 scripts/run_benchmark.py --policy random --seed 42 --output results/random_results.csv
+python3 scripts/run_benchmark.py --policy round_robin --output results/round_robin_results.csv
+```
+
 ## Notes
 
 - `case` files are benchmark samples, not direct `schedule_task` inputs.
