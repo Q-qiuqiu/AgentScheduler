@@ -4,3 +4,6 @@ cmake-build*/
 build/
 build-*/
 __pycache__/
+*.csv
+*.xlsx
+
