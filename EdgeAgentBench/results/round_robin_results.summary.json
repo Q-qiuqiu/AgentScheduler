@@ -1,0 +1,40 @@
+{
+  "policy": "round_robin",
+  "seed": null,
+  "case_count": 2500,
+  "output": "results/round_robin_results.csv",
+  "summary_output": "results/round_robin_results.summary.json",
+  "total": 2500,
+  "passed": 1504,
+  "accuracy": 0.6016,
+  "scheduled_total": 2000,
+  "scheduled_passed": 1004,
+  "scheduled_accuracy": 0.502,
+  "by_task": {
+    "image_classification": {
+      "total": 500,
+      "passed": 188,
+      "accuracy": 0.376
+    },
+    "object_detection": {
+      "total": 500,
+      "passed": 171,
+      "accuracy": 0.342
+    },
+    "resource_query": {
+      "total": 500,
+      "passed": 500,
+      "accuracy": 1.0
+    },
+    "semantic_segmentation": {
+      "total": 500,
+      "passed": 333,
+      "accuracy": 0.666
+    },
+    "text_classification": {
+      "total": 500,
+      "passed": 312,
+      "accuracy": 0.624
+    }
+  }
+}

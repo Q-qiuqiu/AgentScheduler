@@ -1,0 +1,40 @@
+{
+  "policy": "scheduler",
+  "seed": null,
+  "case_count": 2500,
+  "output": "results/scheduler_0p8cpu_results.csv",
+  "summary_output": "results/scheduler_0p8cpu_results.summary.json",
+  "total": 2500,
+  "passed": 2162,
+  "accuracy": 0.8648,
+  "scheduled_total": 2000,
+  "scheduled_passed": 1662,
+  "scheduled_accuracy": 0.831,
+  "by_task": {
+    "image_classification": {
+      "total": 500,
+      "passed": 340,
+      "accuracy": 0.68
+    },
+    "object_detection": {
+      "total": 500,
+      "passed": 402,
+      "accuracy": 0.804
+    },
+    "resource_query": {
+      "total": 500,
+      "passed": 500,
+      "accuracy": 1.0
+    },
+    "semantic_segmentation": {
+      "total": 500,
+      "passed": 460,
+      "accuracy": 0.92
+    },
+    "text_classification": {
+      "total": 500,
+      "passed": 460,
+      "accuracy": 0.92
+    }
+  }
+}

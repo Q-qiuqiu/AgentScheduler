@@ -261,6 +261,52 @@ def round_robin_prediction(
     }
 
 
+def ranked_candidate_prediction(
+    case: dict[str, Any],
+    state: dict[str, Any],
+    static_info: dict[str, Any],
+    honor_constraints: bool,
+    policy: str,
+) -> dict[str, Any]:
+    candidates = feasible_scheduler_candidates(case, state, static_info, honor_constraints)
+    if not candidates:
+        return {"selected_node": None, "selected_platform": None, "score": None, "eligible_nodes": []}
+
+    ranked = []
+    for item in candidates:
+        node = item["node"]
+        detail = item["detail"]
+        avg_load = round((detail["cpu_after"] + detail["mem_after"] + detail["npu_after"]) / 3, 4)
+        if policy == "resource_average":
+            score = avg_load
+            sort_key = (score, node.get("node_id", ""))
+        elif policy == "cpu_min":
+            score = detail["cpu_after"]
+            sort_key = (score, node.get("node_id", ""))
+        elif policy == "npu_min":
+            score = detail["npu_after"]
+            sort_key = (score, node.get("node_id", ""))
+        elif policy == "mem_min":
+            score = detail["mem_after"]
+            sort_key = (score, node.get("node_id", ""))
+        elif policy == "container_first":
+            score = avg_load
+            sort_key = (1 if detail["cold_start"] else 0, score, node.get("node_id", ""))
+        else:
+            raise RuntimeError(f"unsupported ranked baseline policy: {policy}")
+        ranked.append((sort_key, score, node, detail))
+
+    ranked.sort(key=lambda item: item[0])
+    _, score, node, detail = ranked[0]
+    return {
+        "selected_node": node.get("node_id"),
+        "selected_platform": node.get("platform"),
+        "score": score,
+        "eligible_nodes": [item[2].get("node_id") for item in ranked],
+        "detail": detail,
+    }
+
+
 def evaluate_case(
     case: dict[str, Any],
     policy: str,
@@ -310,6 +356,14 @@ def evaluate_case(
             honor_constraints,
             runner_state,
         )
+    elif policy in {"resource_average", "cpu_min", "npu_min", "mem_min", "container_first"}:
+        prediction = ranked_candidate_prediction(
+            case,
+            state,
+            static_info,
+            honor_constraints,
+            policy,
+        )
     else:
         raise RuntimeError(f"unsupported policy: {policy}")
 
@@ -349,6 +403,11 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
+def write_summary_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(rows)
     passed = sum(1 for row in rows if row["status"] == "PASS")
@@ -383,7 +442,18 @@ def main() -> int:
     parser.add_argument("--case-pattern", default="state_*.json", help="Glob pattern for case files")
     parser.add_argument(
         "--policy",
-        choices=["ground_truth", "case_oracle", "scheduler", "random", "round_robin"],
+        choices=[
+            "ground_truth",
+            "case_oracle",
+            "scheduler",
+            "random",
+            "round_robin",
+            "resource_average",
+            "cpu_min",
+            "npu_min",
+            "mem_min",
+            "container_first",
+        ],
         default="scheduler",
         help="Prediction policy to evaluate against case ground truth",
     )
@@ -393,6 +463,10 @@ def main() -> int:
         help="Ignore query exclude_nodes constraints when computing predictions",
     )
     parser.add_argument("--output", default=str(BENCH_ROOT / "results" / "runner_results.csv"))
+    parser.add_argument(
+        "--summary-output",
+        help="Path for summary JSON. Defaults to the CSV output path with .summary.json suffix.",
+    )
     parser.add_argument("--failures", type=int, default=10, help="Number of failures to print")
     parser.add_argument("--seed", type=int, default=42, help="Random seed used by random baseline")
     parser.add_argument("--strict", action="store_true", help="Exit with code 1 when any case fails")
@@ -412,15 +486,20 @@ def main() -> int:
         for case in cases
     ]
     summary = summarize(rows)
-    write_csv(Path(args.output), rows)
-
-    print(json.dumps({
+    output_path = Path(args.output)
+    summary_output_path = Path(args.summary_output) if args.summary_output else output_path.with_suffix(".summary.json")
+    summary_payload = {
         "policy": args.policy,
         "seed": args.seed if args.policy == "random" else None,
         "case_count": len(cases),
         "output": args.output,
+        "summary_output": str(summary_output_path),
         **summary,
-    }, ensure_ascii=False, indent=2))
+    }
+    write_csv(output_path, rows)
+    write_summary_json(summary_output_path, summary_payload)
+
+    print(json.dumps(summary_payload, ensure_ascii=False, indent=2))
 
     failures = [row for row in rows if row["status"] != "PASS"]
     for row in failures[:args.failures]:

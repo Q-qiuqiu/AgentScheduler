@@ -17,7 +17,7 @@ EdgeAgentBench/
 │   ├── resource/                 # Resource/catalog/overhead queries
 │   ├── semantic_segmentation/    # Semantic segmentation queries
 │   └── text_classification/      # Text classification queries
-├── results/                      # Runner output CSV files
+├── results/                      # Runner output CSV and summary JSON files
 ├── samples/
 │   └── images/                   # Sample input images
 ├── scripts/
@@ -65,7 +65,7 @@ Each node includes:
 state_001_q_cls_001.json
 ```
 
-The `ground_truth` field contains the expected tool path and selected node.
+The `ground_truth` field contains the expected tool path, accepted tool-path alternatives, and selected node.
 
 ## Ground Truth Rules
 
@@ -82,7 +82,7 @@ For execution tasks, ground truth requires scheduling:
 "expected_tools": ["get_cluster_resources", "get_task_catalog", "schedule_task", "run_task_on_node"]
 ```
 
-The agent first retrieves cluster resources, then retrieves a catalog filtered by online device types, then schedules and runs the task.
+The agent first retrieves cluster resources, then retrieves a catalog filtered by online device types, then schedules and runs the task. Execution cases also contain `expected_tools_alternatives`; the tool-call runner treats any listed path as correct.
 If the task type is already clear, an overhead-based execution path is also accepted:
 
 ```text
@@ -186,7 +186,23 @@ Run the offline scheduler-style benchmark:
 
 ```bash
 cd /root/AgentScheduler/EdgeAgentBench
-python3 scripts/run_benchmark.py --policy scheduler
+python3 scripts/run_benchmark.py \
+  --policy scheduler \
+  --output results/scheduler_results.csv
+```
+
+Each run writes:
+
+- a per-case CSV, for example `results/scheduler_results.csv`
+- a summary JSON, for example `results/scheduler_results.summary.json`
+
+Override the summary path when needed:
+
+```bash
+python3 scripts/run_benchmark.py \
+  --policy scheduler \
+  --output results/scheduler_results.csv \
+  --summary-output results/scheduler_summary.json
 ```
 
 ## Run Tool-Call Benchmark
@@ -226,6 +242,8 @@ The evaluator sends each case query to `/v1/agent/chat` with `debug=1`, extracts
 ground_truth.expected_tools
 ```
 
+When `ground_truth.expected_tools_alternatives` exists, the actual sequence only needs to match one alternative.
+
 Current expected tool-flow examples:
 
 ```text
@@ -260,12 +278,6 @@ python3 scripts/run_tool_call_benchmark.py --match subsequence
 
 The output metric is `tool_call_accuracy`.
 
-Default output:
-
-```text
-results/runner_results.csv
-```
-
 Use a custom output path:
 
 ```bash
@@ -284,6 +296,27 @@ Return non-zero when any case fails:
 
 ```bash
 python3 scripts/run_benchmark.py --policy scheduler --strict
+```
+
+## Agent Debugging
+
+The tool-call benchmark uses `debug=1` so the agent response includes `trace` and `usage`. This does not print timing logs.
+
+```bash
+curl -X POST http://127.0.0.1:8082/v1/agent/chat \
+  -F "image=@/root/dog1.jpg" \
+  -F "text=帮我检测图片中的目标的具体位置" \
+  -F "debug=1"
+```
+
+To also print `[TIMING]` lines in the agent server log, add `timing=1`:
+
+```bash
+curl -X POST http://127.0.0.1:8082/v1/agent/chat \
+  -F "image=@/root/dog1.jpg" \
+  -F "text=帮我检测图片中的目标的具体位置" \
+  -F "debug=1" \
+  -F "timing=1"
 ```
 
 ## Runner Policies
@@ -348,13 +381,61 @@ python3 scripts/run_benchmark.py \
   --output results/round_robin_results.csv
 ```
 
-Run the scheduler and both baselines:
+`resource_average`
+
+Baseline policy. It selects the feasible node with the lowest average post-placement resource usage:
+
+```text
+(cpu_after + mem_after + npu_after) / 3
+```
+
+```bash
+python3 scripts/run_benchmark.py --policy resource_average --output results/resource_average_results.csv
+```
+
+`cpu_min`, `npu_min`, `mem_min`
+
+Baseline policies. Each selects the feasible node with the smallest post-placement CPU, NPU, or memory usage.
+
+```bash
+python3 scripts/run_benchmark.py --policy cpu_min --output results/cpu_min_results.csv
+python3 scripts/run_benchmark.py --policy npu_min --output results/npu_min_results.csv
+python3 scripts/run_benchmark.py --policy mem_min --output results/mem_min_results.csv
+```
+
+`container_first`
+
+Baseline policy. It first prefers feasible nodes that already have the requested container running. If no warm container is feasible, it falls back to `resource_average`.
+
+```bash
+python3 scripts/run_benchmark.py --policy container_first --output results/container_first_results.csv
+```
+
+Run the scheduler and baselines:
 
 ```bash
 python3 scripts/run_benchmark.py --policy scheduler --output results/scheduler_results.csv
 python3 scripts/run_benchmark.py --policy random --seed 42 --output results/random_results.csv
 python3 scripts/run_benchmark.py --policy round_robin --output results/round_robin_results.csv
+python3 scripts/run_benchmark.py --policy resource_average --output results/resource_average_results.csv
+python3 scripts/run_benchmark.py --policy cpu_min --output results/cpu_min_results.csv
+python3 scripts/run_benchmark.py --policy npu_min --output results/npu_min_results.csv
+python3 scripts/run_benchmark.py --policy mem_min --output results/mem_min_results.csv
+python3 scripts/run_benchmark.py --policy container_first --output results/container_first_results.csv
 ```
+
+Latest full-run scheduled accuracy on the 2500 generated cases:
+
+| Policy | Scheduled accuracy |
+|---|---:|
+| `scheduler` | 0.8355 |
+| `resource_average` | 0.8225 |
+| `npu_min` | 0.8045 |
+| `cpu_min` | 0.7955 |
+| `container_first` | 0.7635 |
+| `mem_min` | 0.6545 |
+| `round_robin` | 0.5020 |
+| `random` | 0.4965 |
 
 ## Notes
 
