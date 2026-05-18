@@ -127,7 +127,7 @@ def build_execution_ground_truth(query, state, catalog_tasks):
     return {
         "intent": "execute_task",
         "should_schedule": True,
-        "expected_tools": ["get_task_catalog", "schedule_task", "run_task_on_node"],
+        "expected_tools": ["get_cluster_resources", "get_task_catalog", "schedule_task", "run_task_on_node"],
         "expected_task": task_type,
         "eligible_nodes": [item["node_id"] for item in ranking],
         "selected_node": selected["node_id"] if selected else None,
@@ -139,9 +139,9 @@ def build_execution_ground_truth(query, state, catalog_tasks):
 
 def resource_expected_tools(query_id):
     if query_id in {"q_res_004", "q_res_005"}:
-        return ["get_task_overhead"]
+        return ["get_cluster_resources", "get_task_overhead"]
     if query_id == "q_res_002":
-        return ["get_task_catalog"]
+        return ["get_cluster_resources", "get_task_catalog"]
     return ["get_cluster_resources"]
 
 

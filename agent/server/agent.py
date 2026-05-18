@@ -518,6 +518,13 @@ def allowed_actions_for_context(user_text, state, context):
     wants_overhead = is_overhead_request(user_text)
     needs_online_scope = bool(context.get("inferred_task_type")) or wants_catalog or wants_overhead
 
+    if wants_overhead and context.get("task_overhead"):
+        if context.get("inferred_task_type") and not context.get("scheduled_node") and "schedule_task" in allowed_actions:
+            return {"schedule_task"}
+        if "final_response" in allowed_actions:
+            return {"final_response"}
+    if wants_overhead and context.get("last_error") and state == "Error" and "final_response" in allowed_actions:
+        return {"final_response"}
     if needs_online_scope and not context.get("cluster_resources") and "get_cluster_resources" in allowed_actions:
         return {"get_cluster_resources"}
     if wants_overhead and not context.get("task_overhead") and "get_task_overhead" in allowed_actions:

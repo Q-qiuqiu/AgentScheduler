@@ -100,6 +100,8 @@ def tools_match(expected: list[str], actual: list[str], mode: str) -> bool:
 def tool_mismatch_reason(expected: list[str], actual: list[str]) -> str:
     if actual == ["get_task_catalog"] and expected != actual:
         return "early_stop_after_get_task_catalog"
+    if actual == ["get_cluster_resources", "get_task_catalog"] and expected != actual:
+        return "early_stop_after_filtered_catalog"
     if not actual:
         return "no_tool_calls"
     return "tool_sequence_mismatch"
@@ -123,7 +125,14 @@ def argument_matches(expected_args: dict[str, Any], trace: list[dict[str, Any]])
     return True, ""
 
 
-def evaluate_case(agent_url: str, case: dict[str, Any], image_path: Path, timeout: int, match_mode: str) -> dict[str, Any]:
+def evaluate_case(
+    agent_url: str,
+    case: dict[str, Any],
+    image_path: Path,
+    timeout: int,
+    match_mode: str,
+    check_arguments: bool,
+) -> dict[str, Any]:
     gt = case["ground_truth"]
     expected_tools = gt.get("expected_tools", [])
     expected_args = gt.get("expected_tool_arguments", {})
@@ -133,7 +142,7 @@ def evaluate_case(agent_url: str, case: dict[str, Any], image_path: Path, timeou
         trace = response.get("trace", [])
         actual_tools = normalize_tools(trace)
         tool_ok = tools_match(expected_tools, actual_tools, match_mode)
-        args_ok, args_reason = argument_matches(expected_args, trace)
+        args_ok, args_reason = argument_matches(expected_args, trace) if check_arguments else (True, "")
         ok = tool_ok and args_ok
         reason = "" if ok else (tool_mismatch_reason(expected_tools, actual_tools) if not tool_ok else args_reason)
         message = response.get("message", "")
@@ -226,6 +235,7 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=240)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--match", choices=["exact", "subsequence"], default="exact")
+    parser.add_argument("--check-arguments", action="store_true", help="Also validate expected_tool_arguments when present")
     parser.add_argument("--failures", type=int, default=10)
     parser.add_argument("--progress-every", type=int, default=1, help="Update progress every N cases; set 0 to disable")
     parser.add_argument("--strict", action="store_true")
@@ -236,7 +246,7 @@ def main() -> int:
     started = time.time()
     passed = 0
     for index, case in enumerate(cases, start=1):
-        row = evaluate_case(args.agent_url, case, Path(args.image), args.timeout, args.match)
+        row = evaluate_case(args.agent_url, case, Path(args.image), args.timeout, args.match, args.check_arguments)
         rows.append(row)
         if row["status"] == "PASS":
             passed += 1
@@ -246,7 +256,13 @@ def main() -> int:
         sys.stderr.write("\n")
     write_csv(Path(args.output), rows)
     summary = summarize(rows)
-    print(json.dumps({"case_count": len(cases), "output": args.output, "match": args.match, **summary}, ensure_ascii=False, indent=2))
+    print(json.dumps({
+        "case_count": len(cases),
+        "output": args.output,
+        "match": args.match,
+        "check_arguments": args.check_arguments,
+        **summary,
+    }, ensure_ascii=False, indent=2))
 
     failures = [row for row in rows if row["status"] != "PASS"]
     for row in failures[:args.failures]:

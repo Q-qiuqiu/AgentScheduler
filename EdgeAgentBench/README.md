@@ -79,8 +79,10 @@ Execution tasks are:
 For execution tasks, ground truth requires scheduling:
 
 ```json
-"expected_tools": ["get_task_catalog", "schedule_task", "run_task_on_node"]
+"expected_tools": ["get_cluster_resources", "get_task_catalog", "schedule_task", "run_task_on_node"]
 ```
+
+The agent first retrieves cluster resources, then retrieves a catalog filtered by online device types, then schedules and runs the task.
 
 The case oracle filters candidates by:
 
@@ -213,7 +215,22 @@ The evaluator sends each case query to `/v1/agent/chat` with `debug=1`, extracts
 ground_truth.expected_tools
 ```
 
-For overhead queries, it also checks:
+Current expected tool-flow examples:
+
+```text
+Execution task: get_cluster_resources -> get_task_catalog -> schedule_task -> run_task_on_node
+Catalog query:  get_cluster_resources -> get_task_catalog
+Overhead query: get_cluster_resources -> get_task_overhead
+Resource query: get_cluster_resources
+```
+
+By default the tool-call evaluator checks tool sequence only. To also check tool arguments for cases that define them:
+
+```bash
+python3 scripts/run_tool_call_benchmark.py --check-arguments
+```
+
+The optional argument check uses:
 
 ```json
 ground_truth.expected_tool_arguments

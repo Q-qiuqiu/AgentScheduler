@@ -29,6 +29,7 @@
     "intent": "execute_task",
     "should_schedule": true,
     "expected_tools": [
+      "get_cluster_resources",
       "get_task_catalog",
       "schedule_task",
       "run_task_on_node"

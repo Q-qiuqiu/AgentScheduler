@@ -29,6 +29,7 @@
     "intent": "resource_query",
     "should_schedule": false,
     "expected_tools": [
+      "get_cluster_resources",
       "get_task_overhead"
     ],
     "expected_tool_arguments": {
