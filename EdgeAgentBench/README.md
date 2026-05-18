@@ -83,6 +83,11 @@ For execution tasks, ground truth requires scheduling:
 ```
 
 The agent first retrieves cluster resources, then retrieves a catalog filtered by online device types, then schedules and runs the task.
+If the task type is already clear, an overhead-based execution path is also accepted:
+
+```text
+get_cluster_resources -> get_task_overhead -> schedule_task -> run_task_on_node
+```
 
 The case oracle filters candidates by:
 
@@ -203,6 +208,12 @@ python3 scripts/run_tool_call_benchmark.py \
   --output results/tool_call_results.csv
 ```
 
+The CSV output is written incrementally after each case, so failures can be inspected while the benchmark is still running:
+
+```bash
+tail -f results/tool_call_results.csv
+```
+
 For a quick smoke test:
 
 ```bash
@@ -219,6 +230,7 @@ Current expected tool-flow examples:
 
 ```text
 Execution task: get_cluster_resources -> get_task_catalog -> schedule_task -> run_task_on_node
+Alternative:    get_cluster_resources -> get_task_overhead -> schedule_task -> run_task_on_node
 Catalog query:  get_cluster_resources -> get_task_catalog
 Overhead query: get_cluster_resources -> get_task_overhead
 Resource query: get_cluster_resources

@@ -1,4 +1,5 @@
 import argparse
+import contextvars
 import json
 import os
 import re
@@ -28,6 +29,7 @@ lock = threading.Lock()
 is_blocking = False
 LLM_API_URL = os.environ.get("LLM_API_URL", "http://127.0.0.1:8081/v1/chat/completions")
 LLM_MODEL_NAME = os.environ.get("LLM_MODEL_NAME", "rkllm-default")
+TIMING_LOG_ENABLED = contextvars.ContextVar("TIMING_LOG_ENABLED", default=False)
 
 
 def start_timing():
@@ -46,6 +48,8 @@ def finish_timing(marker):
 
 
 def log_timing(segment, **fields):
+    if not TIMING_LOG_ENABLED.get():
+        return
     payload = {"segment": segment, **fields}
     print(f"[TIMING] {json.dumps(payload, ensure_ascii=False)}", flush=True)
 
@@ -240,10 +244,10 @@ def load_agent_info():
 
 def route_by_rules(user_text, has_file):
     normalized_text = user_text.lower()
-    wants_text_model = bool(re.search(r"文本分类|句子分类|语义匹配|文本理解|classify text|text classification|bert", normalized_text))
+    wants_text_model = bool(re.search(r"文本分类|句子分类|语义匹配|文本理解|文本.*类别|这段文本|这句话.*类别|classify text|text classification|bert", normalized_text))
     wants_segmentation = bool(re.search(r"语义分割|图片分割|图像分割|分割|segmentation|segment", normalized_text))
     wants_detection = bool(re.search(r"目标检测|物体检测|检测|框|detect|detection|object", normalized_text))
-    wants_image_classification = bool(re.search(r"图片分类|图像分类|照片分类|分类|classify|classification", normalized_text))
+    wants_image_classification = bool(re.search(r"图片分类|图像分类|照片分类|分类|类别|属于什么|classify|classification", normalized_text))
 
     if wants_text_model and not has_file:
         return {"route": "execute_tool", "task_type": "Bert", "reason": "matched text model request", "_usage": zero_usage()}
@@ -406,6 +410,10 @@ def is_overhead_request(user_text):
     return bool(re.search(r"overhead|资源开销|资源消耗|启动开销|开销|耗费|cost|startup", user_text, re.IGNORECASE))
 
 
+def is_resource_request(user_text):
+    return bool(re.search(r"节点|资源|负载|在线|cluster|resource|node|status", user_text, re.IGNORECASE))
+
+
 def compact_agent_context(context):
     compact = {}
     for key, value in context.items():
@@ -516,7 +524,14 @@ def allowed_actions_for_context(user_text, state, context):
     allowed_actions = set(STATE_ALLOWED_ACTIONS[state])
     wants_catalog = is_catalog_request(user_text)
     wants_overhead = is_overhead_request(user_text)
-    needs_online_scope = bool(context.get("inferred_task_type")) or wants_catalog or wants_overhead
+    wants_resources = is_resource_request(user_text)
+    needs_online_scope = (
+        bool(context.get("inferred_task_type"))
+        or bool(context.get("has_file"))
+        or wants_catalog
+        or wants_overhead
+        or wants_resources
+    )
 
     if wants_overhead and context.get("task_overhead"):
         if context.get("inferred_task_type") and not context.get("scheduled_node") and "schedule_task" in allowed_actions:
@@ -525,8 +540,13 @@ def allowed_actions_for_context(user_text, state, context):
             return {"final_response"}
     if wants_overhead and context.get("last_error") and state == "Error" and "final_response" in allowed_actions:
         return {"final_response"}
+    if state == "Error" and context.get("last_failed_action") in {"get_task_catalog", "get_task_overhead", "schedule_task", "run_task_on_node"}:
+        if "final_response" in allowed_actions:
+            return {"final_response"}
     if needs_online_scope and not context.get("cluster_resources") and "get_cluster_resources" in allowed_actions:
         return {"get_cluster_resources"}
+    if wants_resources and not (wants_catalog or wants_overhead or context.get("inferred_task_type")) and "final_response" in allowed_actions:
+        return {"final_response"}
     if wants_overhead and not context.get("task_overhead") and "get_task_overhead" in allowed_actions:
         return {"get_task_overhead"}
     if (context.get("inferred_task_type") or wants_catalog) and not context.get("task_catalog") and "get_task_catalog" in allowed_actions:
@@ -864,6 +884,7 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
                 log_timing(f"tool.{action}", status="error", **tool_timing)
             trace_item["error"] = str(exc)
             context["last_error"] = str(exc)
+            context["last_failed_action"] = action
             state = "Error"
 
         trace.append(trace_item)
@@ -909,6 +930,7 @@ def agent_chat():
     has_file = uploaded_file is not None and bool(uploaded_file.filename)
     text_fields = extract_text_fields_from_form(request.form)
     debug_response = parse_bool_form_value(text_fields.pop("debug", None))
+    timing_log_response = parse_bool_form_value(text_fields.pop("timing", None))
 
     if not has_file and not text_fields:
         return jsonify({
@@ -935,8 +957,10 @@ def agent_chat():
 
     lock.acquire()
     temp_input_path = None
+    timing_log_token = None
     try:
         is_blocking = True
+        timing_log_token = TIMING_LOG_ENABLED.set(timing_log_response)
         if has_file:
             temp_input_path = save_uploaded_file(uploaded_file)
 
@@ -965,6 +989,7 @@ def agent_chat():
             })
         return Response(json.dumps(response_payload, ensure_ascii=False), content_type="application/json")
     except Exception as exc:
+        print(f"[ERROR] agent_chat failed: {exc}", flush=True)
         return jsonify({
             "error": {
                 "message": str(exc),
@@ -974,6 +999,8 @@ def agent_chat():
             }
         }), 500
     finally:
+        if timing_log_token is not None:
+            TIMING_LOG_ENABLED.reset(timing_log_token)
         if temp_input_path and os.path.exists(temp_input_path):
             os.unlink(temp_input_path)
         lock.release()

@@ -124,10 +124,15 @@ def build_execution_ground_truth(query, state, catalog_tasks):
 
     ranking = sorted(candidates, key=lambda item: (item["score"], item["node_id"]))
     selected = ranking[0] if ranking else None
+    expected_tools_alternatives = [
+        ["get_cluster_resources", "get_task_catalog", "schedule_task", "run_task_on_node"],
+        ["get_cluster_resources", "get_task_overhead", "schedule_task", "run_task_on_node"],
+    ]
     return {
         "intent": "execute_task",
         "should_schedule": True,
-        "expected_tools": ["get_cluster_resources", "get_task_catalog", "schedule_task", "run_task_on_node"],
+        "expected_tools": expected_tools_alternatives[0],
+        "expected_tools_alternatives": expected_tools_alternatives,
         "expected_task": task_type,
         "eligible_nodes": [item["node_id"] for item in ranking],
         "selected_node": selected["node_id"] if selected else None,

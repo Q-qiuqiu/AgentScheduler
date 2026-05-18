@@ -34,6 +34,20 @@
       "schedule_task",
       "run_task_on_node"
     ],
+    "expected_tools_alternatives": [
+      [
+        "get_cluster_resources",
+        "get_task_catalog",
+        "schedule_task",
+        "run_task_on_node"
+      ],
+      [
+        "get_cluster_resources",
+        "get_task_overhead",
+        "schedule_task",
+        "run_task_on_node"
+      ]
+    ],
     "expected_task": "image_classification",
     "eligible_nodes": [
       "ATLAS_L",

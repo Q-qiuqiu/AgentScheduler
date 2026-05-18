@@ -16,6 +16,16 @@ BENCH_ROOT = Path(__file__).resolve().parents[1]
 CASE_DIR = BENCH_ROOT / "cases"
 DEFAULT_IMAGE = BENCH_ROOT / "samples" / "images" / "dog1.jpg"
 IMAGE_TASKS = {"image_classification", "object_detection", "semantic_segmentation"}
+CSV_FIELDS = [
+    "case_id",
+    "expected_task",
+    "status",
+    "reason",
+    "expected_tools",
+    "actual_tools",
+    "latency_sec",
+    "message_preview",
+]
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -97,6 +107,10 @@ def tools_match(expected: list[str], actual: list[str], mode: str) -> bool:
     raise RuntimeError(f"unsupported match mode: {mode}")
 
 
+def tools_match_any(expected_alternatives: list[list[str]], actual: list[str], mode: str) -> bool:
+    return any(tools_match(expected, actual, mode) for expected in expected_alternatives)
+
+
 def tool_mismatch_reason(expected: list[str], actual: list[str]) -> str:
     if actual == ["get_task_catalog"] and expected != actual:
         return "early_stop_after_get_task_catalog"
@@ -135,13 +149,14 @@ def evaluate_case(
 ) -> dict[str, Any]:
     gt = case["ground_truth"]
     expected_tools = gt.get("expected_tools", [])
+    expected_tool_alternatives = gt.get("expected_tools_alternatives") or [expected_tools]
     expected_args = gt.get("expected_tool_arguments", {})
     started = time.time()
     try:
         response = post_case(agent_url, case, image_path, timeout)
         trace = response.get("trace", [])
         actual_tools = normalize_tools(trace)
-        tool_ok = tools_match(expected_tools, actual_tools, match_mode)
+        tool_ok = tools_match_any(expected_tool_alternatives, actual_tools, match_mode)
         args_ok, args_reason = argument_matches(expected_args, trace) if check_arguments else (True, "")
         ok = tool_ok and args_ok
         reason = "" if ok else (tool_mismatch_reason(expected_tools, actual_tools) if not tool_ok else args_reason)
@@ -162,7 +177,7 @@ def evaluate_case(
         "expected_task": case["expected_task"],
         "status": "PASS" if ok else "FAIL",
         "reason": reason,
-        "expected_tools": "->".join(expected_tools),
+        "expected_tools": " || ".join("->".join(item) for item in expected_tool_alternatives),
         "actual_tools": "->".join(actual_tools),
         "latency_sec": round(time.time() - started, 3),
         "message_preview": message[:120].replace("\n", "\\n"),
@@ -171,20 +186,24 @@ def evaluate_case(
 
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fields = [
-        "case_id",
-        "expected_task",
-        "status",
-        "reason",
-        "expected_tools",
-        "actual_tools",
-        "latency_sec",
-        "message_preview",
-    ]
     with path.open("w", encoding="utf-8", newline="") as file_obj:
-        writer = csv.DictWriter(file_obj, fieldnames=fields)
+        writer = csv.DictWriter(file_obj, fieldnames=CSV_FIELDS)
         writer.writeheader()
         writer.writerows(rows)
+
+
+def init_incremental_csv(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as file_obj:
+        writer = csv.DictWriter(file_obj, fieldnames=CSV_FIELDS)
+        writer.writeheader()
+
+
+def append_csv_row(path: Path, row: dict[str, Any]) -> None:
+    with path.open("a", encoding="utf-8", newline="") as file_obj:
+        writer = csv.DictWriter(file_obj, fieldnames=CSV_FIELDS)
+        writer.writerow(row)
+        file_obj.flush()
 
 
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -242,19 +261,21 @@ def main() -> int:
     args = parser.parse_args()
 
     cases = load_cases(Path(args.case_dir), args.case_pattern, args.limit)
+    output_path = Path(args.output)
+    init_incremental_csv(output_path)
     rows = []
     started = time.time()
     passed = 0
     for index, case in enumerate(cases, start=1):
         row = evaluate_case(args.agent_url, case, Path(args.image), args.timeout, args.match, args.check_arguments)
         rows.append(row)
+        append_csv_row(output_path, row)
         if row["status"] == "PASS":
             passed += 1
         if args.progress_every and (index == 1 or index == len(cases) or index % args.progress_every == 0):
             print_progress(index, len(cases), passed, started)
     if args.progress_every:
         sys.stderr.write("\n")
-    write_csv(Path(args.output), rows)
     summary = summarize(rows)
     print(json.dumps({
         "case_count": len(cases),
