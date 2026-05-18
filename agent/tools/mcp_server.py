@@ -97,6 +97,10 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                         "properties": {
                             "task_type": {"type": "string"},
                             "device_type": {"type": "string"},
+                            "available_device_types": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
                         },
                         "additionalProperties": False,
                     },

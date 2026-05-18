@@ -6,8 +6,10 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import urllib.error
 import urllib.request
+from datetime import datetime
 from flask import Flask, Response, jsonify, request
 
 
@@ -27,6 +29,27 @@ is_blocking = False
 LLM_API_URL = os.environ.get("LLM_API_URL", "http://127.0.0.1:8081/v1/chat/completions")
 LLM_MODEL_NAME = os.environ.get("LLM_MODEL_NAME", "rkllm-default")
 
+
+def start_timing():
+    return {
+        "start_time": datetime.now().isoformat(timespec="milliseconds"),
+        "start_perf": time.perf_counter(),
+    }
+
+
+def finish_timing(marker):
+    return {
+        "start_time": marker["start_time"],
+        "end_time": datetime.now().isoformat(timespec="milliseconds"),
+        "elapsed_ms": round((time.perf_counter() - marker["start_perf"]) * 1000, 3),
+    }
+
+
+def log_timing(segment, **fields):
+    payload = {"segment": segment, **fields}
+    print(f"[TIMING] {json.dumps(payload, ensure_ascii=False)}", flush=True)
+
+
 def post_json(url, payload, timeout=180):
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(url, data=body, method="POST")
@@ -43,7 +66,8 @@ def post_json(url, payload, timeout=180):
         raise RuntimeError(f"failed to reach LLM API at {url}: {exc.reason}") from exc
 
 
-def call_llm(messages):
+def call_llm(messages, timing_label="model_inference"):
+    timing_marker = start_timing()
     raw = post_json(
         LLM_API_URL,
         {
@@ -52,6 +76,8 @@ def call_llm(messages):
             "stream": False,
         },
     )
+    timing = finish_timing(timing_marker)
+    log_timing(timing_label, **timing)
     payload = json.loads(raw)
     choices = payload.get("choices", [])
     if not choices:
@@ -65,6 +91,7 @@ def call_llm(messages):
         "content": content,
         "prompt_tokens": usage.get("prompt_tokens", 0),
         "completion_tokens": usage.get("completion_tokens", 0),
+        "timing": {"segment": timing_label, **timing},
     }
 
 
@@ -307,7 +334,10 @@ def summarize_result(user_text, selected_execution, tool_result):
     deterministic_summary = build_deterministic_summary(selected_execution, tool_result)
     if deterministic_summary:
         return deterministic_summary, zero_usage()
-    model_result = call_llm(build_result_summary_messages(user_text, selected_execution, tool_result))
+    model_result = call_llm(
+        build_result_summary_messages(user_text, selected_execution, tool_result),
+        timing_label="model_inference.final_result_summary",
+    )
     content = model_result["content"].strip()
     if not content:
         content = f"工具任务已完成，使用模型：{selected_execution.get('task_type', 'unknown')}。"
@@ -368,6 +398,14 @@ def infer_schedule_constraints_by_rules(user_text):
     return constraints
 
 
+def is_catalog_request(user_text):
+    return bool(re.search(r"支持.*(任务|模型)|有哪些.*(任务|模型)|task catalog|catalog|supported.*(tasks|models)", user_text, re.IGNORECASE))
+
+
+def is_overhead_request(user_text):
+    return bool(re.search(r"overhead|资源开销|资源消耗|启动开销|开销|耗费|cost|startup", user_text, re.IGNORECASE))
+
+
 def compact_agent_context(context):
     compact = {}
     for key, value in context.items():
@@ -382,15 +420,62 @@ def compact_agent_context(context):
     return compact
 
 
-def build_constrained_action_messages(user_text, has_file, state, context, allowed_actions):
+def allowed_arguments_for_action(action, context):
+    if action in {"get_cluster_resources", "get_task_catalog", "final_response", "retry"}:
+        return {}
+    if action == "get_task_overhead":
+        allowed_args = {}
+        task_type = context.get("task_type") or context.get("inferred_task_type")
+        if task_type:
+            allowed_args["task_type"] = task_type
+        return allowed_args
+    if action == "schedule_task":
+        allowed_args = {}
+        task_type = context.get("task_type") or context.get("inferred_task_type")
+        if task_type:
+            allowed_args["task_type"] = task_type
+        for key, value in context.get("schedule_constraints", {}).items():
+            if key in {"exclude_nodes", "require_node", "require_nodes"}:
+                allowed_args[key] = value
+        return allowed_args
+    if action == "run_task_on_node":
+        allowed_args = {}
+        task_type = context.get("task_type") or context.get("inferred_task_type")
+        if task_type:
+            allowed_args["task_type"] = task_type
+        scheduled_node = context.get("scheduled_node") or {}
+        target_global_id = scheduled_node.get("target_global_id")
+        if target_global_id:
+            allowed_args["target_global_id"] = target_global_id
+        return allowed_args
+    return {}
+
+
+def allowed_arguments_for_actions(allowed_actions, context):
+    return {
+        action: allowed_arguments_for_action(action, context)
+        for action in sorted(allowed_actions)
+    }
+
+
+def constrain_action_arguments(action, arguments, context):
+    allowed_args = allowed_arguments_for_action(action, context)
+    return {
+        key: value
+        for key, value in allowed_args.items()
+        if value is not None
+    }
+
+
+def build_constrained_action_messages(user_text, has_file, state, context, allowed_actions, allowed_arguments):
     return [
         {
             "role": "system",
             "content": (
                 "You are a constrained tool-calling edge agent.\n"
                 "You must choose exactly one next action from allowed_actions.\n"
-                "Return JSON only with this schema:\n"
-                "{\"action\":\"get_task_catalog\",\"arguments\":{},\"reason\":\"<short reason>\"}\n"
+                "Return JSON only in this shape:\n"
+                "{\"action\":\"<one of allowed_actions>\",\"arguments\":{},\"reason\":\"<short reason>\"}\n"
                 "State meanings:\n"
                 "S0 Task Understanding; S1 Task Catalog Retrieved; S2 Resource Retrieved; "
                 "S3 Node Scheduled; S4 Task Executed; S5 Final Response; Error Recovery.\n"
@@ -403,8 +488,8 @@ def build_constrained_action_messages(user_text, has_file, state, context, allow
                 "final_response ends the loop and answers the user.\n"
                 "Rules:\n"
                 "1. Never choose an action outside allowed_actions.\n"
-                "2. For schedule_task, include arguments.task_type from task_catalog or a client-forced task_type.\n"
-                "3. For schedule_task, preserve user constraints: exclude_nodes for forbidden node ids/device types and require_node or require_nodes for required node ids/device types.\n"
+                "2. Never invent argument keys or values. Use only allowed_arguments for the chosen action.\n"
+                "3. For schedule_task, use the task_type and node constraints exactly as listed in allowed_arguments.\n"
                 "4. For image/file tools, only schedule them when has_file is true.\n"
                 "5. If the user only asks about cluster status, call get_cluster_resources then final_response.\n"
                 "6. If the user asks supported task types or models, call get_task_catalog then final_response.\n"
@@ -420,15 +505,37 @@ def build_constrained_action_messages(user_text, has_file, state, context, allow
                 f"has_file:\n{json.dumps(has_file)}\n\n"
                 f"state:\n{state}\n\n"
                 f"allowed_actions:\n{json.dumps(sorted(allowed_actions), ensure_ascii=False)}\n\n"
+                f"allowed_arguments:\n{json.dumps(allowed_arguments, ensure_ascii=False)}\n\n"
                 f"context:\n{json.dumps(compact_agent_context(context), ensure_ascii=False)}"
             ),
         },
     ]
 
 
+def allowed_actions_for_context(user_text, state, context):
+    allowed_actions = set(STATE_ALLOWED_ACTIONS[state])
+    wants_catalog = is_catalog_request(user_text)
+    wants_overhead = is_overhead_request(user_text)
+    needs_online_scope = bool(context.get("inferred_task_type")) or wants_catalog or wants_overhead
+
+    if needs_online_scope and not context.get("cluster_resources") and "get_cluster_resources" in allowed_actions:
+        return {"get_cluster_resources"}
+    if wants_overhead and not context.get("task_overhead") and "get_task_overhead" in allowed_actions:
+        return {"get_task_overhead"}
+    if (context.get("inferred_task_type") or wants_catalog) and not context.get("task_catalog") and "get_task_catalog" in allowed_actions:
+        return {"get_task_catalog"}
+    if context.get("inferred_task_type") and not context.get("scheduled_node") and "schedule_task" in allowed_actions:
+        return {"schedule_task"}
+    return allowed_actions
+
+
 def choose_constrained_action(user_text, has_file, state, context):
-    allowed_actions = STATE_ALLOWED_ACTIONS[state]
-    model_result = call_llm(build_constrained_action_messages(user_text, has_file, state, context, allowed_actions))
+    allowed_actions = allowed_actions_for_context(user_text, state, context)
+    allowed_arguments = allowed_arguments_for_actions(allowed_actions, context)
+    model_result = call_llm(
+        build_constrained_action_messages(user_text, has_file, state, context, allowed_actions, allowed_arguments),
+        timing_label=f"model_inference.action_selection.{state}",
+    )
     try:
         action_payload = parse_json_object(model_result["content"])
     except Exception as exc:
@@ -454,6 +561,7 @@ def choose_constrained_action(user_text, has_file, state, context):
     arguments = action_payload.get("arguments") or {}
     if not isinstance(arguments, dict):
         raise RuntimeError("action arguments must be an object")
+    arguments = constrain_action_arguments(action, arguments, context)
 
     if action == "final_response" and context.get("inferred_task_type") and not context.get("tool_result"):
         task_type = context["inferred_task_type"]
@@ -550,12 +658,24 @@ def run_constrained_tool_action(action, arguments, context, user_text, has_file,
                 }
             )
         args = {}
-        if available_device_types:
+        if available_device_types is not None:
             args["available_device_types"] = available_device_types
         return json.loads(call_mcp_tool("get_task_catalog", args, timeout=ACTION_TIMEOUTS[action]))
 
     if action == "get_task_overhead":
-        return json.loads(call_mcp_tool("get_task_overhead", arguments, timeout=ACTION_TIMEOUTS[action]))
+        args = dict(arguments)
+        cluster_resources = context.get("cluster_resources")
+        if isinstance(cluster_resources, dict) and not args.get("device_type") and not args.get("available_device_types"):
+            available_device_types = sorted(
+                {
+                    node.get("type")
+                    for node in cluster_resources.get("result", [])
+                    if isinstance(node, dict) and node.get("type")
+                }
+            )
+            if available_device_types:
+                args["available_device_types"] = available_device_types
+        return json.loads(call_mcp_tool("get_task_overhead", args, timeout=ACTION_TIMEOUTS[action]))
 
     if action == "schedule_task":
         task_type = resolve_task_type(arguments, context)
@@ -616,7 +736,7 @@ def build_loop_final_messages(user_text, context, trace=None):
                 "Use only the provided context.\n"
                 "Do not expose internal JSON unless the user explicitly asks for raw data.\n"
                 "For cluster status, summarize each node and resource usage.\n"
-                "For task catalog, summarize supported task types/models by device type.\n"
+                "For task catalog, summarize each supported task/model and its supported_device_types.\n"
                 "For task overhead, summarize proc_time, mem_usage, cpu_usage, and xpu_usage by task and device type.\n"
                 "For executed tasks, summarize the actual tool result."
             ),
@@ -628,11 +748,21 @@ def build_loop_final_messages(user_text, context, trace=None):
 def make_loop_final_response(user_text, context, trace, include_trace=False):
     if context.get("tool_result") and context.get("selected_execution"):
         return summarize_result(user_text, context["selected_execution"], context["tool_result"])
-    model_result = call_llm(build_loop_final_messages(user_text, context, trace if include_trace else None))
+    model_result = call_llm(
+        build_loop_final_messages(user_text, context, trace if include_trace else None),
+        timing_label="model_inference.final_response",
+    )
     return model_result["content"].strip(), model_result
 
 
 def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, forced_task_type=None, debug_response=False):
+    e2e_marker = start_timing()
+
+    def finish_agent_loop():
+        e2e_timing = finish_timing(e2e_marker)
+        total_usage["timing"] = {"segment": "agent_e2e", **e2e_timing}
+        log_timing("agent_e2e", **e2e_timing)
+
     if forced_task_type:
         if not get_configured_tool_metadata(forced_task_type):
             raise RuntimeError(f"unsupported task_type: {forced_task_type}")
@@ -652,18 +782,22 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
             action, arguments, reason, usage = choose_constrained_action(user_text, has_file, state, context)
         except Exception as exc:
             context["last_error"] = str(exc)
-            if state == "S0" and context.get("inferred_task_type"):
+            fallback_actions = allowed_actions_for_context(user_text, state, context)
+            if "get_cluster_resources" in fallback_actions:
+                action, arguments, reason, usage = "get_cluster_resources", {}, "fallback after invalid model action", zero_usage()
+            elif "get_task_catalog" in fallback_actions:
                 action, arguments, reason, usage = "get_task_catalog", {}, "fallback after invalid model action", zero_usage()
-            elif state in {"S1", "S2"} and context.get("inferred_task_type"):
+            elif "schedule_task" in fallback_actions and context.get("inferred_task_type"):
                 arguments = {"task_type": context["inferred_task_type"], **context.get("schedule_constraints", {})}
                 action, arguments, reason, usage = "schedule_task", arguments, "fallback after invalid model action", zero_usage()
-            elif state == "S3":
+            elif "run_task_on_node" in fallback_actions:
                 action, arguments, reason, usage = "run_task_on_node", {}, "fallback after invalid model action", zero_usage()
             else:
                 final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
                 total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
                 total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
                 total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
+                finish_agent_loop()
                 return final_message, context, trace, total_usage
         total_usage["prompt_tokens"] += usage.get("prompt_tokens", 0)
         total_usage["completion_tokens"] += usage.get("completion_tokens", 0)
@@ -673,16 +807,27 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
             "arguments": arguments,
             "reason": reason,
         }
+        if usage.get("timing"):
+            trace_item["model_timing"] = usage["timing"]
 
         if action == "final_response":
             final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
             total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
             total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
             total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
+            if final_usage.get("timing"):
+                trace_item["final_model_timing"] = final_usage["timing"]
+            trace.append(trace_item)
+            finish_agent_loop()
             return final_message, context, trace, total_usage
 
+        tool_timing_marker = None
         try:
+            tool_timing_marker = start_timing()
             result = run_constrained_tool_action(action, arguments, context, user_text, has_file, text_fields, input_path)
+            tool_timing = finish_timing(tool_timing_marker)
+            trace_item["tool_timing"] = {"segment": f"tool.{action}", **tool_timing}
+            log_timing(f"tool.{action}", **tool_timing)
             trace_item["result"] = redact_large_binary_fields(result)
             if action == "get_cluster_resources":
                 context["cluster_resources"] = result
@@ -706,6 +851,10 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
                 }
             state = next_state_after_action(state, action)
         except Exception as exc:
+            if tool_timing_marker is not None:
+                tool_timing = finish_timing(tool_timing_marker)
+                trace_item["tool_timing"] = {"segment": f"tool.{action}", **tool_timing}
+                log_timing(f"tool.{action}", status="error", **tool_timing)
             trace_item["error"] = str(exc)
             context["last_error"] = str(exc)
             state = "Error"
@@ -717,6 +866,9 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
             total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
             total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
             total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
+            if trace and final_usage.get("timing"):
+                trace[-1]["final_model_timing"] = final_usage["timing"]
+            finish_agent_loop()
             return final_message, context, trace, total_usage
 
     raise RuntimeError(f"agent loop exceeded {MAX_AGENT_STEPS} steps; trace={trace}")

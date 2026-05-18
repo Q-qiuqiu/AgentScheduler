@@ -81,13 +81,17 @@ def tool_response_text(payload: dict[str, Any], request_id: Any) -> dict[str, An
 
 def get_task_catalog(arguments: dict[str, Any]) -> dict[str, Any]:
     available = set(arguments.get("available_device_types") or [])
+    use_filter = "available_device_types" in arguments
     result = []
     for task in TASK_CATALOG:
-        for device_type in task["device_types"]:
-            if available and device_type not in available:
-                continue
+        supported_device_types = [
+            device_type
+            for device_type in task["device_types"]
+            if not use_filter or device_type in available
+        ]
+        if supported_device_types:
             item = {key: value for key, value in task.items() if key != "device_types"}
-            item["device_type"] = device_type
+            item["supported_device_types"] = supported_device_types
             result.append(item)
     return {"status": "success", "result": result}
 

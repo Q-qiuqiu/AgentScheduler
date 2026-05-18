@@ -20,7 +20,7 @@ def get_task_catalog(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
     payload = load_json_config(static_info_path, "static_info.json")
 
     allowed_device_types = set(available_device_types or [])
-    use_filter = bool(allowed_device_types)
+    use_filter = "available_device_types" in arguments
     task_metadata = load_task_metadata()
     result: list[dict[str, Any]] = []
 
@@ -28,24 +28,29 @@ def get_task_catalog(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
         if not isinstance(device_entries, dict):
             continue
         metadata = task_metadata.get(task_name, {})
+        supported_device_types: list[str] = []
 
         for device_type, config in device_entries.items():
             if not isinstance(config, dict):
                 continue
             if use_filter and device_type not in allowed_device_types:
                 continue
-            result.append(
-                {
-                    "device_type": device_type,
-                    "model_name": task_name,
-                    "task_type": task_name,
-                    "tool_kind": metadata.get("tool_kind"),
-                    "requires_file": metadata.get("requires_file", False),
-                    "file_field_name": metadata.get("file_field_name"),
-                    "real_url": metadata.get("real_url", "predict"),
-                    "capabilities": metadata.get("capabilities", []),
-                    "description": metadata.get("description", ""),
-                }
-            )
+            supported_device_types.append(device_type)
+
+        if not supported_device_types:
+            continue
+        result.append(
+            {
+                "model_name": task_name,
+                "task_type": task_name,
+                "tool_kind": metadata.get("tool_kind"),
+                "requires_file": metadata.get("requires_file", False),
+                "file_field_name": metadata.get("file_field_name"),
+                "real_url": metadata.get("real_url", "predict"),
+                "capabilities": metadata.get("capabilities", []),
+                "description": metadata.get("description", ""),
+                "supported_device_types": supported_device_types,
+            }
+        )
 
     return {"status": "success", "result": result}

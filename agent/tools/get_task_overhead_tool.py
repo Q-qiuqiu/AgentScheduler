@@ -43,6 +43,11 @@ def get_task_overhead(arguments: dict[str, Any] | None = None) -> dict[str, Any]
     }
     task_type_filter = canonical_key(arguments.get("task_type"), set(payload.keys()), TASK_ALIASES)
     device_type_filter = canonical_key(arguments.get("device_type"), device_types)
+    available_device_types = {
+        canonical_key(device_type, device_types)
+        for device_type in arguments.get("available_device_types", [])
+    }
+    available_device_types.discard(None)
     result: list[dict[str, Any]] = []
 
     for task_type, device_entries in payload.items():
@@ -53,6 +58,8 @@ def get_task_overhead(arguments: dict[str, Any] | None = None) -> dict[str, Any]
 
         for device_type, config in device_entries.items():
             if device_type_filter and device_type != device_type_filter:
+                continue
+            if available_device_types and device_type not in available_device_types:
                 continue
             if not isinstance(config, dict):
                 continue
