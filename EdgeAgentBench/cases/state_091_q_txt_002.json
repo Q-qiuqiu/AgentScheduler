@@ -24,6 +24,7 @@
   "query_path": "queries/text_classification/q_txt_002.json",
   "state_path": "states/state_091.json",
   "expected_task": "text_classification",
+  "expected_application": "Bert",
   "constraints": {},
   "ground_truth": {
     "intent": "execute_task",
@@ -49,6 +50,7 @@
       ]
     ],
     "expected_task": "text_classification",
+    "expected_application": "Bert",
     "eligible_nodes": [
       "ATLAS_H",
       "ATLAS_L"

@@ -24,6 +24,7 @@
   "query_path": "queries/resource/q_res_003.json",
   "state_path": "states/state_059.json",
   "expected_task": "resource_query",
+  "expected_application": null,
   "constraints": {},
   "ground_truth": {
     "intent": "resource_query",
@@ -33,6 +34,7 @@
     ],
     "expected_tool_arguments": {},
     "expected_task": "resource_query",
+    "expected_application": null,
     "eligible_nodes": [],
     "selected_node": null,
     "selected_platform": null,

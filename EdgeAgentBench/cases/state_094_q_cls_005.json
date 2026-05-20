@@ -24,6 +24,7 @@
   "query_path": "queries/image_classification/q_cls_005.json",
   "state_path": "states/state_094.json",
   "expected_task": "image_classification",
+  "expected_application": "MobileNet",
   "constraints": {
     "exclude_nodes": [
       "ATLAS_L"
@@ -53,6 +54,7 @@
       ]
     ],
     "expected_task": "image_classification",
+    "expected_application": "MobileNet",
     "eligible_nodes": [
       "ATLAS_H",
       "RK3588_2",

@@ -17,6 +17,13 @@ EXECUTION_TASKS = {
     "text_classification",
 }
 
+TASK_APPLICATIONS = {
+    "object_detection": "YoloV5",
+    "image_classification": "MobileNet",
+    "semantic_segmentation": "deeplabv3",
+    "text_classification": "Bert",
+}
+
 ORACLE = {
     "name": "least_loaded_hot_container_oracle",
     "objective": "minimize weighted load while respecting online status, task support, and query constraints",
@@ -94,6 +101,7 @@ def score_node(node, task_type):
 
 def build_execution_ground_truth(query, state, catalog_tasks):
     task_type = query["expected_task"]
+    expected_application = TASK_APPLICATIONS[task_type]
     constraints = query.get("constraints", {})
     supported_nodes = set(catalog_tasks.get(task_type, {}).get("supported_nodes", []))
     candidates = []
@@ -134,6 +142,7 @@ def build_execution_ground_truth(query, state, catalog_tasks):
         "expected_tools": expected_tools_alternatives[0],
         "expected_tools_alternatives": expected_tools_alternatives,
         "expected_task": task_type,
+        "expected_application": expected_application,
         "eligible_nodes": [item["node_id"] for item in ranking],
         "selected_node": selected["node_id"] if selected else None,
         "selected_platform": selected["platform"] if selected else None,
@@ -163,6 +172,7 @@ def build_resource_ground_truth(query):
         "expected_tools": resource_expected_tools(query["query_id"]),
         "expected_tool_arguments": {"get_task_overhead": overhead_arguments} if overhead_arguments else {},
         "expected_task": "resource_query",
+        "expected_application": None,
         "eligible_nodes": [],
         "selected_node": None,
         "selected_platform": None,
@@ -195,6 +205,7 @@ def build_cases():
                 "query_path": query["_path"],
                 "state_path": state["_path"],
                 "expected_task": expected_task,
+                "expected_application": ground_truth.get("expected_application"),
                 "constraints": query.get("constraints", {}),
                 "ground_truth": ground_truth
             })

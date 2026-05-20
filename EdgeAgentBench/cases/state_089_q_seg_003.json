@@ -24,6 +24,7 @@
   "query_path": "queries/semantic_segmentation/q_seg_003.json",
   "state_path": "states/state_089.json",
   "expected_task": "semantic_segmentation",
+  "expected_application": "deeplabv3",
   "constraints": {},
   "ground_truth": {
     "intent": "execute_task",
@@ -49,6 +50,7 @@
       ]
     ],
     "expected_task": "semantic_segmentation",
+    "expected_application": "deeplabv3",
     "eligible_nodes": [
       "ATLAS_H",
       "ATLAS_L"

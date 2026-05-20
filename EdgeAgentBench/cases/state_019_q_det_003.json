@@ -24,6 +24,7 @@
   "query_path": "queries/object_dedection/q_det_003.json",
   "state_path": "states/state_019.json",
   "expected_task": "object_detection",
+  "expected_application": "YoloV5",
   "constraints": {},
   "ground_truth": {
     "intent": "execute_task",
@@ -49,6 +50,7 @@
       ]
     ],
     "expected_task": "object_detection",
+    "expected_application": "YoloV5",
     "eligible_nodes": [
       "RK3588_1",
       "ATLAS_H",

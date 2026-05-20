@@ -24,6 +24,7 @@
   "query_path": "queries/image_classification/q_cls_002.json",
   "state_path": "states/state_072.json",
   "expected_task": "image_classification",
+  "expected_application": "MobileNet",
   "constraints": {},
   "ground_truth": {
     "intent": "execute_task",
@@ -49,6 +50,7 @@
       ]
     ],
     "expected_task": "image_classification",
+    "expected_application": "MobileNet",
     "eligible_nodes": [
       "RK3588_2",
       "ATLAS_L",

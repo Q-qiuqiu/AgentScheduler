@@ -24,6 +24,8 @@ EdgeAgentBench/
 │   ├── generate_states.py        # Generate synthetic cluster states
 │   ├── generate_cases.py         # Generate case JSON files from queries + states
 │   ├── mock_mcp_server.py        # Mock MCP tool server for trace-only agent tests
+│   ├── analyze_tool_call_counts.py # Tool-call count and correct-prefix analyzer
+│   ├── run_application_identification_benchmark.py # Application identification evaluator
 │   ├── run_tool_call_benchmark.py # Tool-call trace evaluator
 │   └── run_benchmark.py          # Offline benchmark runner
 └── states/
@@ -65,7 +67,7 @@ Each node includes:
 state_001_q_cls_001.json
 ```
 
-The `ground_truth` field contains the expected tool path, accepted tool-path alternatives, and selected node.
+The `ground_truth` field contains the expected application, expected tool path, accepted tool-path alternatives, and selected node.
 
 ## Ground Truth Rules
 
@@ -75,6 +77,17 @@ Execution tasks are:
 - `image_classification`
 - `semantic_segmentation`
 - `text_classification`
+
+Each execution task also has an executable application/model label:
+
+```text
+object_detection        -> YoloV5
+image_classification    -> MobileNet
+semantic_segmentation   -> deeplabv3
+text_classification     -> Bert
+```
+
+This label is written to both `expected_application` and `ground_truth.expected_application`. Resource-query cases use `null` because they do not launch an application.
 
 For execution tasks, ground truth requires scheduling:
 
@@ -205,6 +218,46 @@ python3 scripts/run_benchmark.py \
   --summary-output results/scheduler_summary.json
 ```
 
+## Run Application Identification Benchmark
+
+This experiment checks whether the agent can map a natural-language query to the expected executable application before or during scheduling. It uses execution cases only; resource-query cases have `expected_application: null` and are skipped.
+
+Start the agent with the mock MCP server:
+
+```bash
+cd /root/AgentScheduler
+MCP_SERVER_PATH=/root/AgentScheduler/EdgeAgentBench/scripts/mock_mcp_server.py \
+python3 agent/server/agent.py --host 0.0.0.0 --port 8082
+```
+
+Then run:
+
+```bash
+cd /root/AgentScheduler/EdgeAgentBench
+python3 scripts/run_application_identification_benchmark.py \
+  --agent-url http://127.0.0.1:8082/v1/agent/chat \
+  --output results/application_identification_results.csv
+```
+
+The runner sends each query with `debug=1`, reads the agent trace, and extracts the first `task_type` from `schedule_task`, `run_task_on_node`, or `get_task_overhead`. Category labels are normalized to executable application names, for example `object_detection` and `YoloV5` both count as `YoloV5`.
+
+Outputs:
+
+- per-case CSV: `results/application_identification_results.csv`
+- summary JSON: `results/application_identification_results.summary.json`
+
+The main metric is:
+
+```text
+application_identification_accuracy = correct_application_cases / execution_cases
+```
+
+For a quick smoke test:
+
+```bash
+python3 scripts/run_application_identification_benchmark.py --limit 20 --failures 5
+```
+
 ## Run Tool-Call Benchmark
 
 This experiment checks whether the local agent calls the expected tools for each case. It does not require the real gateway. Start the agent with the mock MCP server:
@@ -277,6 +330,21 @@ python3 scripts/run_tool_call_benchmark.py --match subsequence
 ```
 
 The output metric is `tool_call_accuracy`.
+
+To summarize average tool-call depth from an existing tool-call CSV:
+
+```bash
+python3 scripts/analyze_tool_call_counts.py \
+  --input results/tool_call_results.csv \
+  --output results/tool_call_counts_summary.json
+```
+
+This analyzer reports, overall and by task:
+
+- `avg_actual_tool_count`: average number of tools the agent actually called
+- `avg_correct_prefix_tool_count`: average number of consecutive correct tools from the first tool until the first mismatch
+- `avg_correct_prefix_ratio`: `avg_correct_prefix_tool_count` normalized by expected sequence length
+- `full_sequence_accuracy`: exact sequence accuracy against the best matching expected alternative
 
 Use a custom output path:
 

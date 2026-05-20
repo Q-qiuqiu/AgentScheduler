@@ -407,11 +407,36 @@ def is_catalog_request(user_text):
 
 
 def is_overhead_request(user_text):
-    return bool(re.search(r"overhead|资源开销|资源消耗|启动开销|开销|耗费|cost|startup", user_text, re.IGNORECASE))
+    return bool(re.search(r"overhead|资源开销|资源消耗|启动开销|启动.*资源|需要多少资源|多少资源|开销|耗费|cost|startup", user_text, re.IGNORECASE))
 
 
 def is_resource_request(user_text):
     return bool(re.search(r"节点|资源|负载|在线|cluster|resource|node|status", user_text, re.IGNORECASE))
+
+
+def infer_overhead_arguments_by_rules(user_text):
+    args = {}
+    task_patterns = [
+        ("YoloV5", r"yolo\s*v?5?|YoloV5|YOLOV5|目标检测"),
+        ("MobileNet", r"mobilenet|MobileNet"),
+        ("ResNet50", r"resnet\s*50|ResNet50"),
+        ("Bert", r"bert|BERT|文本"),
+        ("deeplabv3", r"deeplab\s*v?3|deeplabv3|分割"),
+    ]
+    device_patterns = [
+        ("RK3588", r"RK3588|rk3588"),
+        ("ATLAS_L", r"ATLAS[_ -]?L|Atlas[_ -]?L|atlas[_ -]?l"),
+        ("ATLAS_H", r"ATLAS[_ -]?H|Atlas[_ -]?H|atlas[_ -]?h"),
+    ]
+    for task_type, pattern in task_patterns:
+        if re.search(pattern, user_text, re.IGNORECASE):
+            args["task_type"] = task_type
+            break
+    for device_type, pattern in device_patterns:
+        if re.search(pattern, user_text, re.IGNORECASE):
+            args["device_type"] = device_type
+            break
+    return args
 
 
 def compact_agent_context(context):
@@ -432,7 +457,7 @@ def allowed_arguments_for_action(action, context):
     if action in {"get_cluster_resources", "get_task_catalog", "final_response", "retry"}:
         return {}
     if action == "get_task_overhead":
-        allowed_args = {}
+        allowed_args = dict(context.get("overhead_arguments", {}))
         task_type = context.get("task_type") or context.get("inferred_task_type")
         if task_type:
             allowed_args["task_type"] = task_type
@@ -799,6 +824,7 @@ def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, for
         "input_path": input_path,
         "inferred_task_type": forced_task_type or infer_task_type_by_rules(user_text, has_file),
         "schedule_constraints": infer_schedule_constraints_by_rules(user_text),
+        "overhead_arguments": infer_overhead_arguments_by_rules(user_text),
     }
     trace = []
     state = "S0"
