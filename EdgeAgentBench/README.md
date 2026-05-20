@@ -416,7 +416,11 @@ semantic_segmentation -> deeplabv3
 text_classification   -> Bert
 ```
 
-It applies static overhead from `/root/AgentScheduler/config_files/static_info.json` during cold start, checks CPU/MEM/XPU feasibility, and selects the node with the smallest `cpu_after + npu_after + 0.1 * mem_after`.
+It applies static overhead from `/root/AgentScheduler/config_files/static_info.json` during cold start, checks CPU/MEM/XPU feasibility, and selects the node with the smallest weighted score:
+
+```text
+0.4 * cpu_after + 0.8 * npu_after + 0.25 * mem_after + 0.1 * cold_start
+```
 
 ```bash
 python3 scripts/run_benchmark.py --policy scheduler
@@ -496,7 +500,7 @@ Latest full-run scheduled accuracy on the 2500 generated cases:
 
 | Policy | Scheduled accuracy |
 |---|---:|
-| `scheduler` | 0.8355 |
+| `scheduler` | 0.8810 |
 | `resource_average` | 0.8225 |
 | `npu_min` | 0.8045 |
 | `cpu_min` | 0.7955 |

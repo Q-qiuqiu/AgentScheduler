@@ -175,9 +175,14 @@ def scheduler_prediction(
     for item in feasible_scheduler_candidates(case, state, static_info, honor_constraints):
         node = item["node"]
         detail = item["detail"]
-        # Mirrors gateway scheduleDeviceByTType: choose min CPU + XPU + 0.1 * MEM
-        # among feasible devices.
-        score = round(detail["cpu_after"] + detail["npu_after"] + 0.1 * detail["mem_after"], 4)
+        # Mirrors gateway scheduleDeviceByTType.
+        score = round(
+            0.4 * detail["cpu_after"]
+            + 0.8 * detail["npu_after"]
+            + 0.25 * detail["mem_after"]
+            + 0.1 * (1 if detail["cold_start"] else 0),
+            4,
+        )
         ranked.append((score, node, detail))
 
     ranked.sort(key=lambda item: (item[0], item[1].get("node_id", "")))

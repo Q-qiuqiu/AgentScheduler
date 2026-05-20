@@ -25,6 +25,10 @@ constexpr auto kExistingSubAgentProbeTimeout = std::chrono::seconds(2);
 constexpr auto kTaskServiceStartupTimeout = std::chrono::seconds(180);
 constexpr int kSubAgentIdleTimeoutSec = 300;
 constexpr int kMaxDeviceInfoFailureCount = 3;
+constexpr double kSchedulerCpuWeight = 0.4;
+constexpr double kSchedulerXpuWeight = 0.8;
+constexpr double kSchedulerMemWeight = 0.25;
+constexpr double kSchedulerColdStartWeight = 0.1;
 std::mutex g_sub_agent_idle_timer_mutex;
 std::unordered_map<std::string, std::shared_ptr<TimerCallback>> g_sub_agent_idle_timers;
 
@@ -883,7 +887,10 @@ std::optional<Device> Docker_scheduler::scheduleDeviceByTType(
             continue;
         }
 
-        const double score = cpu_used + xpu_used + 0.1 * mem_used;
+        const double score = kSchedulerCpuWeight * cpu_used
+                             + kSchedulerXpuWeight * xpu_used
+                             + kSchedulerMemWeight * mem_used
+                             + kSchedulerColdStartWeight * (cold_start ? 1.0 : 0.0);
         if (!best_device.has_value() || score < best_score) {
             best_device = device;
             best_score = score;
