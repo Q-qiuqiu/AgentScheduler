@@ -24,6 +24,12 @@ DEFAULT_MCP_SERVER_PATH = os.environ.get(
     os.path.join(AGENT_DIR, "tools", "mcp_server.py"),
 )
 DEFAULT_AGENT_INFO_PATH = os.path.join(REPO_ROOT, "config_files", "agent_info.json")
+DEFAULT_LATENCY_PROFILE_PATH = os.path.join(REPO_ROOT, "config_files", "latency_profiles.json")
+RESOURCE_DISTANCE_WEIGHTS = {
+    "cpu_percent": 0.5,
+    "mem_percent": 0.2,
+    "npu_percent": 0.3,
+}
 
 lock = threading.Lock()
 is_blocking = False
@@ -71,6 +77,7 @@ def post_json(url, payload, timeout=180):
 
 
 def call_llm(messages, timing_label="model_inference"):
+    print(f"[INFO] LLM CALLED {timing_label}", flush=True)
     timing_marker = start_timing()
     raw = post_json(
         LLM_API_URL,
@@ -269,27 +276,6 @@ def zero_usage():
     return {"prompt_tokens": 0, "completion_tokens": 0}
 
 
-def build_result_summary_messages(user_text, selected_execution, tool_result):
-    return [
-        {
-            "role": "system",
-            "content": (
-                "You are a single agent returning the final answer.\n"
-                "Summarize the actual tool execution result in concise Chinese.\n"
-                "Use only the provided result. Do not include node ids, URLs, JSON, or debug fields."
-            ),
-        },
-        {
-            "role": "user",
-            "content": (
-                f"user_text:\n{user_text}\n\n"
-                f"selected_execution:\n{json.dumps(selected_execution, ensure_ascii=False)}\n\n"
-                f"tool_result:\n{json.dumps(redact_large_binary_fields(tool_result), ensure_ascii=False)}"
-            ),
-        },
-    ]
-
-
 def redact_large_binary_fields(value):
     if isinstance(value, dict):
         redacted = {}
@@ -334,38 +320,11 @@ def build_deterministic_summary(selected_execution, tool_result):
     return None
 
 
-def summarize_result(user_text, selected_execution, tool_result):
-    deterministic_summary = build_deterministic_summary(selected_execution, tool_result)
-    if deterministic_summary:
-        return deterministic_summary, zero_usage()
-    model_result = call_llm(
-        build_result_summary_messages(user_text, selected_execution, tool_result),
-        timing_label="model_inference.final_result_summary",
-    )
-    content = model_result["content"].strip()
-    if not content:
-        content = f"工具任务已完成，使用模型：{selected_execution.get('task_type', 'unknown')}。"
-    return content, model_result
-
-
-STATE_ALLOWED_ACTIONS = {
-    "S0": {"get_task_catalog", "get_task_overhead", "get_cluster_resources", "final_response"},
-    "S1": {"get_cluster_resources", "get_task_overhead", "schedule_task", "final_response"},
-    "S2": {"get_task_catalog", "get_task_overhead", "schedule_task", "final_response"},
-    "S3": {"run_task_on_node"},
-    "S4": {"final_response"},
-    "Error": {"retry", "get_task_overhead", "schedule_task", "run_task_on_node", "final_response"},
-}
-
 ACTION_TIMEOUTS = {
     "get_task_catalog": 30,
-    "get_task_overhead": 30,
     "get_cluster_resources": 30,
-    "schedule_task": 30,
     "run_task_on_node": 150,
 }
-
-MAX_AGENT_STEPS = 8
 
 
 def infer_task_type_by_rules(user_text, has_file):
@@ -373,70 +332,6 @@ def infer_task_type_by_rules(user_text, has_file):
     if route and route.get("route") == "execute_tool":
         return route.get("task_type")
     return None
-
-
-def infer_schedule_constraints_by_rules(user_text):
-    constraints = {}
-    platform_patterns = [
-        ("RK3588", r"RK3588|rk3588"),
-        ("ATLAS_L", r"ATLAS[_ -]?L|Atlas[_ -]?L|atlas[_ -]?l"),
-        ("ATLAS_H", r"ATLAS[_ -]?H|Atlas[_ -]?H|atlas[_ -]?h"),
-    ]
-    exclude_nodes = []
-    require_nodes = []
-    exclude_context = bool(re.search(r"不要|别用|不能用|不使用|排除|exclude|without|do not use", user_text, re.IGNORECASE))
-    require_context = bool(re.search(r"必须|指定|只用|仅用|使用|在.*上|require|only|must", user_text, re.IGNORECASE))
-
-    for platform, pattern in platform_patterns:
-        if not re.search(pattern, user_text):
-            continue
-        if exclude_context:
-            exclude_nodes.append(platform)
-        elif require_context:
-            require_nodes.append(platform)
-
-    if exclude_nodes:
-        constraints["exclude_nodes"] = sorted(set(exclude_nodes))
-    if require_nodes:
-        constraints["require_nodes"] = sorted(set(require_nodes))
-    return constraints
-
-
-def is_catalog_request(user_text):
-    return bool(re.search(r"支持.*(任务|模型)|有哪些.*(任务|模型)|task catalog|catalog|supported.*(tasks|models)", user_text, re.IGNORECASE))
-
-
-def is_overhead_request(user_text):
-    return bool(re.search(r"overhead|资源开销|资源消耗|启动开销|启动.*资源|需要多少资源|多少资源|开销|耗费|cost|startup", user_text, re.IGNORECASE))
-
-
-def is_resource_request(user_text):
-    return bool(re.search(r"节点|资源|负载|在线|cluster|resource|node|status", user_text, re.IGNORECASE))
-
-
-def infer_overhead_arguments_by_rules(user_text):
-    args = {}
-    task_patterns = [
-        ("YoloV5", r"yolo\s*v?5?|YoloV5|YOLOV5|目标检测"),
-        ("MobileNet", r"mobilenet|MobileNet"),
-        ("ResNet50", r"resnet\s*50|ResNet50"),
-        ("Bert", r"bert|BERT|文本"),
-        ("deeplabv3", r"deeplab\s*v?3|deeplabv3|分割"),
-    ]
-    device_patterns = [
-        ("RK3588", r"RK3588|rk3588"),
-        ("ATLAS_L", r"ATLAS[_ -]?L|Atlas[_ -]?L|atlas[_ -]?l"),
-        ("ATLAS_H", r"ATLAS[_ -]?H|Atlas[_ -]?H|atlas[_ -]?h"),
-    ]
-    for task_type, pattern in task_patterns:
-        if re.search(pattern, user_text, re.IGNORECASE):
-            args["task_type"] = task_type
-            break
-    for device_type, pattern in device_patterns:
-        if re.search(pattern, user_text, re.IGNORECASE):
-            args["device_type"] = device_type
-            break
-    return args
 
 
 def compact_agent_context(context):
@@ -451,218 +346,6 @@ def compact_agent_context(context):
         else:
             compact[key] = value
     return compact
-
-
-def allowed_arguments_for_action(action, context):
-    if action in {"get_cluster_resources", "get_task_catalog", "final_response", "retry"}:
-        return {}
-    if action == "get_task_overhead":
-        allowed_args = dict(context.get("overhead_arguments", {}))
-        task_type = context.get("task_type") or context.get("inferred_task_type")
-        if task_type:
-            allowed_args["task_type"] = task_type
-        return allowed_args
-    if action == "schedule_task":
-        allowed_args = {}
-        task_type = context.get("task_type") or context.get("inferred_task_type")
-        if task_type:
-            allowed_args["task_type"] = task_type
-        for key, value in context.get("schedule_constraints", {}).items():
-            if key in {"exclude_nodes", "require_node", "require_nodes"}:
-                allowed_args[key] = value
-        return allowed_args
-    if action == "run_task_on_node":
-        allowed_args = {}
-        task_type = context.get("task_type") or context.get("inferred_task_type")
-        if task_type:
-            allowed_args["task_type"] = task_type
-        scheduled_node = context.get("scheduled_node") or {}
-        target_global_id = scheduled_node.get("target_global_id")
-        if target_global_id:
-            allowed_args["target_global_id"] = target_global_id
-        return allowed_args
-    return {}
-
-
-def allowed_arguments_for_actions(allowed_actions, context):
-    return {
-        action: allowed_arguments_for_action(action, context)
-        for action in sorted(allowed_actions)
-    }
-
-
-def constrain_action_arguments(action, arguments, context):
-    allowed_args = allowed_arguments_for_action(action, context)
-    return {
-        key: value
-        for key, value in allowed_args.items()
-        if value is not None
-    }
-
-
-def build_constrained_action_messages(user_text, has_file, state, context, allowed_actions, allowed_arguments):
-    return [
-        {
-            "role": "system",
-            "content": (
-                "You are a constrained tool-calling edge agent.\n"
-                "You must choose exactly one next action from allowed_actions.\n"
-                "Return JSON only in this shape:\n"
-                "{\"action\":\"<one of allowed_actions>\",\"arguments\":{},\"reason\":\"<short reason>\"}\n"
-                "State meanings:\n"
-                "S0 Task Understanding; S1 Task Catalog Retrieved; S2 Resource Retrieved; "
-                "S3 Node Scheduled; S4 Task Executed; S5 Final Response; Error Recovery.\n"
-                "Tool intent:\n"
-                "get_task_catalog gets supported task/model config from JSON config files; call it before choosing an unknown task_type.\n"
-                "get_task_overhead gets scheduler-only task overhead/resource-cost data when the user explicitly asks resource cost or startup requirements.\n"
-                "get_cluster_resources gets live cluster resource state.\n"
-                "schedule_task asks gateway scheduler to choose a node for a task_type.\n"
-                "run_task_on_node runs the selected task on the scheduled node.\n"
-                "final_response ends the loop and answers the user.\n"
-                "Rules:\n"
-                "1. Never choose an action outside allowed_actions.\n"
-                "2. Never invent argument keys or values. Use only allowed_arguments for the chosen action.\n"
-                "3. For schedule_task, use the task_type and node constraints exactly as listed in allowed_arguments.\n"
-                "4. For image/file tools, only schedule them when has_file is true.\n"
-                "5. If the user only asks about cluster status, call get_cluster_resources then final_response.\n"
-                "6. If the user asks supported task types or models, call get_task_catalog then final_response.\n"
-                "7. If the user asks overhead, resource cost, or startup requirements for a task, call get_task_overhead then final_response.\n"
-                "8. If execution is needed, retrieve missing catalog/resources before scheduling when useful.\n"
-                "9. Never invent node ids, model outputs, overhead data, or cluster status."
-            ),
-        },
-        {
-            "role": "user",
-            "content": (
-                f"user_text:\n{user_text}\n\n"
-                f"has_file:\n{json.dumps(has_file)}\n\n"
-                f"state:\n{state}\n\n"
-                f"allowed_actions:\n{json.dumps(sorted(allowed_actions), ensure_ascii=False)}\n\n"
-                f"allowed_arguments:\n{json.dumps(allowed_arguments, ensure_ascii=False)}\n\n"
-                f"context:\n{json.dumps(compact_agent_context(context), ensure_ascii=False)}"
-            ),
-        },
-    ]
-
-
-def allowed_actions_for_context(user_text, state, context):
-    allowed_actions = set(STATE_ALLOWED_ACTIONS[state])
-    wants_catalog = is_catalog_request(user_text)
-    wants_overhead = is_overhead_request(user_text)
-    wants_resources = is_resource_request(user_text)
-    needs_online_scope = (
-        bool(context.get("inferred_task_type"))
-        or bool(context.get("has_file"))
-        or wants_catalog
-        or wants_overhead
-        or wants_resources
-    )
-
-    if wants_overhead and context.get("task_overhead"):
-        if context.get("inferred_task_type") and not context.get("scheduled_node") and "schedule_task" in allowed_actions:
-            return {"schedule_task"}
-        if "final_response" in allowed_actions:
-            return {"final_response"}
-    if wants_overhead and context.get("last_error") and state == "Error" and "final_response" in allowed_actions:
-        return {"final_response"}
-    if state == "Error" and context.get("last_failed_action") in {"get_task_catalog", "get_task_overhead", "schedule_task", "run_task_on_node"}:
-        if "final_response" in allowed_actions:
-            return {"final_response"}
-    if needs_online_scope and not context.get("cluster_resources") and "get_cluster_resources" in allowed_actions:
-        return {"get_cluster_resources"}
-    if wants_resources and not (wants_catalog or wants_overhead or context.get("inferred_task_type")) and "final_response" in allowed_actions:
-        return {"final_response"}
-    if wants_overhead and not context.get("task_overhead") and "get_task_overhead" in allowed_actions:
-        return {"get_task_overhead"}
-    if (context.get("inferred_task_type") or wants_catalog) and not context.get("task_catalog") and "get_task_catalog" in allowed_actions:
-        return {"get_task_catalog"}
-    if context.get("inferred_task_type") and not context.get("scheduled_node") and "schedule_task" in allowed_actions:
-        return {"schedule_task"}
-    return allowed_actions
-
-
-def choose_constrained_action(user_text, has_file, state, context):
-    allowed_actions = allowed_actions_for_context(user_text, state, context)
-    allowed_arguments = allowed_arguments_for_actions(allowed_actions, context)
-    model_result = call_llm(
-        build_constrained_action_messages(user_text, has_file, state, context, allowed_actions, allowed_arguments),
-        timing_label=f"model_inference.action_selection.{state}",
-    )
-    try:
-        action_payload = parse_json_object(model_result["content"])
-    except Exception as exc:
-        raise RuntimeError(f"action model returned invalid JSON: {exc}") from exc
-
-    action = action_payload.get("action")
-    if action not in allowed_actions:
-        if context.get("inferred_task_type") and not context.get("tool_result"):
-            task_type = context["inferred_task_type"]
-            if state in {"S1", "S2"} and "schedule_task" in allowed_actions:
-                return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
-            if state == "S3" and "run_task_on_node" in allowed_actions:
-                return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
-            if state == "Error" and context.get("scheduled_node") and "run_task_on_node" in allowed_actions:
-                return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
-            if state == "Error" and "schedule_task" in allowed_actions:
-                return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
-        if action == "get_task_catalog" and context.get("task_catalog") and "final_response" in allowed_actions:
-            return "final_response", {}, "task catalog already retrieved; answer from context", model_result
-        if action == "get_cluster_resources" and context.get("cluster_resources") and "final_response" in allowed_actions:
-            return "final_response", {}, "cluster resources already retrieved; answer from context", model_result
-        raise RuntimeError(f"action {action} is not allowed in state {state}; allowed={sorted(allowed_actions)}")
-    arguments = action_payload.get("arguments") or {}
-    if not isinstance(arguments, dict):
-        raise RuntimeError("action arguments must be an object")
-    arguments = constrain_action_arguments(action, arguments, context)
-
-    if action == "final_response" and context.get("inferred_task_type") and not context.get("tool_result"):
-        task_type = context["inferred_task_type"]
-        if state == "S0" and "get_task_catalog" in allowed_actions:
-            return "get_task_catalog", {}, "execution request must load task catalog before final response", model_result
-        if state in {"S1", "S2"} and "schedule_task" in allowed_actions:
-            return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
-        if state == "S3" and "run_task_on_node" in allowed_actions:
-            return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
-        if state == "Error" and context.get("scheduled_node") and "run_task_on_node" in allowed_actions:
-            return "run_task_on_node", {"task_type": task_type}, "execution request must run tool before final response", model_result
-        if state == "Error" and "schedule_task" in allowed_actions:
-            return "schedule_task", {"task_type": task_type}, "execution request must schedule before final response", model_result
-
-    return action, arguments, action_payload.get("reason", ""), model_result
-
-
-def next_state_after_action(state, action):
-    if action == "get_task_catalog":
-        return "S1"
-    if action == "get_task_overhead":
-        return "S1"
-    if action == "get_cluster_resources":
-        return "S2"
-    if action == "schedule_task":
-        return "S3"
-    if action == "run_task_on_node":
-        return "S4"
-    if action == "final_response":
-        return "S5"
-    if action == "retry":
-        return "S0"
-    return state
-
-
-def resolve_task_type(arguments, context):
-    task_type = arguments.get("task_type") or context.get("task_type") or context.get("inferred_task_type")
-    if not task_type:
-        raise RuntimeError("task_type is required for this action")
-    task_catalog = context.get("task_catalog")
-    if isinstance(task_catalog, dict):
-        available_task_types = {
-            item.get("task_type")
-            for item in task_catalog.get("result", [])
-            if isinstance(item, dict) and item.get("task_type")
-        }
-        if available_task_types and task_type not in available_task_types:
-            raise RuntimeError(f"task_type {task_type} is not available in current task catalog")
-    return task_type
 
 
 def get_task_catalog_entry(task_type, context):
@@ -694,238 +377,617 @@ def get_execution_metadata(task_type, context):
     }
 
 
-def run_constrained_tool_action(action, arguments, context, user_text, has_file, text_fields, input_path):
-    if action == "get_cluster_resources":
-        return json.loads(call_mcp_tool("get_cluster_resources", timeout=ACTION_TIMEOUTS[action]))
+def cluster_nodes(cluster_resources):
+    if isinstance(cluster_resources, dict):
+        nodes = cluster_resources.get("result", [])
+    else:
+        nodes = cluster_resources
+    return [node for node in nodes if isinstance(node, dict)] if isinstance(nodes, list) else []
 
-    if action == "get_task_catalog":
-        available_device_types = None
-        cluster_resources = context.get("cluster_resources")
-        if isinstance(cluster_resources, dict):
-            available_device_types = sorted(
-                {
-                    node.get("type")
-                    for node in cluster_resources.get("result", [])
-                    if isinstance(node, dict) and node.get("type")
-                }
-            )
-        args = {}
-        if available_device_types is not None:
-            args["available_device_types"] = available_device_types
-        return json.loads(call_mcp_tool("get_task_catalog", args, timeout=ACTION_TIMEOUTS[action]))
 
-    if action == "get_task_overhead":
-        args = dict(arguments)
-        cluster_resources = context.get("cluster_resources")
-        if isinstance(cluster_resources, dict) and not args.get("device_type") and not args.get("available_device_types"):
-            available_device_types = sorted(
-                {
-                    node.get("type")
-                    for node in cluster_resources.get("result", [])
-                    if isinstance(node, dict) and node.get("type")
-                }
-            )
-            if available_device_types:
-                args["available_device_types"] = available_device_types
-        return json.loads(call_mcp_tool("get_task_overhead", args, timeout=ACTION_TIMEOUTS[action]))
+def online_cluster_nodes(cluster_resources):
+    return [
+        node
+        for node in cluster_nodes(cluster_resources)
+        if node.get("online", True) is not False
+    ]
 
-    if action == "schedule_task":
-        task_type = resolve_task_type(arguments, context)
-        validate_task_input_requirements(task_type, has_file, context)
-        context["task_type"] = task_type
-        schedule_args = {
-            key: arguments[key]
-            for key in ("exclude_nodes", "require_node", "require_nodes")
-            if key in arguments
+
+def node_global_id(node):
+    return node.get("global_id") or node.get("target_global_id") or node.get("node_id")
+
+
+def available_device_types_from_cluster(cluster_resources):
+    return sorted(
+        {
+            node.get("type")
+            for node in online_cluster_nodes(cluster_resources)
+            if node.get("type")
         }
-        for key, value in context.get("schedule_constraints", {}).items():
-            schedule_args.setdefault(key, value)
-        schedule_args["task_type"] = task_type
-        return json.loads(call_mcp_tool("schedule_task", schedule_args, timeout=ACTION_TIMEOUTS[action]))
+    )
 
-    if action == "run_task_on_node":
-        task_type = resolve_task_type(arguments, context)
-        validate_task_input_requirements(task_type, has_file, context)
-        execution_metadata = get_execution_metadata(task_type, context)
-        scheduled_node = context.get("scheduled_node") or {}
-        target_global_id = arguments.get("target_global_id") or scheduled_node.get("target_global_id")
-        if not target_global_id:
-            raise RuntimeError("run_task_on_node requires a scheduled target_global_id")
-        fields = dict(text_fields)
-        fields.setdefault("text", user_text)
-        return json.loads(
-            call_mcp_tool(
-                "run_task_on_node",
-                {
-                    "task_type": task_type,
-                    "target_global_id": target_global_id,
-                    "input_path": input_path,
-                    "real_url": execution_metadata["real_url"],
-                    "file_field_name": execution_metadata["file_field_name"],
-                    "fields": fields,
-                },
-                timeout=ACTION_TIMEOUTS[action],
+
+def task_types_from_catalog(task_catalog):
+    if not isinstance(task_catalog, dict):
+        return set()
+    return {
+        item.get("task_type")
+        for item in task_catalog.get("result", [])
+        if isinstance(item, dict) and item.get("task_type")
+    }
+
+
+def compact_task_catalog_for_selection(task_catalog):
+    if not isinstance(task_catalog, dict):
+        return []
+    result = []
+    for item in task_catalog.get("result", []):
+        if not isinstance(item, dict):
+            continue
+        result.append({
+            "task_type": item.get("task_type"),
+            "requires_file": item.get("requires_file", False),
+            "capabilities": item.get("capabilities", []),
+            "supported_device_types": item.get("supported_device_types", []),
+            "description": item.get("description", ""),
+        })
+    return result
+
+
+def load_latency_profiles():
+    config_path = os.environ.get("LATENCY_PROFILE_PATH", DEFAULT_LATENCY_PROFILE_PATH)
+    if not os.path.exists(config_path):
+        return []
+    try:
+        with open(config_path, "r", encoding="utf-8") as file_obj:
+            payload = json.load(file_obj)
+    except OSError as exc:
+        raise RuntimeError(f"failed to read latency profile {config_path}: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"invalid JSON in latency profile {config_path}: {exc}") from exc
+    records = payload.get("records", [])
+    if not isinstance(records, list):
+        raise RuntimeError("latency profile must contain a list field named records")
+    return [record for record in records if isinstance(record, dict)]
+
+
+def resource_value_percent(resource, *keys):
+    if not isinstance(resource, dict):
+        return None
+    for key in keys:
+        value = resource.get(key)
+        if isinstance(value, (int, float)):
+            return value * 100 if value <= 1 else value
+    return None
+
+
+def node_resource_percent(node):
+    resource = node.get("resource") if isinstance(node, dict) else None
+    return {
+        "cpu_percent": resource_value_percent(resource, "cpu_used", "cpu"),
+        "mem_percent": resource_value_percent(resource, "mem_used", "mem"),
+        "npu_percent": resource_value_percent(resource, "npu_used", "xpu_used", "npu", "xpu"),
+    }
+
+
+def resource_distance(current_resource, latency_record):
+    pairs = [
+        ("cpu_percent", "avg_cpu_percent"),
+        ("mem_percent", "avg_mem_percent"),
+        ("npu_percent", "avg_npu_percent"),
+    ]
+    distance = 0.0
+    compared = 0
+    for current_key, record_key in pairs:
+        current_value = current_resource.get(current_key)
+        record_value = latency_record.get(record_key)
+        if isinstance(current_value, (int, float)) and isinstance(record_value, (int, float)):
+            weight = RESOURCE_DISTANCE_WEIGHTS.get(current_key, 1.0)
+            distance += weight * ((current_value - record_value) ** 2)
+            compared += 1
+    if compared == 0:
+        return None
+    return round(distance ** 0.5, 3)
+
+
+def tasks_supported_by_node(task_catalog, device_type):
+    result = []
+    if not isinstance(task_catalog, dict):
+        return result
+    for item in task_catalog.get("result", []):
+        if not isinstance(item, dict):
+            continue
+        if device_type in (item.get("supported_device_types") or []) and item.get("task_type"):
+            result.append(item["task_type"])
+    return result
+
+
+def nearest_latency_samples(records, task_type, device_type, current_resource, limit=3):
+    candidates = []
+    for record in records:
+        if record.get("task_type") != task_type or record.get("device_type") != device_type:
+            continue
+        distance = resource_distance(current_resource, record)
+        if distance is None:
+            continue
+        candidates.append((distance, record))
+    candidates.sort(key=lambda item: (item[0], item[1].get("e2e_ms", float("inf"))))
+
+    samples = []
+    for distance, record in candidates[:limit]:
+        samples.append({
+            "avg_cpu_percent": record.get("avg_cpu_percent"),
+            "avg_mem_percent": record.get("avg_mem_percent"),
+            "avg_npu_percent": record.get("avg_npu_percent"),
+            "e2e_ms": record.get("e2e_ms"),
+            "exec_ms": record.get("exec_ms"),
+            "distance": distance,
+            "source": record.get("source"),
+        })
+    return samples
+
+
+def build_latency_references(cluster_resources, task_catalog, task_type_filter=None, samples_per_node_task=3):
+    records = load_latency_profiles()
+    if not records:
+        return []
+
+    references = []
+    for node in online_cluster_nodes(cluster_resources):
+        target_global_id = node_global_id(node)
+        device_type = node.get("type")
+        if not target_global_id or not device_type:
+            continue
+        current_resource = node_resource_percent(node)
+        if not any(isinstance(value, (int, float)) for value in current_resource.values()):
+            continue
+
+        for task_type in tasks_supported_by_node(task_catalog, device_type):
+            if task_type_filter and task_type != task_type_filter:
+                continue
+            samples = nearest_latency_samples(
+                records,
+                task_type,
+                device_type,
+                current_resource,
+                limit=samples_per_node_task,
             )
-        )
+            if not samples:
+                continue
+            e2e_values = [
+                sample.get("e2e_ms")
+                for sample in samples
+                if isinstance(sample.get("e2e_ms"), (int, float))
+            ]
+            references.append({
+                "target_global_id": target_global_id,
+                "device_type": device_type,
+                "task_type": task_type,
+                "current_resource_percent": current_resource,
+                "estimated_e2e_ms": round(sum(e2e_values) / len(e2e_values), 3) if e2e_values else None,
+                "nearest_samples": samples,
+            })
+    return references
 
-    if action == "retry":
-        return {"status": "retry"}
 
-    raise RuntimeError(f"unsupported action executor: {action}")
+def latency_reference_for_node(latency_references, target_global_id):
+    for reference in latency_references:
+        if reference.get("target_global_id") == target_global_id:
+            return reference
+    return None
 
 
-def build_loop_final_messages(user_text, context, trace=None):
-    user_content = f"user_text:\n{user_text}\n\ncontext:\n{json.dumps(compact_agent_context(context), ensure_ascii=False)}"
-    if trace is not None:
-        user_content = f"{user_content}\n\ntrace:\n{json.dumps(trace, ensure_ascii=False)}"
+def compact_latency_reference(reference):
+    if not isinstance(reference, dict):
+        return None
+    nearest_samples = []
+    for sample in reference.get("nearest_samples", []):
+        if not isinstance(sample, dict):
+            continue
+        nearest_samples.append({
+            "sample_resource_percent": {
+                "cpu": sample.get("avg_cpu_percent"),
+                "mem": sample.get("avg_mem_percent"),
+                "npu": sample.get("avg_npu_percent"),
+            },
+            "e2e_ms": sample.get("e2e_ms"),
+            "distance": sample.get("distance"),
+        })
+    return {
+        "estimated_e2e_ms": reference.get("estimated_e2e_ms"),
+        "nearest_samples": nearest_samples,
+    }
+
+
+def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, latency_references):
+    catalog_entry = get_task_catalog_entry(task_type, {"task_catalog": task_catalog})
+    supported_device_types = set(catalog_entry.get("supported_device_types") or [])
+    candidates = []
+    for node in online_cluster_nodes(cluster_resources):
+        target_global_id = node_global_id(node)
+        device_type = node.get("type")
+        if not target_global_id or not device_type:
+            continue
+        if supported_device_types and device_type not in supported_device_types:
+            continue
+        latency_reference = latency_reference_for_node(latency_references, target_global_id)
+        compact_reference = compact_latency_reference(latency_reference)
+        candidate = {
+            "target_global_id": target_global_id,
+            "device_type": device_type,
+            "current_resource_percent": node_resource_percent(node),
+        }
+        if compact_reference:
+            candidate["latency_reference"] = compact_reference
+        candidates.append(candidate)
+    return candidates
+
+
+def build_dispatch_context(user_text, has_file, text_fields, selected_task_type, task_catalog, candidate_nodes):
+    return {
+        "user_request": {
+            "text": user_text,
+            "fields": text_fields,
+            "has_file": has_file,
+        },
+        "selected_task_type": selected_task_type,
+        "task": get_task_catalog_entry(selected_task_type, {"task_catalog": task_catalog}),
+        "candidate_nodes": candidate_nodes,
+        "selection_metric": {
+            "primary": "latency_reference.estimated_e2e_ms",
+            "tie_breakers": ["current_resource_percent.npu_percent", "current_resource_percent.mem_percent"],
+        },
+    }
+
+
+def build_direct_task_type_messages(user_text, has_file, text_fields, task_catalog):
+    task_context = {
+        "user_request": {
+            "text": user_text,
+            "fields": text_fields,
+            "has_file": has_file,
+        },
+        "task_catalog": compact_task_catalog_for_selection(task_catalog),
+    }
+    return [
+        {
+            "role": "system",
+            "content": (
+                "You are an edge task classifier.\n"
+                "Select exactly one executable task_type from task_catalog for the user request.\n"
+                "Return JSON only in this exact shape:\n"
+                "{\"task_type\":\"<catalog task_type>\"}\n"
+                "Rules:\n"
+                "1. Choose task_type only from task_catalog.result[].task_type.\n"
+                "2. If has_file is false, do not choose a task whose requires_file is true.\n"
+                "3. Do not choose a board or node id in this step.\n"
+                "4. Do not invent task types or extra JSON fields."
+            ),
+        },
+        {
+            "role": "user",
+            "content": json.dumps(task_context, ensure_ascii=False),
+        },
+    ]
+
+
+def choose_direct_task_type(user_text, has_file, text_fields, task_catalog):
+    model_result = call_llm(
+        build_direct_task_type_messages(user_text, has_file, text_fields, task_catalog),
+        timing_label="model_inference.task_type_selection",
+    )
+    try:
+        selection = parse_json_object(model_result["content"])
+    except Exception as exc:
+        raise RuntimeError(f"task type model returned invalid JSON: {exc}") from exc
+
+    task_type = selection.get("task_type")
+    if task_type not in task_types_from_catalog(task_catalog):
+        raise RuntimeError(f"model selected unavailable task_type: {task_type}")
+    validate_task_input_requirements(task_type, has_file, {"task_catalog": task_catalog})
+    return task_type, "", model_result
+
+
+def resolve_direct_task_type(user_text, has_file, text_fields, task_catalog, forced_task_type=None):
+    if forced_task_type:
+        validate_task_input_requirements(forced_task_type, has_file, {"task_catalog": task_catalog})
+        print(f"[INFO] TASK_TYPE_SELECTED {forced_task_type} source=forced", flush=True)
+        return forced_task_type, "forced by request metadata", zero_usage(), "forced"
+
+    inferred_task_type = infer_task_type_by_rules(user_text, has_file)
+    if inferred_task_type and inferred_task_type in task_types_from_catalog(task_catalog):
+        validate_task_input_requirements(inferred_task_type, has_file, {"task_catalog": task_catalog})
+        print(f"[INFO] TASK_TYPE_SELECTED {inferred_task_type} source=rules", flush=True)
+        return inferred_task_type, "matched local task routing rules", zero_usage(), "rules"
+
+    task_type, reason, usage = choose_direct_task_type(user_text, has_file, text_fields, task_catalog)
+    print(f"[INFO] TASK_TYPE_SELECTED {task_type} source=model", flush=True)
+    return task_type, reason, usage, "model"
+
+
+def build_direct_selection_messages(
+    dispatch_context,
+):
+    selected_task_type = dispatch_context.get("selected_task_type", "")
 
     return [
         {
             "role": "system",
             "content": (
-                "You are the final response generator for a constrained edge agent.\n"
-                "Answer in concise natural Chinese.\n"
-                "Use only the provided context.\n"
-                "Do not expose internal JSON unless the user explicitly asks for raw data.\n"
-                "For cluster status, summarize each node and resource usage.\n"
-                "For task catalog, summarize each supported task/model and its supported_device_types.\n"
-                "For task overhead, summarize proc_time, mem_usage, cpu_usage, and xpu_usage by task and device type.\n"
-                "For executed tasks, summarize the actual tool result."
+                "You are an edge-cluster dispatch selector.\n"
+                "Select the target node for the already selected task_type.\n"
+                "Return JSON only in this exact shape:\n"
+                "{\"task_type\":\"<catalog task_type>\",\"target_global_id\":\"<cluster global_id>\"}\n"
+                "Rules:\n"
+                f"1. Use this task_type exactly: {selected_task_type}.\n"
+                "2. Choose target_global_id only from dispatch_context.candidate_nodes[].target_global_id.\n"
+                "3. Use candidate_nodes[].latency_reference.estimated_e2e_ms as the primary board-selection metric when available.\n"
+                "4. Each latency_reference contains the three nearest historical samples for this task and node type.\n"
+                "5. If estimated_e2e_ms is similar within 5%, prefer lower current_resource_percent.npu_percent, then lower current_resource_percent.mem_percent.\n"
+                "6. Prefer lower current resource usage only when latency_reference is missing.\n"
+                "7. All candidate_nodes are already online and support the selected task.\n"
+                "8. Do not invent node ids, task types, or extra JSON fields.\n"
             ),
         },
-        {"role": "user", "content": user_content},
+        {
+            "role": "user",
+            "content": json.dumps({"dispatch_context": dispatch_context}, ensure_ascii=False),
+        },
     ]
 
 
-def make_loop_final_response(user_text, context, trace, include_trace=False):
-    if context.get("tool_result") and context.get("selected_execution"):
-        return summarize_result(user_text, context["selected_execution"], context["tool_result"])
+def choose_direct_execution(
+    has_file,
+    cluster_resources,
+    task_catalog,
+    dispatch_context,
+):
     model_result = call_llm(
-        build_loop_final_messages(user_text, context, trace if include_trace else None),
-        timing_label="model_inference.final_response",
+        build_direct_selection_messages(
+            dispatch_context,
+        ),
+        timing_label="model_inference.direct_selection",
     )
-    return model_result["content"].strip(), model_result
+    try:
+        selection = parse_json_object(model_result["content"])
+    except Exception as exc:
+        raise RuntimeError(f"direct selection model returned invalid JSON: {exc}") from exc
+
+    task_type = selection.get("task_type")
+    target_global_id = selection.get("target_global_id")
+    selected_task_type = dispatch_context.get("selected_task_type")
+    if selected_task_type and task_type != selected_task_type:
+        raise RuntimeError(f"model selected task_type {task_type}, but selected task_type is {selected_task_type}")
+    if task_type not in task_types_from_catalog(task_catalog):
+        raise RuntimeError(f"model selected unavailable task_type: {task_type}")
+
+    nodes_by_id = {
+        node_global_id(node): node
+        for node in online_cluster_nodes(cluster_resources)
+        if node_global_id(node)
+    }
+    selected_node = nodes_by_id.get(target_global_id)
+    if not selected_node:
+        raise RuntimeError(f"model selected unavailable target_global_id: {target_global_id}")
+
+    candidate_ids = {
+        node.get("target_global_id")
+        for node in dispatch_context.get("candidate_nodes", [])
+        if isinstance(node, dict)
+    }
+    if target_global_id not in candidate_ids:
+        raise RuntimeError(f"model selected target_global_id outside candidate_nodes: {target_global_id}")
+
+    catalog_entry = get_task_catalog_entry(task_type, {"task_catalog": task_catalog})
+    supported_device_types = set(catalog_entry.get("supported_device_types") or [])
+    node_type = selected_node.get("type")
+    if supported_device_types and node_type not in supported_device_types:
+        raise RuntimeError(f"task_type {task_type} does not support selected node type {node_type}")
+    validate_task_input_requirements(task_type, has_file, {"task_catalog": task_catalog})
+
+    return {
+        "task_type": task_type,
+        "target_global_id": target_global_id,
+        "selected_node": selected_node,
+        "reason": "",
+        "_usage": model_result,
+    }
 
 
-def run_constrained_agent_loop(user_text, has_file, input_path, text_fields, forced_task_type=None, debug_response=False):
+def choose_single_candidate_execution(task_type, candidate_nodes, cluster_resources):
+    if len(candidate_nodes) != 1:
+        raise RuntimeError("single candidate selection requires exactly one candidate node")
+    target_global_id = candidate_nodes[0].get("target_global_id")
+    selected_node = {
+        node_global_id(node): node
+        for node in online_cluster_nodes(cluster_resources)
+        if node_global_id(node)
+    }.get(target_global_id)
+    if not selected_node:
+        raise RuntimeError(f"single candidate node is unavailable: {target_global_id}")
+    print(
+        f"[INFO] NODE_SELECTION_SKIPPED_LLM task_type={task_type} "
+        f"target_global_id={target_global_id} reason=single_candidate",
+        flush=True,
+    )
+    return {
+        "task_type": task_type,
+        "target_global_id": target_global_id,
+        "selected_node": selected_node,
+        "reason": "only one online candidate node supports the selected task",
+        "_usage": zero_usage(),
+        "_selection_source": "single_candidate",
+    }
+
+
+def build_direct_final_message(selected_execution, tool_result):
+    deterministic_summary = build_deterministic_summary(selected_execution, tool_result)
+    if deterministic_summary:
+        return deterministic_summary
+    task_type = selected_execution.get("task_type", "unknown")
+    if isinstance(tool_result, dict):
+        result_payload = tool_result.get("result")
+        if result_payload is None:
+            result_payload = tool_result.get("results")
+        if result_payload is not None:
+            if isinstance(result_payload, str):
+                return f"任务已完成，使用模型：{task_type}，结果：{result_payload}"
+            return f"任务已完成，使用模型：{task_type}，结果：{json.dumps(redact_large_binary_fields(result_payload), ensure_ascii=False)}"
+    status = tool_result.get("status") if isinstance(tool_result, dict) else None
+    if status:
+        return f"任务已完成，使用模型：{task_type}，执行状态：{status}。"
+    return f"任务已完成，使用模型：{task_type}。"
+
+
+def run_direct_agent_execution(user_text, has_file, input_path, text_fields, forced_task_type=None, debug_response=False):
     e2e_marker = start_timing()
-
-    def finish_agent_loop():
-        e2e_timing = finish_timing(e2e_marker)
-        total_usage["timing"] = {"segment": "agent_e2e", **e2e_timing}
-        log_timing("agent_e2e", **e2e_timing)
+    total_usage = zero_usage()
+    trace = []
 
     if forced_task_type:
         if not get_configured_tool_metadata(forced_task_type):
             raise RuntimeError(f"unsupported task_type: {forced_task_type}")
         validate_task_input_requirements(forced_task_type, has_file)
+
+    cluster_timing_marker = start_timing()
+    cluster_resources = json.loads(call_mcp_tool("get_cluster_resources", timeout=ACTION_TIMEOUTS["get_cluster_resources"]))
+    cluster_timing = finish_timing(cluster_timing_marker)
+    log_timing("tool.get_cluster_resources", **cluster_timing)
+    trace.append({
+        "action": "get_cluster_resources",
+        "arguments": {},
+        "tool_timing": {"segment": "tool.get_cluster_resources", **cluster_timing},
+        "result": redact_large_binary_fields(cluster_resources),
+        "generated_by_model": False,
+    })
+
+    catalog_args = {}
+    available_device_types = available_device_types_from_cluster(cluster_resources)
+    if available_device_types:
+        catalog_args["available_device_types"] = available_device_types
+    catalog_timing_marker = start_timing()
+    task_catalog = json.loads(call_mcp_tool("get_task_catalog", catalog_args, timeout=ACTION_TIMEOUTS["get_task_catalog"]))
+    catalog_timing = finish_timing(catalog_timing_marker)
+    log_timing("tool.get_task_catalog", **catalog_timing)
+    trace.append({
+        "action": "get_task_catalog",
+        "arguments": catalog_args,
+        "tool_timing": {"segment": "tool.get_task_catalog", **catalog_timing},
+        "result": task_catalog,
+        "generated_by_model": False,
+    })
+
+    selected_task_type, task_reason, task_usage, task_selection_source = resolve_direct_task_type(
+        user_text,
+        has_file,
+        text_fields,
+        task_catalog,
+        forced_task_type,
+    )
+    total_usage["prompt_tokens"] += task_usage.get("prompt_tokens", 0)
+    total_usage["completion_tokens"] += task_usage.get("completion_tokens", 0)
+    task_trace_item = {
+        "action": "select_task_type",
+        "arguments": {},
+        "result": {"task_type": selected_task_type},
+        "reason": task_reason,
+        "selection_source": task_selection_source,
+        "generated_by_model": task_selection_source == "model",
+    }
+    if task_usage.get("timing"):
+        task_trace_item["model_timing"] = task_usage["timing"]
+    trace.append(task_trace_item)
+
+    latency_references = build_latency_references(
+        cluster_resources,
+        task_catalog,
+        task_type_filter=selected_task_type,
+    )
+    candidate_nodes = candidate_nodes_for_task(
+        cluster_resources,
+        task_catalog,
+        selected_task_type,
+        latency_references,
+    )
+    if not candidate_nodes:
+        raise RuntimeError(f"no online candidate nodes support task_type: {selected_task_type}")
+
+    dispatch_context = build_dispatch_context(
+        user_text,
+        has_file,
+        text_fields,
+        selected_task_type,
+        task_catalog,
+        candidate_nodes,
+    )
+    if len(candidate_nodes) == 1:
+        selection = choose_single_candidate_execution(
+            selected_task_type,
+            candidate_nodes,
+            cluster_resources,
+        )
+    else:
+        selection = choose_direct_execution(
+            has_file,
+            cluster_resources,
+            task_catalog,
+            dispatch_context,
+        )
+    selection_usage = selection.pop("_usage")
+    node_selection_source = selection.pop("_selection_source", "model")
+    total_usage["prompt_tokens"] += selection_usage.get("prompt_tokens", 0)
+    total_usage["completion_tokens"] += selection_usage.get("completion_tokens", 0)
+
+    execution_metadata = get_execution_metadata(selection["task_type"], {"task_catalog": task_catalog})
+    fields = dict(text_fields)
+    fields.setdefault("text", user_text)
+    run_arguments = {
+        "task_type": selection["task_type"],
+        "target_global_id": selection["target_global_id"],
+        "input_path": input_path,
+        "real_url": execution_metadata["real_url"],
+        "file_field_name": execution_metadata["file_field_name"],
+        "fields": fields,
+    }
+
+    run_timing_marker = start_timing()
+    tool_result = json.loads(call_mcp_tool("run_task_on_node", run_arguments, timeout=ACTION_TIMEOUTS["run_task_on_node"]))
+    run_timing = finish_timing(run_timing_marker)
+    log_timing("tool.run_task_on_node", **run_timing)
+    selected_execution = {
+        "task_type": selection["task_type"],
+        "target_global_id": selection["target_global_id"],
+        "scheduled_node": selection["selected_node"],
+        "real_url": execution_metadata["real_url"],
+    }
+    trace.append({
+        "action": "run_task_on_node",
+        "arguments": run_arguments,
+        "reason": selection.get("reason", ""),
+        "selection_source": node_selection_source,
+        "model_timing": selection_usage.get("timing"),
+        "tool_timing": {"segment": "tool.run_task_on_node", **run_timing},
+        "result": redact_large_binary_fields(tool_result),
+        "generated_by_model": node_selection_source == "model",
+    })
+
     context = {
         "has_file": has_file,
         "input_path": input_path,
-        "inferred_task_type": forced_task_type or infer_task_type_by_rules(user_text, has_file),
-        "schedule_constraints": infer_schedule_constraints_by_rules(user_text),
-        "overhead_arguments": infer_overhead_arguments_by_rules(user_text),
+        "cluster_resources": cluster_resources,
+        "task_catalog": task_catalog,
+        "selected_task_type": selected_task_type,
+        "latency_references": latency_references,
+        "candidate_nodes": candidate_nodes,
+        "dispatch_context": dispatch_context,
+        "selected_execution": selected_execution,
+        "tool_result": tool_result,
     }
-    trace = []
-    state = "S0"
-    total_usage = zero_usage()
-
-    for _ in range(MAX_AGENT_STEPS):
-        try:
-            action, arguments, reason, usage = choose_constrained_action(user_text, has_file, state, context)
-        except Exception as exc:
-            context["last_error"] = str(exc)
-            fallback_actions = allowed_actions_for_context(user_text, state, context)
-            if "get_cluster_resources" in fallback_actions:
-                action, arguments, reason, usage = "get_cluster_resources", {}, "fallback after invalid model action", zero_usage()
-            elif "get_task_catalog" in fallback_actions:
-                action, arguments, reason, usage = "get_task_catalog", {}, "fallback after invalid model action", zero_usage()
-            elif "schedule_task" in fallback_actions and context.get("inferred_task_type"):
-                arguments = {"task_type": context["inferred_task_type"], **context.get("schedule_constraints", {})}
-                action, arguments, reason, usage = "schedule_task", arguments, "fallback after invalid model action", zero_usage()
-            elif "run_task_on_node" in fallback_actions:
-                action, arguments, reason, usage = "run_task_on_node", {}, "fallback after invalid model action", zero_usage()
-            else:
-                final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
-                total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
-                total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
-                total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
-                finish_agent_loop()
-                return final_message, context, trace, total_usage
-        total_usage["prompt_tokens"] += usage.get("prompt_tokens", 0)
-        total_usage["completion_tokens"] += usage.get("completion_tokens", 0)
-        trace_item = {
-            "state": state,
-            "action": action,
-            "arguments": arguments,
-            "reason": reason,
-        }
-        if usage.get("timing"):
-            trace_item["model_timing"] = usage["timing"]
-
-        if action == "final_response":
-            final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
-            total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
-            total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
-            total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
-            if final_usage.get("timing"):
-                trace_item["final_model_timing"] = final_usage["timing"]
-            trace.append(trace_item)
-            finish_agent_loop()
-            return final_message, context, trace, total_usage
-
-        tool_timing_marker = None
-        try:
-            tool_timing_marker = start_timing()
-            result = run_constrained_tool_action(action, arguments, context, user_text, has_file, text_fields, input_path)
-            tool_timing = finish_timing(tool_timing_marker)
-            trace_item["tool_timing"] = {"segment": f"tool.{action}", **tool_timing}
-            log_timing(f"tool.{action}", **tool_timing)
-            trace_item["result"] = redact_large_binary_fields(result)
-            if action == "get_cluster_resources":
-                context["cluster_resources"] = result
-            elif action == "get_task_catalog":
-                context["task_catalog"] = result
-            elif action == "get_task_overhead":
-                context["task_overhead"] = result
-            elif action == "schedule_task":
-                context["schedule_result"] = result
-                context["scheduled_node"] = result.get("result", {})
-                context["task_type"] = resolve_task_type(arguments, context)
-            elif action == "run_task_on_node":
-                context["tool_result"] = result
-                scheduled_node = context.get("scheduled_node", {})
-                task_type = context.get("task_type") or context.get("inferred_task_type")
-                context["selected_execution"] = {
-                    "task_type": task_type,
-                    "target_global_id": scheduled_node.get("target_global_id"),
-                    "scheduled_node": scheduled_node,
-                    "real_url": get_execution_metadata(task_type, context)["real_url"],
-                }
-            state = next_state_after_action(state, action)
-        except Exception as exc:
-            if tool_timing_marker is not None:
-                tool_timing = finish_timing(tool_timing_marker)
-                trace_item["tool_timing"] = {"segment": f"tool.{action}", **tool_timing}
-                log_timing(f"tool.{action}", status="error", **tool_timing)
-            trace_item["error"] = str(exc)
-            context["last_error"] = str(exc)
-            context["last_failed_action"] = action
-            state = "Error"
-
-        trace.append(trace_item)
-
-        if state == "S5":
-            final_message, final_usage = make_loop_final_response(user_text, context, trace, debug_response)
-            total_usage["prompt_tokens"] += final_usage.get("prompt_tokens", 0)
-            total_usage["completion_tokens"] += final_usage.get("completion_tokens", 0)
-            total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
-            if trace and final_usage.get("timing"):
-                trace[-1]["final_model_timing"] = final_usage["timing"]
-            finish_agent_loop()
-            return final_message, context, trace, total_usage
-
-    raise RuntimeError(f"agent loop exceeded {MAX_AGENT_STEPS} steps; trace={trace}")
+    total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
+    e2e_timing = finish_timing(e2e_marker)
+    total_usage["timing"] = {"segment": "agent_e2e", **e2e_timing}
+    log_timing("agent_e2e", **e2e_timing)
+    return build_direct_final_message(selected_execution, tool_result), context, trace, total_usage
 
 
 def get_forced_task_type(text_fields):
@@ -990,7 +1052,7 @@ def agent_chat():
         if has_file:
             temp_input_path = save_uploaded_file(uploaded_file)
 
-        final_message, loop_context, loop_trace, usage = run_constrained_agent_loop(
+        final_message, loop_context, loop_trace, usage = run_direct_agent_execution(
             user_text,
             has_file,
             temp_input_path,
@@ -1008,7 +1070,7 @@ def agent_chat():
             response_payload["result_image"] = tool_result["result_image"]
         if debug_response:
             response_payload.update({
-                "agent_mode": "constrained_react_loop",
+                "agent_mode": "direct_context_selection",
                 "final_state_context": compact_agent_context(loop_context),
                 "trace": loop_trace,
                 "usage": usage,

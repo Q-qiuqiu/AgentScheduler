@@ -1,0 +1,61 @@
+{
+  "case_id": "yolov5_295_q_det_005",
+  "query": "不要使用节点ATLAS_H，使用其他节点完成这张图片的目标检测",
+  "task_type": "YoloV5",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.30846,
+      "mem_used": 0.6177,
+      "npu_used": 0.81,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 2627.476,
+        "exec_ms": 509.607
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": false,
+      "cpu_used": 0.5,
+      "mem_used": 0.62052,
+      "npu_used": 0.60333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "ATLAS_L",
+        "e2e_ms": -1,
+        "exec_ms": -1
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.7193,
+      "mem_used": 0.8049,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "RK3588",
+        "e2e_ms": 257.85,
+        "exec_ms": 182.564
+      }
+    }
+  ],
+  "constraints": {
+    "exclude_nodes": [
+      "ATLAS_H"
+    ]
+  },
+  "ground_truth": {
+    "node_id": "RK3588",
+    "ete_time": 257.85
+  }
+}

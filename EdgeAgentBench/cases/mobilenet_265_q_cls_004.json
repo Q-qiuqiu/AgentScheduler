@@ -1,0 +1,61 @@
+{
+  "case_id": "mobilenet_265_q_cls_004",
+  "query": "不要使用 RK3588，用其他节点对这张图片做分类",
+  "task_type": "MobileNet",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.28856,
+      "mem_used": 0.41633,
+      "npu_used": 0.81333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 1444.375,
+        "exec_ms": 40.877
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": false,
+      "cpu_used": 0.53333,
+      "mem_used": 0.74858,
+      "npu_used": 0.90333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_L",
+        "e2e_ms": -1,
+        "exec_ms": -1
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.609,
+      "mem_used": 0.2063,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "RK3588",
+        "e2e_ms": 5407.15,
+        "exec_ms": 124.63
+      }
+    }
+  ],
+  "constraints": {
+    "exclude_nodes": [
+      "RK3588"
+    ]
+  },
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 1444.375
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "case_id": "bert_484_q_txt_005",
+  "query": "现在的家长都过分关注孩子的成绩，而不是孩子的成长轨迹，帮我对这句话做文本分类",
+  "task_type": "Bert",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.70202,
+      "mem_used": 0.41731,
+      "npu_used": 0.41,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 4744.563,
+        "exec_ms": 95.469
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.39698,
+      "mem_used": 0.77898,
+      "npu_used": 0.95667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 13486.517,
+        "exec_ms": 191.279
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 4744.563
+  }
+}

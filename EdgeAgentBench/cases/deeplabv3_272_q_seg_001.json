@@ -1,0 +1,42 @@
+{
+  "case_id": "deeplabv3_272_q_seg_001",
+  "query": "请对这张图片进行语义分割",
+  "task_type": "deeplabv3",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.27941,
+      "mem_used": 0.80045,
+      "npu_used": 0.19667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 27159.73,
+        "exec_ms": 351.492
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.38,
+      "mem_used": 0.60935,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 53330.236,
+        "exec_ms": 800.641
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 27159.73
+  }
+}

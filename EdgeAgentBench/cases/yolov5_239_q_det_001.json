@@ -1,0 +1,57 @@
+{
+  "case_id": "yolov5_239_q_det_001",
+  "query": "请对这张图片进行目标检测",
+  "task_type": "YoloV5",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.67172,
+      "mem_used": 0.41727,
+      "npu_used": 0.63333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 3016.884,
+        "exec_ms": 643.843
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.49479,
+      "mem_used": 0.56336,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 5161.341,
+        "exec_ms": 905.002
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.8933,
+      "mem_used": 0.6049,
+      "npu_used": 0.28,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "RK3588",
+        "e2e_ms": 238.41,
+        "exec_ms": 169.422
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "RK3588",
+    "ete_time": 238.41
+  }
+}

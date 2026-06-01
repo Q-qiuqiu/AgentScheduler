@@ -1,0 +1,57 @@
+{
+  "case_id": "yolov5_450_q_det_002",
+  "query": "帮我对这张图片进行检测，告诉我物体的位置",
+  "task_type": "YoloV5",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.375,
+      "mem_used": 0.74219,
+      "npu_used": 0.83,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 2597.149,
+        "exec_ms": 537.9
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.48205,
+      "mem_used": 0.62777,
+      "npu_used": 0.20333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 4903.849,
+        "exec_ms": 863.782
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": false,
+      "cpu_used": 0.9175,
+      "mem_used": 0.4236,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "YoloV5",
+        "device_type": "RK3588",
+        "e2e_ms": -1,
+        "exec_ms": -1
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 2597.149
+  }
+}

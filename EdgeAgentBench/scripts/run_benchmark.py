@@ -11,15 +11,6 @@ BENCH_ROOT = Path(__file__).resolve().parents[1]
 CASE_DIR = BENCH_ROOT / "cases"
 STATIC_INFO_PATH = BENCH_ROOT.parent / "config_files" / "static_info.json"
 
-TASK_TO_MODEL = {
-    "object_detection": "YoloV5",
-    "image_classification": "MobileNet",
-    "semantic_segmentation": "deeplabv3",
-    "text_classification": "Bert",
-}
-
-EXECUTION_TASKS = set(TASK_TO_MODEL)
-
 
 def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -60,8 +51,8 @@ def normalize_platform(platform: str | None) -> str | None:
     return platform
 
 
-def load_state(case: dict[str, Any]) -> dict[str, Any]:
-    return load_json(BENCH_ROOT / case["state_path"])
+def case_model(case: dict[str, Any]) -> str | None:
+    return case.get("task_type")
 
 
 def load_static_info() -> dict[str, Any]:
@@ -69,13 +60,17 @@ def load_static_info() -> dict[str, Any]:
 
 
 def candidate_nodes(case: dict[str, Any], state: dict[str, Any], honor_constraints: bool) -> list[dict[str, Any]]:
-    task = case["expected_task"]
+    model_name = case_model(case)
     constraints = case.get("constraints", {}) if honor_constraints else {}
     candidates = []
     for node in state.get("nodes", []):
         if not node.get("online", False):
             continue
-        if task not in node.get("support_tasks", []):
+        profile_model = node.get("latency_profile", {}).get("model")
+        if profile_model != model_name:
+            continue
+        profile_e2e = node.get("latency_profile", {}).get("e2e_ms")
+        if not isinstance(profile_e2e, (int, float)) or profile_e2e < 0:
             continue
         if is_excluded(node, constraints):
             continue
@@ -88,35 +83,9 @@ def candidate_nodes(case: dict[str, Any], state: dict[str, Any], honor_constrain
 def ground_truth_prediction(case: dict[str, Any]) -> dict[str, Any]:
     gt = case["ground_truth"]
     return {
-        "selected_node": gt.get("selected_node"),
-        "selected_platform": gt.get("selected_platform"),
-        "score": gt.get("oracle_score"),
-        "eligible_nodes": gt.get("eligible_nodes", []),
-    }
-
-
-def case_oracle_prediction(case: dict[str, Any], state: dict[str, Any], honor_constraints: bool) -> dict[str, Any]:
-    weights = case["oracle"]["weights"]
-    task = case["expected_task"]
-    ranked = []
-    for node in candidate_nodes(case, state, honor_constraints):
-        cold_start = 0 if task in node.get("ready_containers", []) else 1
-        score = (
-            weights["npu_used"] * node.get("npu_used", 1)
-            + weights["cpu_used"] * node.get("cpu_used", 1)
-            + weights["mem_used"] * node.get("mem_used", 1)
-            + weights["cold_start_penalty"] * cold_start
-        )
-        ranked.append((round(score, 4), node))
-    ranked.sort(key=lambda item: (item[0], item[1].get("node_id", "")))
-    if not ranked:
-        return {"selected_node": None, "selected_platform": None, "score": None, "eligible_nodes": []}
-    score, node = ranked[0]
-    return {
-        "selected_node": node.get("node_id"),
-        "selected_platform": node.get("platform"),
-        "score": score,
-        "eligible_nodes": [item[1].get("node_id") for item in ranked],
+        "selected_node": gt.get("node_id"),
+        "score": gt.get("ete_time"),
+        "eligible_nodes": [],
     }
 
 
@@ -126,8 +95,7 @@ def feasible_scheduler_candidates(
     static_info: dict[str, Any],
     honor_constraints: bool,
 ) -> list[dict[str, Any]]:
-    task = case["expected_task"]
-    model_name = TASK_TO_MODEL[task]
+    model_name = case_model(case)
     model_profile = static_info.get(model_name, {})
     candidates = []
 
@@ -137,15 +105,10 @@ def feasible_scheduler_candidates(
         if not profile:
             continue
 
-        overhead = profile.get("taskOverhead", {})
-        cold_start = task not in node.get("ready_containers", [])
+        cold_start = False
         cpu_after = node.get("cpu_used", 1)
         mem_after = node.get("mem_used", 1)
         npu_after = node.get("npu_used", 1)
-        if cold_start:
-            cpu_after += overhead.get("cpu_usage", 0)
-            mem_after += overhead.get("mem_usage", 0)
-            npu_after += overhead.get("xpu_usage", 0)
 
         if cpu_after > 1 or mem_after > 1 or npu_after > 1:
             continue
@@ -234,8 +197,7 @@ def round_robin_prediction(
 
     candidate_by_id = {item["node"].get("node_id"): item for item in candidates}
     node_order = runner_state.setdefault("round_robin_node_order", [
-        "RK3588_1",
-        "RK3588_2",
+        "RK3588",
         "ATLAS_L",
         "ATLAS_H",
     ])
@@ -320,29 +282,11 @@ def evaluate_case(
     runner_state: dict[str, Any],
 ) -> dict[str, Any]:
     gt = case["ground_truth"]
-    expected_task = case["expected_task"]
-    should_schedule = gt.get("should_schedule", False)
-
-    if not should_schedule:
-        return {
-            "case_id": case["case_id"],
-            "expected_task": expected_task,
-            "status": "PASS",
-            "reason": "resource_query",
-            "should_schedule": False,
-            "expected_node": None,
-            "predicted_node": None,
-            "expected_tools": ",".join(gt.get("expected_tools", [])),
-            "predicted_score": None,
-            "eligible_nodes": "",
-        }
-
-    state = load_state(case)
-    expected_node = gt.get("selected_node")
+    task_type = case_model(case)
+    state = {"nodes": case.get("nodes", [])}
+    expected_node = gt.get("node_id")
     if policy == "ground_truth":
         prediction = ground_truth_prediction(case)
-    elif policy == "case_oracle":
-        prediction = case_oracle_prediction(case, state, honor_constraints)
     elif policy == "scheduler":
         prediction = scheduler_prediction(case, state, static_info, honor_constraints)
     elif policy == "random":
@@ -376,13 +320,12 @@ def evaluate_case(
     passed = predicted_node == expected_node
     return {
         "case_id": case["case_id"],
-        "expected_task": expected_task,
+        "task_type": task_type,
         "status": "PASS" if passed else "FAIL",
         "reason": "" if passed else "selected_node_mismatch",
-        "should_schedule": True,
         "expected_node": expected_node,
         "predicted_node": predicted_node,
-        "expected_tools": ",".join(gt.get("expected_tools", [])),
+        "expected_ete_ms": gt.get("ete_time"),
         "predicted_score": prediction.get("score"),
         "eligible_nodes": ",".join(prediction.get("eligible_nodes", [])),
     }
@@ -392,13 +335,12 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fields = [
         "case_id",
-        "expected_task",
+        "task_type",
         "status",
         "reason",
-        "should_schedule",
         "expected_node",
         "predicted_node",
-        "expected_tools",
+        "expected_ete_ms",
         "predicted_score",
         "eligible_nodes",
     ]
@@ -416,11 +358,9 @@ def write_summary_json(path: Path, payload: dict[str, Any]) -> None:
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(rows)
     passed = sum(1 for row in rows if row["status"] == "PASS")
-    scheduled = [row for row in rows if row["should_schedule"]]
-    scheduled_passed = sum(1 for row in scheduled if row["status"] == "PASS")
     by_task: dict[str, dict[str, int]] = {}
     for row in rows:
-        item = by_task.setdefault(row["expected_task"], {"total": 0, "passed": 0})
+        item = by_task.setdefault(row["task_type"], {"total": 0, "passed": 0})
         item["total"] += 1
         if row["status"] == "PASS":
             item["passed"] += 1
@@ -428,9 +368,6 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "total": total,
         "passed": passed,
         "accuracy": round(passed / total, 4) if total else 0,
-        "scheduled_total": len(scheduled),
-        "scheduled_passed": scheduled_passed,
-        "scheduled_accuracy": round(scheduled_passed / len(scheduled), 4) if scheduled else 0,
         "by_task": {
             task: {
                 **item,
@@ -444,12 +381,11 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run EdgeAgentBench cases.")
     parser.add_argument("--case-dir", default=str(CASE_DIR), help="Directory containing one JSON file per case")
-    parser.add_argument("--case-pattern", default="state_*.json", help="Glob pattern for case files")
+    parser.add_argument("--case-pattern", default="*.json", help="Glob pattern for case files")
     parser.add_argument(
         "--policy",
         choices=[
             "ground_truth",
-            "case_oracle",
             "scheduler",
             "random",
             "round_robin",
@@ -510,7 +446,7 @@ def main() -> int:
     for row in failures[:args.failures]:
         print(
             f"FAIL {row['case_id']}: expected={row['expected_node']} "
-            f"predicted={row['predicted_node']} task={row['expected_task']}"
+            f"predicted={row['predicted_node']} task={row['task_type']}"
         )
     return 1 if args.strict and failures else 0
 

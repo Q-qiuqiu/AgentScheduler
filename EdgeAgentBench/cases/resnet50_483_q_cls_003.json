@@ -1,0 +1,57 @@
+{
+  "case_id": "resnet50_483_q_cls_003",
+  "query": "用当前最合适的开发板跑一下图像分类任务",
+  "task_type": "ResNet50",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.685,
+      "mem_used": 0.21698,
+      "npu_used": 0.40333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 4665.95,
+        "exec_ms": 91.648
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.42,
+      "mem_used": 0.67014,
+      "npu_used": 0.19667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 11185.771,
+        "exec_ms": 158.998
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.40299,
+      "mem_used": 0.40425,
+      "npu_used": 0.90667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "RK3588",
+        "e2e_ms": 3768.531,
+        "exec_ms": 83.132
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "RK3588",
+    "ete_time": 3768.531
+  }
+}

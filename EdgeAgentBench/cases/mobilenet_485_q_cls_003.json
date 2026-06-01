@@ -1,0 +1,57 @@
+{
+  "case_id": "mobilenet_485_q_cls_003",
+  "query": "用当前最合适的开发板跑一下图像分类任务",
+  "task_type": "MobileNet",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": false,
+      "cpu_used": 0.67337,
+      "mem_used": 0.21694,
+      "npu_used": 0.78667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_H",
+        "e2e_ms": -1,
+        "exec_ms": -1
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.36269,
+      "mem_used": 0.43791,
+      "npu_used": 0.40667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 2529.734,
+        "exec_ms": 52.517
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.4988,
+      "mem_used": 0.6052,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "RK3588",
+        "e2e_ms": 4591.26,
+        "exec_ms": 106.71
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_L",
+    "ete_time": 2529.734
+  }
+}

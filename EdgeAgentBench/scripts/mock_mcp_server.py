@@ -1,67 +1,35 @@
 #!/usr/bin/env python3
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
 
-TASK_CATALOG = [
-    {
-        "task_type": "YoloV5",
-        "model_name": "YoloV5",
-        "tool_kind": "vision_model",
-        "requires_file": True,
-        "file_field_name": "image",
-        "real_url": "predict",
-        "capabilities": ["object_detection", "multi_object_detection", "bounding_box_estimation"],
-        "description": "Object detection model for locating targets in an image.",
-        "device_types": ["RK3588", "ATLAS_L", "ATLAS_H"],
-    },
-    {
-        "task_type": "MobileNet",
-        "model_name": "MobileNet",
-        "tool_kind": "vision_model",
-        "requires_file": True,
-        "file_field_name": "image",
-        "real_url": "predict",
-        "capabilities": ["image_classification"],
-        "description": "Fast image classification model.",
-        "device_types": ["RK3588", "ATLAS_L", "ATLAS_H"],
-    },
-    {
-        "task_type": "ResNet50",
-        "model_name": "ResNet50",
-        "tool_kind": "vision_model",
-        "requires_file": True,
-        "file_field_name": "image",
-        "real_url": "predict",
-        "capabilities": ["image_classification"],
-        "description": "Image classification model.",
-        "device_types": ["RK3588", "ATLAS_L", "ATLAS_H"],
-    },
-    {
-        "task_type": "Bert",
-        "model_name": "Bert",
-        "tool_kind": "text_model",
-        "requires_file": False,
-        "file_field_name": None,
-        "real_url": "predict",
-        "capabilities": ["text_classification"],
-        "description": "Text classification model.",
-        "device_types": ["ATLAS_L", "ATLAS_H"],
-    },
-    {
-        "task_type": "deeplabv3",
-        "model_name": "deeplabv3",
-        "tool_kind": "segmentation_model",
-        "requires_file": True,
-        "file_field_name": "image",
-        "real_url": "segmentation",
-        "capabilities": ["semantic_segmentation"],
-        "description": "Semantic segmentation model.",
-        "device_types": ["ATLAS_L", "ATLAS_H"],
-    },
-]
+BENCH_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = BENCH_ROOT.parent
+DEFAULT_CURRENT_CASE_FILE = Path("/tmp/edgeagentbench_current_case.txt")
+AGENT_INFO_PATH = REPO_ROOT / "config_files" / "agent_info.json"
+STATIC_INFO_PATH = REPO_ROOT / "config_files" / "static_info.json"
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def current_case_path() -> Path:
+    pointer_path = Path(os.environ.get("EDGE_BENCH_CURRENT_CASE_FILE", str(DEFAULT_CURRENT_CASE_FILE)))
+    try:
+        case_path = Path(pointer_path.read_text(encoding="utf-8").strip())
+    except OSError as exc:
+        raise RuntimeError(f"failed to read current case pointer {pointer_path}: {exc}") from exc
+    if not case_path.exists():
+        raise RuntimeError(f"current case does not exist: {case_path}")
+    return case_path
+
+
+def load_current_case() -> dict[str, Any]:
+    return load_json(current_case_path())
 
 
 def make_response(request_id: Any, result: dict[str, Any]) -> dict[str, Any]:
@@ -79,92 +47,100 @@ def tool_response_text(payload: dict[str, Any], request_id: Any) -> dict[str, An
     )
 
 
-def get_task_catalog(arguments: dict[str, Any]) -> dict[str, Any]:
-    available = set(arguments.get("available_device_types") or [])
-    use_filter = "available_device_types" in arguments
-    result = []
-    for task in TASK_CATALOG:
-        supported_device_types = [
-            device_type
-            for device_type in task["device_types"]
-            if not use_filter or device_type in available
-        ]
-        if supported_device_types:
-            item = {key: value for key, value in task.items() if key != "device_types"}
-            item["supported_device_types"] = supported_device_types
-            result.append(item)
-    return {"status": "success", "result": result}
+def tool_response_error(message: str, request_id: Any) -> dict[str, Any]:
+    return make_response(
+        request_id,
+        {"content": [{"type": "text", "text": message}], "isError": True},
+    )
 
 
-def get_cluster_resources(_: dict[str, Any]) -> dict[str, Any]:
+def handle_initialize(request_id: Any) -> dict[str, Any]:
+    return make_response(
+        request_id,
+        {
+            "protocolVersion": "2024-11-05",
+            "capabilities": {"tools": {}},
+            "serverInfo": {"name": "edge-agent-bench-mock-tools", "version": "1.0.0"},
+        },
+    )
+
+
+def node_to_cluster_resource(node: dict[str, Any]) -> dict[str, Any]:
     return {
-        "status": "success",
-        "result": [
-            {"global_id": "mock-rk3588-1", "type": "RK3588", "resource": {"cpu_used": 0.2, "mem_used": 0.3, "npu_used": 0.2}},
-            {"global_id": "mock-rk3588-2", "type": "RK3588", "resource": {"cpu_used": 0.3, "mem_used": 0.4, "npu_used": 0.3}},
-            {"global_id": "mock-atlas-l", "type": "ATLAS_L", "resource": {"cpu_used": 0.4, "mem_used": 0.4, "npu_used": 0.4}},
-            {"global_id": "mock-atlas-h", "type": "ATLAS_H", "resource": {"cpu_used": 0.2, "mem_used": 0.3, "npu_used": 0.2}},
-        ],
-    }
-
-
-def get_task_overhead(arguments: dict[str, Any]) -> dict[str, Any]:
-    task_type = arguments.get("task_type") or "YoloV5"
-    device_type = arguments.get("device_type") or "RK3588"
-    return {
-        "status": "success",
-        "result": [
-            {
-                "task_type": task_type,
-                "device_type": device_type,
-                "overhead": {
-                    "proc_time": 1.0,
-                    "mem_usage": 0.1,
-                    "cpu_usage": 0.1,
-                    "xpu_usage": 0.1,
-                },
-            }
-        ],
-    }
-
-
-def schedule_task(arguments: dict[str, Any]) -> dict[str, Any]:
-    require_nodes = arguments.get("require_nodes") or []
-    require_node = arguments.get("require_node")
-    exclude_nodes = set(arguments.get("exclude_nodes") or [])
-    if require_node:
-        require_nodes = [require_node]
-
-    if require_nodes:
-        selected_type = require_nodes[0]
-    elif "RK3588" not in exclude_nodes:
-        selected_type = "RK3588"
-    elif "ATLAS_H" not in exclude_nodes:
-        selected_type = "ATLAS_H"
-    else:
-        selected_type = "ATLAS_L"
-
-    return {
-        "status": "success",
-        "result": {
-            "task_type": arguments.get("task_type"),
-            "target_global_id": f"mock-{str(selected_type).lower().replace('_', '-')}",
-            "type": selected_type,
-            "ip_address": "127.0.0.1",
-            "agent_port": 0,
-            "exclude_nodes": list(exclude_nodes),
-            "require_nodes": require_nodes,
+        "global_id": node.get("node_id"),
+        "type": node.get("platform"),
+        "ip_address": "127.0.0.1",
+        "agent_port": 0,
+        "online": node.get("online", True),
+        "resource": {
+            "cpu_used": node.get("cpu_used"),
+            "mem_used": node.get("mem_used"),
+            "npu_used": node.get("npu_used"),
+            "net_bandwidth": 1000.0,
+            "net_latency": node.get("network_latency", 1),
         },
     }
 
 
-def run_task_on_node(arguments: dict[str, Any]) -> dict[str, Any]:
+def get_cluster_resources(_: dict[str, Any] | None = None) -> dict[str, Any]:
+    case = load_current_case()
+    return {
+        "status": "success",
+        "result": [node_to_cluster_resource(node) for node in case.get("nodes", [])],
+    }
+
+
+def get_task_catalog(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
+    arguments = arguments or {}
+    agent_info = load_json(AGENT_INFO_PATH)
+    static_info = load_json(STATIC_INFO_PATH)
+    tools = agent_info.get("agent", {}).get("tools", {})
+    available_device_types = set(arguments.get("available_device_types") or [])
+    use_filter = "available_device_types" in arguments
+    result = []
+
+    for task_type, by_device in static_info.items():
+        if not isinstance(by_device, dict):
+            continue
+        supported_device_types = [
+            device_type
+            for device_type in sorted(by_device)
+            if not use_filter or device_type in available_device_types
+        ]
+        if not supported_device_types:
+            continue
+        metadata = tools.get(task_type, {})
+        result.append({
+            "model_name": task_type,
+            "task_type": task_type,
+            "tool_kind": metadata.get("tool_kind"),
+            "requires_file": metadata.get("requires_file", False),
+            "file_field_name": metadata.get("file_field_name"),
+            "real_url": metadata.get("real_url", "predict"),
+            "capabilities": metadata.get("capabilities", []),
+            "description": metadata.get("description", ""),
+            "supported_device_types": supported_device_types,
+        })
+    return {"status": "success", "result": result}
+
+
+def run_task_on_node(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
+    arguments = arguments or {}
+    target_global_id = arguments.get("target_global_id")
     task_type = arguments.get("task_type")
-    if task_type in {"YoloV5", "object_detection"}:
-        return {"status": "success", "results": [{"class": "mock", "confidence": 0.9, "bbox": [1, 2, 3, 4]}], "exec_time": 1.0}
-    if task_type in {"MobileNet", "ResNet50", "image_classification"}:
-        return {"status": "success", "results": [{"class": "mock", "confidence": 0.9}], "exec_time": 1.0}
-    return {"status": "success", "result": "mock task completed", "exec_time": 1.0}
+    case = load_current_case()
+    node = next((item for item in case.get("nodes", []) if item.get("node_id") == target_global_id), None)
+    if not node:
+        raise RuntimeError(f"target_global_id is not in current case: {target_global_id}")
+    return {
+        "status": "success",
+        "mocked": True,
+        "task_type": task_type,
+        "target_global_id": target_global_id,
+        "device_type": node.get("platform"),
+        "case_id": case.get("case_id"),
+        "results": [],
+    }
 
 
 def handle_tools_list(request_id: Any) -> dict[str, Any]:
@@ -173,11 +149,26 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
         {
             "tools": [
                 {"name": "get_cluster_resources", "inputSchema": {"type": "object", "properties": {}}},
-                {"name": "get_task_catalog", "inputSchema": {"type": "object", "properties": {}}},
-                {"name": "get_task_overhead", "inputSchema": {"type": "object", "properties": {}}},
-                {"name": "schedule_task", "inputSchema": {"type": "object", "properties": {}}},
-                {"name": "run_task_on_node", "inputSchema": {"type": "object", "properties": {}}},
-                {"name": "run_task_auto_schedule", "inputSchema": {"type": "object", "properties": {}}},
+                {
+                    "name": "get_task_catalog",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "available_device_types": {"type": "array", "items": {"type": "string"}}
+                        },
+                    },
+                },
+                {
+                    "name": "run_task_on_node",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "task_type": {"type": "string"},
+                            "target_global_id": {"type": "string"},
+                        },
+                        "required": ["task_type", "target_global_id"],
+                    },
+                },
             ]
         },
     )
@@ -185,40 +176,34 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
 
 def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]:
     name = params.get("name")
-    arguments = params.get("arguments") or {}
-    handlers = {
-        "get_cluster_resources": get_cluster_resources,
-        "get_task_catalog": get_task_catalog,
-        "get_task_overhead": get_task_overhead,
-        "schedule_task": schedule_task,
-        "run_task_on_node": run_task_on_node,
-        "run_task_auto_schedule": run_task_on_node,
-    }
-    if name not in handlers:
+    arguments = params.get("arguments", {})
+    try:
+        if name == "get_cluster_resources":
+            return tool_response_text(get_cluster_resources(arguments), request_id)
+        if name == "get_task_catalog":
+            return tool_response_text(get_task_catalog(arguments), request_id)
+        if name == "run_task_on_node":
+            return tool_response_text(run_task_on_node(arguments), request_id)
         return make_error(request_id, -32602, f"unknown tool: {name}")
-    return tool_response_text(handlers[name](arguments), request_id)
+    except RuntimeError as exc:
+        return tool_response_error(str(exc), request_id)
 
 
 def handle_request(message: dict[str, Any]) -> dict[str, Any] | None:
     method = message.get("method")
     request_id = message.get("id")
-    params = message.get("params") or {}
+    params = message.get("params", {})
     if method == "initialize":
-        return make_response(
-            request_id,
-            {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {"tools": {}},
-                "serverInfo": {"name": "edge-agent-bench-mock", "version": "0.1"},
-            },
-        )
+        return handle_initialize(request_id)
     if method == "notifications/initialized":
         return None
     if method == "tools/list":
         return handle_tools_list(request_id)
     if method == "tools/call":
         return handle_tools_call(request_id, params)
-    return make_error(request_id, -32601, f"method not found: {method}") if request_id is not None else None
+    if request_id is None:
+        return None
+    return make_error(request_id, -32601, f"method not found: {method}")
 
 
 def main() -> int:
@@ -227,12 +212,14 @@ def main() -> int:
         if not line:
             continue
         try:
-            response = handle_request(json.loads(line))
-        except Exception as exc:
-            response = make_error(None, -32000, str(exc))
-        if response is not None:
-            sys.stdout.write(json.dumps(response, ensure_ascii=False) + "\n")
-            sys.stdout.flush()
+            message = json.loads(line)
+            response = handle_request(message)
+        except json.JSONDecodeError:
+            response = make_error(None, -32700, "parse error")
+        if response is None:
+            continue
+        sys.stdout.write(json.dumps(response, ensure_ascii=False) + "\n")
+        sys.stdout.flush()
     return 0
 
 

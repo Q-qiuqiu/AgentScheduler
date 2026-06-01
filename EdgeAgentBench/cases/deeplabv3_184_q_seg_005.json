@@ -1,0 +1,42 @@
+{
+  "case_id": "deeplabv3_184_q_seg_005",
+  "query": "用当前最合适的开发板跑一下语义分割任务",
+  "task_type": "deeplabv3",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.39796,
+      "mem_used": 0.2169,
+      "npu_used": 0.61333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 26622.183,
+        "exec_ms": 354.211
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.38191,
+      "mem_used": 0.48746,
+      "npu_used": 0.9,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 55498.758,
+        "exec_ms": 798.857
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 26622.183
+  }
+}

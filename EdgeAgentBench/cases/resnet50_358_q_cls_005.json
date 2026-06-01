@@ -1,0 +1,61 @@
+{
+  "case_id": "resnet50_358_q_cls_005",
+  "query": "不要使用节点ATLAS_L，使用其他节点完成这张图片的分类",
+  "task_type": "ResNet50",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.685,
+      "mem_used": 0.21698,
+      "npu_used": 0.40333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 4665.95,
+        "exec_ms": 91.648
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.39,
+      "mem_used": 0.46624,
+      "npu_used": 0.39667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 7354.43,
+        "exec_ms": 161.669
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.40299,
+      "mem_used": 0.40425,
+      "npu_used": 0.90667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "RK3588",
+        "e2e_ms": 3768.531,
+        "exec_ms": 83.132
+      }
+    }
+  ],
+  "constraints": {
+    "exclude_nodes": [
+      "ATLAS_L"
+    ]
+  },
+  "ground_truth": {
+    "node_id": "RK3588",
+    "ete_time": 3768.531
+  }
+}

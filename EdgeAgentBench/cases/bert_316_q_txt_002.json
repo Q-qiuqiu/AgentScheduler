@@ -1,0 +1,42 @@
+{
+  "case_id": "bert_316_q_txt_002",
+  "query": "2025年中国国防预算约为1.78万亿元人民币，同比增长7.2%，帮我对这句话做文本分类",
+  "task_type": "Bert",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.40609,
+      "mem_used": 0.61773,
+      "npu_used": 0.61333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 5437.327,
+        "exec_ms": 96.867
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.0101,
+      "mem_used": 0.48082,
+      "npu_used": 0.97,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 19991.698,
+        "exec_ms": 191.915
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 5437.327
+  }
+}

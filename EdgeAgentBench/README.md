@@ -1,518 +1,337 @@
 # EdgeAgentBench
 
-EdgeAgentBench is a local benchmark for evaluating an edge-agent scheduler on heterogeneous edge boards. It combines user queries, task catalog metadata, synthetic cluster states, and per-case ground truth.
+EdgeAgentBench 用真实设备采样得到的 `config_files/latency_profiles.json` 构造离线调度评测集，用来比较调度策略选择的节点是否等同于真实端到端时延最短的节点。
 
-## Directory Layout
+## 目录
 
 ```text
 EdgeAgentBench/
-├── catalog/
-│   └── catalog.json              # Static task catalog used by the benchmark
-├── cases/
-│   ├── manifest.json             # Case file index and oracle metadata
-│   └── state_001_q_cls_001.json  # One benchmark case per JSON file
-├── queries/
-│   ├── image_classification/     # Image classification queries
-│   ├── object_dedection/         # Object detection queries
-│   ├── resource/                 # Resource/catalog/overhead queries
-│   ├── semantic_segmentation/    # Semantic segmentation queries
-│   └── text_classification/      # Text classification queries
-├── results/                      # Runner output CSV and summary JSON files
-├── samples/
-│   └── images/                   # Sample input images
+├── cases/      # 生成后的 benchmark case
+├── queries/    # 不同任务类型的自然语言 query
+├── results/    # run_benchmark.py 输出的 CSV 和 summary JSON
 ├── scripts/
-│   ├── generate_states.py        # Generate synthetic cluster states
-│   ├── generate_cases.py         # Generate case JSON files from queries + states
-│   ├── mock_mcp_server.py        # Mock MCP tool server for trace-only agent tests
-│   ├── analyze_tool_call_counts.py # Tool-call count and correct-prefix analyzer
-│   ├── run_application_identification_benchmark.py # Application identification evaluator
-│   ├── run_tool_call_benchmark.py # Tool-call trace evaluator
-│   └── run_benchmark.py          # Offline benchmark runner
-└── states/
-    └── state_001.json            # Synthetic cluster load states
+│   ├── generate_latency_profile_bench.py
+│   ├── mock_mcp_server.py
+│   ├── run_agent_selection_benchmark.py
+│   └── run_benchmark.py
+└── states/     # 生成后的资源状态快照，便于单独查看
 ```
 
-## Data Files
+## Case 格式
 
-`queries/` contains natural-language user requests. Each query has an `expected_task`, and some queries include scheduling constraints:
-
-- `exclude_nodes`: node ids or device types that cannot be selected
-- `require_node`: one node id or device type that must be selected from
-- `require_nodes`: a list of allowed node ids or device types
-
-`catalog/catalog.json` defines supported task types and which nodes can run them.
-
-`states/` contains 100 synthetic cluster-load scenarios. Each state has four nodes:
-
-- `RK3588_1`
-- `RK3588_2`
-- `ATLAS_L`
-- `ATLAS_H`
-
-Each node includes:
-
-- `online`
-- `cpu_used`
-- `mem_used`
-- `npu_used`
-- `support_tasks`
-- `ready_containers`
-- `network_latency`
-
-`network_latency` is currently fixed to `1` in all states and is not used by the benchmark oracle.
-
-`cases/` contains generated benchmark cases. Each case combines one state and one query. File names use:
-
-```text
-state_001_q_cls_001.json
-```
-
-The `ground_truth` field contains the expected application, expected tool path, accepted tool-path alternatives, and selected node.
-
-## Ground Truth Rules
-
-Execution tasks are:
-
-- `object_detection`
-- `image_classification`
-- `semantic_segmentation`
-- `text_classification`
-
-Each execution task also has an executable application/model label:
-
-```text
-object_detection        -> YoloV5
-image_classification    -> MobileNet
-semantic_segmentation   -> deeplabv3
-text_classification     -> Bert
-```
-
-This label is written to both `expected_application` and `ground_truth.expected_application`. Resource-query cases use `null` because they do not launch an application.
-
-For execution tasks, ground truth requires scheduling:
+每个 case 是一个独立 JSON，文件名类似 `mobilenet_044_q_cls_001.json`：
 
 ```json
-"expected_tools": ["get_cluster_resources", "get_task_catalog", "schedule_task", "run_task_on_node"]
+{
+  "case_id": "mobilenet_044_q_cls_001",
+  "query": "请对这张图片进行分类",
+  "task_type": "MobileNet",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.305,
+      "mem_used": 0.61779,
+      "npu_used": 0.61,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 1360.207,
+        "exec_ms": 40.779
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 1360.207
+  }
+}
 ```
 
-The agent first retrieves cluster resources, then retrieves a catalog filtered by online device types, then schedules and runs the task. Execution cases also contain `expected_tools_alternatives`; the tool-call runner treats any listed path as correct.
-If the task type is already clear, an overhead-based execution path is also accepted:
+`ground_truth.node_id` 是当前 case 中在线、满足约束、且 `latency_profile.e2e_ms` 最短的节点。离线节点的 `e2e_ms` 和 `exec_ms` 为 `-1`，不会参与 GT 和评测候选。
 
-```text
-get_cluster_resources -> get_task_overhead -> schedule_task -> run_task_on_node
-```
+## 生成 Benchmark
 
-The case oracle filters candidates by:
-
-- node is online
-- task is supported by `catalog/catalog.json`
-- task is present in the state node's `support_tasks`
-- query constraints are respected
-
-Then it scores candidates with:
-
-```text
-score = 0.50 * npu_used
-      + 0.20 * cpu_used
-      + 0.20 * mem_used
-      + 0.10 * cold_start_penalty
-```
-
-`cold_start_penalty` is `0` when the target task is in `ready_containers`, otherwise `1`.
-
-Resource queries do not schedule tasks. Their ground truth selects a read-only tool:
-
-- current nodes or current resource usage: `get_cluster_resources`
-- supported AI tasks/models: `get_task_catalog`
-- startup overhead/resource cost: `get_task_overhead`
-
-## State Scenarios
-
-The 100 states are generated from 25 scenario families with 4 variants each. The variants change load intensity and container warm-start placement while keeping the same scenario objective.
-
-| State range | Scenario family | Test objective |
-|---|---|---|
-| `state_001`-`state_004` | Global low load | Validate baseline scheduling under light load and warm containers |
-| `state_005`-`state_008` | Global medium load | Validate steady-state scheduling under normal cluster usage |
-| `state_009`-`state_012` | `RK3588_1` high NPU load | Avoid a single RK accelerator hotspot |
-| `state_013`-`state_016` | `RK3588_2` high NPU load | Migrate between homogeneous RK boards |
-| `state_017`-`state_020` | `ATLAS_L` high NPU load | Avoid Atlas_L for segmentation/text workloads when busy |
-| `state_021`-`state_024` | `ATLAS_H` high NPU load | Fall back from the high-performance Atlas board when saturated |
-| `state_025`-`state_028` | `RK3588_1` memory pressure | Check memory feasibility before cold start |
-| `state_029`-`state_032` | `RK3588_2` memory pressure | Avoid memory-constrained homogeneous RK nodes |
-| `state_033`-`state_036` | `ATLAS_L` memory pressure | Switch Atlas-only workloads away from memory pressure |
-| `state_037`-`state_040` | `ATLAS_H` memory pressure | Fall back when the preferred Atlas board lacks memory |
-| `state_041`-`state_044` | `RK3588_1` high CPU load | Test CPU saturation in the combined score |
-| `state_045`-`state_048` | `RK3588_2` high CPU load | Avoid RK CPU hotspots |
-| `state_049`-`state_052` | `ATLAS_L` high CPU load | Evaluate CPU-side overhead on Atlas_L |
-| `state_053`-`state_056` | `ATLAS_H` high CPU load | Evaluate candidate switching when Atlas_H CPU is busy |
-| `state_057`-`state_060` | `RK3588_1` offline | Test single RK board failure recovery |
-| `state_061`-`state_064` | `RK3588_2` offline | Test the other RK board failure recovery |
-| `state_065`-`state_068` | `ATLAS_L` offline | Route segmentation/text tasks to Atlas_H |
-| `state_069`-`state_072` | `ATLAS_H` offline | Route segmentation/text tasks to Atlas_L |
-| `state_073`-`state_076` | All containers cold | Measure pure resource and overhead-based scheduling |
-| `state_077`-`state_080` | All task containers warm | Select the best node among warm candidates |
-| `state_081`-`state_084` | RK pair vision hotspot | Move vision workloads from hot RK boards to Atlas candidates |
-| `state_085`-`state_088` | Atlas pair AI hotspot | Handle segmentation/text pressure on Atlas-only workloads |
-| `state_089`-`state_092` | Memory fragmentation | Filter multiple near-memory-limit nodes |
-| `state_093`-`state_096` | NPU fragmentation | Filter multiple near-NPU-limit nodes |
-| `state_097`-`state_100` | Mixed CPU/MEM/NPU stress | Evaluate scheduler behavior under realistic mixed pressure |
-
-## Generate Cases
-
-Run this after editing `queries/`, `states/`, or `catalog/`.
-
-Generate the 100 synthetic states:
-
-```bash
-cd /root/AgentScheduler/EdgeAgentBench
-python3 scripts/generate_states.py
-```
-
-Expected output:
-
-```text
-wrote 100 states to /root/AgentScheduler/EdgeAgentBench/states
-```
-
-Generate cases from the current queries and states:
-
-```bash
-cd /root/AgentScheduler/EdgeAgentBench
-python3 scripts/generate_cases.py
-```
-
-This writes:
-
-- `cases/manifest.json`
-- 2500 case files, one JSON file per case
-
-Expected output:
-
-```text
-wrote 2500 case files to /root/AgentScheduler/EdgeAgentBench/cases
-```
-
-## Run Benchmark
-
-Run the offline scheduler-style benchmark:
-
-```bash
-cd /root/AgentScheduler/EdgeAgentBench
-python3 scripts/run_benchmark.py \
-  --policy scheduler \
-  --output results/scheduler_results.csv
-```
-
-Each run writes:
-
-- a per-case CSV, for example `results/scheduler_results.csv`
-- a summary JSON, for example `results/scheduler_results.summary.json`
-
-Override the summary path when needed:
-
-```bash
-python3 scripts/run_benchmark.py \
-  --policy scheduler \
-  --output results/scheduler_results.csv \
-  --summary-output results/scheduler_summary.json
-```
-
-## Run Application Identification Benchmark
-
-This experiment checks whether the agent can map a natural-language query to the expected executable application before or during scheduling. It uses execution cases only; resource-query cases have `expected_application: null` and are skipped.
-
-Start the agent with the mock MCP server:
+在仓库根目录运行：
 
 ```bash
 cd /root/AgentScheduler
-MCP_SERVER_PATH=/root/AgentScheduler/EdgeAgentBench/scripts/mock_mcp_server.py \
-python3 agent/server/agent.py --host 0.0.0.0 --port 8082
+python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py
 ```
 
-Then run:
-
-```bash
-cd /root/AgentScheduler/EdgeAgentBench
-python3 scripts/run_application_identification_benchmark.py \
-  --agent-url http://127.0.0.1:8082/v1/agent/chat \
-  --output results/application_identification_results.csv
-```
-
-The runner sends each query with `debug=1`, reads the agent trace, and extracts the first `task_type` from `schedule_task`, `run_task_on_node`, or `get_task_overhead`. Category labels are normalized to executable application names, for example `object_detection` and `YoloV5` both count as `YoloV5`.
-
-Outputs:
-
-- per-case CSV: `results/application_identification_results.csv`
-- summary JSON: `results/application_identification_results.summary.json`
-
-The main metric is:
+默认读取：
 
 ```text
-application_identification_accuracy = correct_application_cases / execution_cases
+config_files/latency_profiles.json
 ```
 
-For a quick smoke test:
+默认输出：
+
+```text
+EdgeAgentBench/states/*.json
+EdgeAgentBench/cases/*.json
+EdgeAgentBench/cases/manifest.json
+```
+
+参数：
+
+```text
+--profile PATH
+  latency_profiles.json 路径，默认是 config_files/latency_profiles.json。
+
+--states-per-model N
+  每个模型生成多少个资源状态，默认 500。
+
+--offline-every N
+  每 N 个 state 人为设置一个节点 offline，默认 5。
+  设置为 0 表示不生成 offline 节点。
+```
+
+示例：
 
 ```bash
-python3 scripts/run_application_identification_benchmark.py --limit 20 --failures 5
+python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py \
+  --states-per-model 500 \
+  --offline-every 5
 ```
 
-## Run Tool-Call Benchmark
+生成逻辑：
 
-This experiment checks whether the local agent calls the expected tools for each case. It does not require the real gateway. Start the agent with the mock MCP server:
+- 按 `task_type + device_type` 读取真实时延画像。
+- 每个 state 为同一个模型组合多个开发板的资源状态。
+- 每个在线节点保留 `cpu_used`、`mem_used`、`npu_used`、`e2e_ms`、`exec_ms`。
+- 每 5 个 state 默认人为设置一个 offline 节点。
+- 如果某个 query 约束导致没有可用在线节点，则跳过该 case。
+
+## 运行评测
 
 ```bash
 cd /root/AgentScheduler
-MCP_SERVER_PATH=/root/AgentScheduler/EdgeAgentBench/scripts/mock_mcp_server.py \
-python3 agent/server/agent.py --host 0.0.0.0 --port 8082
+python3 EdgeAgentBench/scripts/run_benchmark.py \
+  --policy scheduler \
+  --output EdgeAgentBench/results/scheduler_results.csv
 ```
 
-Then run the tool-call evaluator:
-
-```bash
-cd /root/AgentScheduler/EdgeAgentBench
-python3 scripts/run_tool_call_benchmark.py \
-  --agent-url http://127.0.0.1:8082/v1/agent/chat \
-  --output results/tool_call_results.csv
-```
-
-The CSV output is written incrementally after each case, so failures can be inspected while the benchmark is still running:
-
-```bash
-tail -f results/tool_call_results.csv
-```
-
-For a quick smoke test:
-
-```bash
-python3 scripts/run_tool_call_benchmark.py --limit 20 --failures 5
-```
-
-The evaluator sends each case query to `/v1/agent/chat` with `debug=1`, extracts `trace[].action`, removes `final_response`, and compares the resulting tool sequence with:
-
-```json
-ground_truth.expected_tools
-```
-
-When `ground_truth.expected_tools_alternatives` exists, the actual sequence only needs to match one alternative.
-
-Current expected tool-flow examples:
+每次运行会输出：
 
 ```text
-Execution task: get_cluster_resources -> get_task_catalog -> schedule_task -> run_task_on_node
-Alternative:    get_cluster_resources -> get_task_overhead -> schedule_task -> run_task_on_node
-Catalog query:  get_cluster_resources -> get_task_catalog
-Overhead query: get_cluster_resources -> get_task_overhead
-Resource query: get_cluster_resources
+EdgeAgentBench/results/scheduler_results.csv
+EdgeAgentBench/results/scheduler_results.summary.json
 ```
 
-By default the tool-call evaluator checks tool sequence only. To also check tool arguments for cases that define them:
+参数：
 
-```bash
-python3 scripts/run_tool_call_benchmark.py --check-arguments
+```text
+--case-dir PATH
+  case 目录，默认 EdgeAgentBench/cases。
+
+--case-pattern GLOB
+  case 文件匹配模式，默认 *.json。
+  例如只测 MobileNet：--case-pattern 'mobilenet_*.json'
+
+--policy POLICY
+  要评测的调度策略，默认 scheduler。
+
+--ignore-constraints
+  忽略 case.constraints 中的 require/exclude 节点约束。
+
+--output PATH
+  CSV 结果路径，默认 EdgeAgentBench/results/runner_results.csv。
+
+--summary-output PATH
+  summary JSON 路径。默认根据 --output 自动生成 .summary.json。
+
+--failures N
+  标准输出中最多打印多少条失败样例，默认 10。
+
+--seed N
+  random 策略的随机种子，默认 42。
+
+--strict
+  只要存在失败 case 就返回非 0 exit code，适合 CI 或 sanity check。
 ```
 
-The optional argument check uses:
-
-```json
-ground_truth.expected_tool_arguments
-```
-
-Matching modes:
-
-```bash
-# Strict: actual tool sequence must exactly equal ground truth
-python3 scripts/run_tool_call_benchmark.py --match exact
-
-# Lenient: ground truth must appear as an ordered subsequence
-python3 scripts/run_tool_call_benchmark.py --match subsequence
-```
-
-The output metric is `tool_call_accuracy`.
-
-To summarize average tool-call depth from an existing tool-call CSV:
-
-```bash
-python3 scripts/analyze_tool_call_counts.py \
-  --input results/tool_call_results.csv \
-  --output results/tool_call_counts_summary.json
-```
-
-This analyzer reports, overall and by task:
-
-- `avg_actual_tool_count`: average number of tools the agent actually called
-- `avg_correct_prefix_tool_count`: average number of consecutive correct tools from the first tool until the first mismatch
-- `avg_correct_prefix_ratio`: `avg_correct_prefix_tool_count` normalized by expected sequence length
-- `full_sequence_accuracy`: exact sequence accuracy against the best matching expected alternative
-
-Use a custom output path:
-
-```bash
-python3 scripts/run_benchmark.py \
-  --policy scheduler \
-  --output results/scheduler_results.csv
-```
-
-Print fewer failure examples:
-
-```bash
-python3 scripts/run_benchmark.py --policy scheduler --failures 3
-```
-
-Return non-zero when any case fails:
-
-```bash
-python3 scripts/run_benchmark.py --policy scheduler --strict
-```
-
-## Agent Debugging
-
-The tool-call benchmark uses `debug=1` so the agent response includes `trace` and `usage`. This does not print timing logs.
-
-```bash
-curl -X POST http://127.0.0.1:8082/v1/agent/chat \
-  -F "image=@/root/dog1.jpg" \
-  -F "text=帮我检测图片中的目标的具体位置" \
-  -F "debug=1"
-```
-
-To also print `[TIMING]` lines in the agent server log, add `timing=1`:
-
-```bash
-curl -X POST http://127.0.0.1:8082/v1/agent/chat \
-  -F "image=@/root/dog1.jpg" \
-  -F "text=帮我检测图片中的目标的具体位置" \
-  -F "debug=1" \
-  -F "timing=1"
-```
-
-## Runner Policies
+## Policy 含义
 
 `ground_truth`
 
-Reads the expected node directly from each case. This should always reach 100% and is useful for checking file loading and result writing.
+直接读取 `ground_truth.node_id`，应当始终为 100%。用于确认 case 文件和 runner 读取逻辑正确。
 
 ```bash
-python3 scripts/run_benchmark.py --policy ground_truth
-```
-
-`case_oracle`
-
-Recomputes the benchmark oracle from case + state. This should also reach 100% if cases were generated correctly.
-
-```bash
-python3 scripts/run_benchmark.py --policy case_oracle
+python3 EdgeAgentBench/scripts/run_benchmark.py --policy ground_truth --strict
 ```
 
 `scheduler`
 
-Offline simulation of the current scheduler logic. It maps abstract benchmark tasks to real model names:
-
-```text
-object_detection      -> YoloV5
-image_classification  -> MobileNet
-semantic_segmentation -> deeplabv3
-text_classification   -> Bert
-```
-
-It applies static overhead from `/root/AgentScheduler/config_files/static_info.json` during cold start, checks CPU/MEM/XPU feasibility, and selects the node with the smallest weighted score:
+离线模拟当前 gateway 的调度打分逻辑，选择得分最低的节点：
 
 ```text
 0.4 * cpu_after + 0.8 * npu_after + 0.25 * mem_after + 0.1 * cold_start
 ```
 
-```bash
-python3 scripts/run_benchmark.py --policy scheduler
-```
-
-`random`
-
-Baseline policy. It first filters nodes with the same feasibility rules as the scheduler, including task support, online status, query constraints, cold-start overhead, and CPU/MEM/XPU limits. It then randomly chooses one feasible node. Use `--seed` for reproducible results.
-
-```bash
-python3 scripts/run_benchmark.py \
-  --policy random \
-  --seed 42 \
-  --output results/random_results.csv
-```
-
-`round_robin`
-
-Baseline policy. It first applies the same feasibility filter as the scheduler, then rotates through this fixed node order:
-
-```text
-RK3588_1 -> RK3588_2 -> ATLAS_L -> ATLAS_H
-```
-
-If the current node is infeasible for the case, it skips to the next feasible node in the rotation.
-
-```bash
-python3 scripts/run_benchmark.py \
-  --policy round_robin \
-  --output results/round_robin_results.csv
-```
+当前 latency-profile case 没有 `ready_containers` 字段，因此 runner 按 warm container 处理，`cold_start = false`。
 
 `resource_average`
 
-Baseline policy. It selects the feasible node with the lowest average post-placement resource usage:
+选择平均负载最低的可行节点：
 
 ```text
 (cpu_after + mem_after + npu_after) / 3
 ```
 
-```bash
-python3 scripts/run_benchmark.py --policy resource_average --output results/resource_average_results.csv
-```
+`cpu_min`、`npu_min`、`mem_min`
 
-`cpu_min`, `npu_min`, `mem_min`
-
-Baseline policies. Each selects the feasible node with the smallest post-placement CPU, NPU, or memory usage.
-
-```bash
-python3 scripts/run_benchmark.py --policy cpu_min --output results/cpu_min_results.csv
-python3 scripts/run_benchmark.py --policy npu_min --output results/npu_min_results.csv
-python3 scripts/run_benchmark.py --policy mem_min --output results/mem_min_results.csv
-```
+分别选择 CPU、NPU、内存占用最低的可行节点。
 
 `container_first`
 
-Baseline policy. It first prefers feasible nodes that already have the requested container running. If no warm container is feasible, it falls back to `resource_average`.
+优先选择 warm container 节点，再按平均负载排序。当前简化 case 没有容器状态，所以效果等同于 `resource_average`。
 
-```bash
-python3 scripts/run_benchmark.py --policy container_first --output results/container_first_results.csv
+`round_robin`
+
+按固定顺序轮询可行节点：
+
+```text
+RK3588 -> ATLAS_L -> ATLAS_H
 ```
 
-Run the scheduler and baselines:
+`random`
+
+在可行节点中随机选择，使用 `--seed` 保持可复现。
+
+## 常用命令
 
 ```bash
-python3 scripts/run_benchmark.py --policy scheduler --output results/scheduler_results.csv
-python3 scripts/run_benchmark.py --policy random --seed 42 --output results/random_results.csv
-python3 scripts/run_benchmark.py --policy round_robin --output results/round_robin_results.csv
-python3 scripts/run_benchmark.py --policy resource_average --output results/resource_average_results.csv
-python3 scripts/run_benchmark.py --policy cpu_min --output results/cpu_min_results.csv
-python3 scripts/run_benchmark.py --policy npu_min --output results/npu_min_results.csv
-python3 scripts/run_benchmark.py --policy mem_min --output results/mem_min_results.csv
-python3 scripts/run_benchmark.py --policy container_first --output results/container_first_results.csv
+# 生成 benchmark
+python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py
+
+# GT sanity check
+python3 EdgeAgentBench/scripts/run_benchmark.py \
+  --policy ground_truth \
+  --output EdgeAgentBench/results/ground_truth_results.csv \
+  --strict
+
+# 当前 scheduler
+python3 EdgeAgentBench/scripts/run_benchmark.py \
+  --policy scheduler \
+  --output EdgeAgentBench/results/scheduler_results.csv
+
+# 平均负载 baseline
+python3 EdgeAgentBench/scripts/run_benchmark.py \
+  --policy resource_average \
+  --output EdgeAgentBench/results/resource_average_results.csv
+
+# 只测 YoloV5
+python3 EdgeAgentBench/scripts/run_benchmark.py \
+  --case-pattern 'yolov5_*.json' \
+  --policy scheduler
 ```
 
-Latest full-run scheduled accuracy on the 2500 generated cases:
+## 测真实 Agent 选择
 
-| Policy | Scheduled accuracy |
-|---|---:|
-| `scheduler` | 0.8810 |
-| `resource_average` | 0.8225 |
-| `npu_min` | 0.8045 |
-| `cpu_min` | 0.7955 |
-| `container_first` | 0.7635 |
-| `mem_min` | 0.6545 |
-| `round_robin` | 0.5020 |
-| `random` | 0.4965 |
+如果要测试真实 Agent 在每个 bench state 下会选择哪个开发板，需要用 mock MCP server 替代真实 gateway。mock MCP 会：
 
-## Notes
+- 从当前 case 返回 `get_cluster_resources`。
+- 从配置文件返回 `get_task_catalog`。
+- 拦截 `run_task_on_node`，不执行真实模型，只返回 Agent 选择的 `target_global_id`。
 
-- `case` files are benchmark samples, not direct `schedule_task` inputs.
-- `schedule_task` should receive only a task type, for example `{"task_type": "YoloV5"}`.
-- `state` is used by the benchmark runner to simulate cluster load.
-- `ground_truth` is used only by the evaluator and should not be provided to the agent or scheduler.
-- The current runner is offline. To test the live HTTP gateway, a future runner should add a state-injection or mock-gateway layer before calling `/schedule_task`.
+启动 Agent：
+
+```bash
+cd /root/AgentScheduler
+EDGE_BENCH_CURRENT_CASE_FILE=/tmp/edgeagentbench_current_case.txt \
+MCP_SERVER_PATH=/root/AgentScheduler/EdgeAgentBench/scripts/mock_mcp_server.py \
+python3 agent/server/agent.py --host 0.0.0.0 --port 8082
+```
+
+另开一个终端运行真实 Agent 选择评测：
+
+```bash
+cd /root/AgentScheduler
+python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
+  --agent-url http://127.0.0.1:8082/v1/agent/chat \
+  --output EdgeAgentBench/results/agent_selection_results.csv
+```
+
+这个 runner 在每个请求前把当前 case 路径写入 `/tmp/edgeagentbench_current_case.txt`，Agent 每次调用 mock MCP 时都会读取该 case。评测时只比较 Agent 最终传给 `run_task_on_node` 的 `target_global_id` 和 `ground_truth.node_id`。
+
+参数：
+
+```text
+--agent-url URL
+  Agent HTTP 接口，默认 http://127.0.0.1:8082/v1/agent/chat。
+
+--case-dir PATH
+  case 目录，默认 EdgeAgentBench/cases。
+
+--case-pattern GLOB
+  case 文件匹配模式，默认 *.json。
+
+--limit N
+  只跑前 N 个 case，适合 smoke test。
+
+--current-case-file PATH
+  当前 case 指针文件。必须和启动 Agent 时的 EDGE_BENCH_CURRENT_CASE_FILE 一致。
+
+--image PATH
+  vision/segmentation 任务上传给 Agent 的样例图片，默认 EdgeAgentBench/samples/images/dog1.jpg。
+
+--output PATH
+  CSV 输出路径。
+
+--summary-output PATH
+  summary JSON 输出路径，默认由 CSV 路径自动推导。
+
+--timeout N
+  单个 Agent 请求超时时间，默认 240 秒。
+
+--failures N
+  最多打印多少条失败样例，默认 10。
+
+--no-force-task-type
+  默认会把 case.task_type 作为 form 字段传给 Agent，只测试开发板选择。
+  加上该参数后，不强制任务类型，可同时测试任务识别和开发板选择。
+
+--strict
+  存在失败时返回非 0 exit code。
+```
+
+快速测试：
+
+```bash
+python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
+  --case-pattern 'mobilenet_001_*.json' \
+  --limit 5 \
+  --failures 5
+```
+
+## latency_profiles.json 来源
+
+`config_files/latency_profiles.json` 由真实设备采样表转换生成。转换脚本在：
+
+```text
+agent/tools/convert_latency_xlsx.py
+```
+
+重新转换：
+
+```bash
+python3 agent/tools/convert_latency_xlsx.py
+```
+
+画像数据主要字段：
+
+```text
+task_type
+device_type
+avg_cpu_percent
+avg_mem_percent
+avg_npu_percent
+e2e_ms
+exec_ms
+```
+
+benchmark 的 GT 只看 `e2e_ms`，即端到端时延。

@@ -1,0 +1,57 @@
+{
+  "case_id": "resnet50_424_q_cls_001",
+  "query": "请对这张图片进行分类",
+  "task_type": "ResNet50",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.28856,
+      "mem_used": 0.71874,
+      "npu_used": 0.61,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 5892.799,
+        "exec_ms": 89.543
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.26768,
+      "mem_used": 0.77061,
+      "npu_used": 0.39667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 9391.162,
+        "exec_ms": 171.921
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.15594,
+      "mem_used": 0.80175,
+      "npu_used": 0.20667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "ResNet50",
+        "device_type": "RK3588",
+        "e2e_ms": 3469.399,
+        "exec_ms": 79.094
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "RK3588",
+    "ete_time": 3469.399
+  }
+}

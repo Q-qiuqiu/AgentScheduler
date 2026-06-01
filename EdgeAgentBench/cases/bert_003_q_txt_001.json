@@ -1,0 +1,42 @@
+{
+  "case_id": "bert_003_q_txt_001",
+  "query": "我明天打算去打篮球，请判断这段文本属于哪个类别",
+  "task_type": "Bert",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.00505,
+      "mem_used": 0.09785,
+      "npu_used": 0.40333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 7658.015,
+        "exec_ms": 96.203
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.25758,
+      "mem_used": 0.48062,
+      "npu_used": 0.95667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 14099.683,
+        "exec_ms": 193.8
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 7658.015
+  }
+}

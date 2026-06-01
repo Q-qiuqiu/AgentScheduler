@@ -1,0 +1,42 @@
+{
+  "case_id": "deeplabv3_445_q_seg_003",
+  "query": "使用当前 NPU 负载较低的开发板运行分割任务",
+  "task_type": "deeplabv3",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": false,
+      "cpu_used": 0.42347,
+      "mem_used": 0.61775,
+      "npu_used": 0.83333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_H",
+        "e2e_ms": -1,
+        "exec_ms": -1
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.29146,
+      "mem_used": 0.77866,
+      "npu_used": 0.20333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 54909.505,
+        "exec_ms": 811.031
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_L",
+    "ete_time": 54909.505
+  }
+}

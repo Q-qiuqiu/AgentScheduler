@@ -1,0 +1,35 @@
+{
+  "state_id": "bert_359",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.695,
+      "mem_used": 0.41736,
+      "npu_used": 0.20667,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 4067.146,
+        "exec_ms": 89.315
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.39062,
+      "mem_used": 0.47895,
+      "npu_used": 0.96,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 13947.143,
+        "exec_ms": 192.049
+      }
+    }
+  ]
+}

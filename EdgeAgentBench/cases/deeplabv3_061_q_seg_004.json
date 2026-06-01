@@ -1,0 +1,46 @@
+{
+  "case_id": "deeplabv3_061_q_seg_004",
+  "query": "不要使用 ATLAS_L，用其他节点对这张图片做语义分割",
+  "task_type": "deeplabv3",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.44444,
+      "mem_used": 0.40178,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 27969.446,
+        "exec_ms": 349.307
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.38191,
+      "mem_used": 0.48746,
+      "npu_used": 0.9,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 55498.758,
+        "exec_ms": 798.857
+      }
+    }
+  ],
+  "constraints": {
+    "exclude_nodes": [
+      "ATLAS_L"
+    ]
+  },
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 27969.446
+  }
+}

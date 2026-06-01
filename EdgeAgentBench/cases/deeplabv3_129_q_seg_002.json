@@ -1,0 +1,42 @@
+{
+  "case_id": "deeplabv3_129_q_seg_002",
+  "query": "帮我把图像中的不同区域分割出来",
+  "task_type": "deeplabv3",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.01508,
+      "mem_used": 0.09932,
+      "npu_used": 0.61,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 27333.772,
+        "exec_ms": 346.492
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.29146,
+      "mem_used": 0.77899,
+      "npu_used": 0.59,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "deeplabv3",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 55979.662,
+        "exec_ms": 810.232
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 27333.772
+  }
+}

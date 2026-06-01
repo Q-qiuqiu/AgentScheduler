@@ -1,0 +1,42 @@
+{
+  "case_id": "bert_034_q_txt_004",
+  "query": "一个人如果拥有了强健的体魄，坚定的信念，就一定会成功，帮我对这句话做文本分类",
+  "task_type": "Bert",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.285,
+      "mem_used": 0.21696,
+      "npu_used": 0.81,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 6817.02,
+        "exec_ms": 97.249
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.57949,
+      "mem_used": 0.77886,
+      "npu_used": 0.50333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 12285.437,
+        "exec_ms": 192.738
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 6817.02
+  }
+}

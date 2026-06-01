@@ -1,0 +1,57 @@
+{
+  "case_id": "mobilenet_163_q_cls_002",
+  "query": "帮我判断这张图属于什么类别",
+  "task_type": "MobileNet",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.29851,
+      "mem_used": 0.41745,
+      "npu_used": 0.41,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 1377.067,
+        "exec_ms": 40.348
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.12308,
+      "mem_used": 0.37336,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 2754.043,
+        "exec_ms": 50.161
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.0328,
+      "mem_used": 0.2053,
+      "npu_used": 0.7389,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "RK3588",
+        "e2e_ms": 2974.94,
+        "exec_ms": 68.39
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 1377.067
+  }
+}

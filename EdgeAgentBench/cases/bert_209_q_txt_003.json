@@ -1,0 +1,42 @@
+{
+  "case_id": "bert_209_q_txt_003",
+  "query": "布加迪威龙是世界上最快的跑车，帮我对这句话做文本分类",
+  "task_type": "Bert",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.6165,
+      "mem_used": 0.40175,
+      "npu_used": 0.0,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 3510.746,
+        "exec_ms": 72.682
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.67021,
+      "mem_used": 0.66959,
+      "npu_used": 0.51333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "Bert",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 17360.142,
+        "exec_ms": 194.914
+      }
+    }
+  ],
+  "constraints": {},
+  "ground_truth": {
+    "node_id": "ATLAS_H",
+    "ete_time": 3510.746
+  }
+}

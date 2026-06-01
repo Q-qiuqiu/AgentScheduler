@@ -1,0 +1,50 @@
+{
+  "state_id": "mobilenet_017",
+  "nodes": [
+    {
+      "node_id": "ATLAS_H",
+      "platform": "ATLAS_H",
+      "online": true,
+      "cpu_used": 0.27861,
+      "mem_used": 0.54065,
+      "npu_used": 0.2,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_H",
+        "e2e_ms": 1405.965,
+        "exec_ms": 39.856
+      }
+    },
+    {
+      "node_id": "ATLAS_L",
+      "platform": "ATLAS_L",
+      "online": true,
+      "cpu_used": 0.53333,
+      "mem_used": 0.74858,
+      "npu_used": 0.90333,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "ATLAS_L",
+        "e2e_ms": 1838.992,
+        "exec_ms": 70.968
+      }
+    },
+    {
+      "node_id": "RK3588",
+      "platform": "RK3588",
+      "online": true,
+      "cpu_used": 0.8,
+      "mem_used": 0.295,
+      "npu_used": 0.2689,
+      "network_latency": 1,
+      "latency_profile": {
+        "model": "MobileNet",
+        "device_type": "RK3588",
+        "e2e_ms": 5853.25,
+        "exec_ms": 132.23
+      }
+    }
+  ]
+}
