@@ -126,6 +126,8 @@ def feasible_scheduler_candidates(
                 "cpu_after": round(cpu_after, 4),
                 "mem_after": round(mem_after, 4),
                 "npu_after": round(npu_after, 4),
+                "container_running": bool(node.get("container_running", False)),
+                "cold_start": not bool(node.get("container_running", False)),
                 "model_name": model_name,
                 "device_type": platform,
             },

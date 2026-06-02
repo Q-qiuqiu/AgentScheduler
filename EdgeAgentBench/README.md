@@ -335,10 +335,26 @@ cd /root/AgentScheduler
 python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
   --agent-url http://127.0.0.1:8082/v1/agent/chat \
   --case-server-url http://127.0.0.1:18082 \
+  --progress-every 100 \
   --output EdgeAgentBench/results/agent_selection_results.csv
 ```
 
 这个 runner 在每个请求前向 mock case server 写入当前 `case_id`，Agent 每次调用 mock MCP 的 `get_dispatch_snapshot` 时都会读取同一个 current case。评测时会比较 Agent 最终传给 `run_task_on_node` 的 `target_global_id` 和 `ground_truth.node_id`，同时把 Agent 选中节点对应的真实 `predicted_ete_ms` 写入 CSV，并在 summary JSON 中统计平均端到端时延。
+
+运行时默认每 100 条 case 在 stderr 输出一次进度行。进度行会包含当前准确率、平均请求耗时、平均 LLM 推理耗时、最新 case、最新预测节点、最新总 LLM 耗时和开发板选择 LLM 耗时。CSV 中也会记录：
+
+```text
+predicted_node
+elapsed_ms
+agent_e2e_ms
+llm_total_ms
+task_llm_ms
+dispatch_llm_ms
+snapshot_tool_ms
+run_tool_ms
+predicted_ete_ms
+latency_regret_ms
+```
 
 参数：
 
@@ -373,6 +389,12 @@ python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
 --failures N
   最多打印多少条失败样例，默认 10。
 
+--progress-every N
+  每 N 条 case 输出一次进度行，默认 100。
+
+--no-progress
+  关闭进度输出。
+
 --no-force-task-type
   默认会把 case.task_type 作为 form 字段传给 Agent，只测试开发板选择。
   加上该参数后，不强制任务类型，可同时测试任务识别和开发板选择。
@@ -384,11 +406,15 @@ python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
 快速测试：
 
 ```bash
+cd /root/AgentScheduler
 python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
-  --case-pattern 'mobilenet_001_*.json' \
+  --agent-url http://127.0.0.1:8082/v1/agent/chat \
   --case-server-url http://127.0.0.1:18082 \
+  --case-pattern 'bert_001_*.json' \
   --limit 5 \
-  --failures 5
+  --progress-every 1 \
+  --failures 5 \
+  --output EdgeAgentBench/results/agent_selection_smoke.csv
 ```
 
 ## latency_profiles.json 来源

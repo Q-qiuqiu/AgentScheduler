@@ -3,6 +3,7 @@ import argparse
 import csv
 import json
 import mimetypes
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -118,6 +119,48 @@ def selected_node_from_response(response: dict[str, Any]) -> str | None:
     return None
 
 
+def timing_elapsed_ms(payload: Any) -> float | None:
+    if not isinstance(payload, dict):
+        return None
+    elapsed_ms = payload.get("elapsed_ms")
+    return float(elapsed_ms) if isinstance(elapsed_ms, (int, float)) else None
+
+
+def response_timings(response: dict[str, Any]) -> dict[str, float | None]:
+    usage = response.get("usage", {}) if isinstance(response, dict) else {}
+    trace = response.get("trace", []) if isinstance(response, dict) else []
+    result: dict[str, float | None] = {
+        "agent_e2e_ms": timing_elapsed_ms(usage.get("timing") if isinstance(usage, dict) else None),
+        "task_llm_ms": None,
+        "dispatch_llm_ms": None,
+        "llm_total_ms": None,
+        "snapshot_tool_ms": None,
+        "run_tool_ms": None,
+    }
+    llm_values: list[float] = []
+    if isinstance(trace, list):
+        for item in trace:
+            if not isinstance(item, dict):
+                continue
+            action = item.get("action")
+            model_ms = timing_elapsed_ms(item.get("model_timing"))
+            tool_ms = timing_elapsed_ms(item.get("tool_timing"))
+            if model_ms is not None:
+                llm_values.append(model_ms)
+                if action == "select_task_type":
+                    result["task_llm_ms"] = model_ms
+                elif action == "run_task_on_node":
+                    result["dispatch_llm_ms"] = model_ms
+            if tool_ms is not None:
+                if action == "get_dispatch_snapshot":
+                    result["snapshot_tool_ms"] = tool_ms
+                elif action == "run_task_on_node":
+                    result["run_tool_ms"] = tool_ms
+    if llm_values:
+        result["llm_total_ms"] = round(sum(llm_values), 3)
+    return result
+
+
 def node_ete_ms(case: dict[str, Any], node_id: str | None) -> float | None:
     if not node_id:
         return None
@@ -155,10 +198,12 @@ def evaluate_case(
     try:
         response = post_agent(agent_url, fields, files, timeout)
         predicted_node = selected_node_from_response(response)
+        timings = response_timings(response)
         error = ""
     except Exception as exc:
         response = {}
         predicted_node = None
+        timings = response_timings(response)
         error = str(exc)
     elapsed_ms = round((time.perf_counter() - started) * 1000, 3)
 
@@ -183,6 +228,7 @@ def evaluate_case(
         "latency_regret_ms": latency_regret_ms,
         "latency_ratio": latency_ratio,
         "elapsed_ms": elapsed_ms,
+        **timings,
     }
 
 
@@ -200,6 +246,12 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         "latency_regret_ms",
         "latency_ratio",
         "elapsed_ms",
+        "agent_e2e_ms",
+        "llm_total_ms",
+        "task_llm_ms",
+        "dispatch_llm_ms",
+        "snapshot_tool_ms",
+        "run_tool_ms",
     ]
     with path.open("w", encoding="utf-8", newline="") as file_obj:
         writer = csv.DictWriter(file_obj, fieldnames=fields)
@@ -219,6 +271,10 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             item["passed"] += 1
         if isinstance(row.get("predicted_ete_ms"), (int, float)):
             item["rows"].append(row)
+    elapsed_rows = [row for row in rows if isinstance(row.get("elapsed_ms"), (int, float))]
+    agent_e2e_rows = [row for row in rows if isinstance(row.get("agent_e2e_ms"), (int, float))]
+    llm_rows = [row for row in rows if isinstance(row.get("llm_total_ms"), (int, float))]
+    dispatch_llm_rows = [row for row in rows if isinstance(row.get("dispatch_llm_ms"), (int, float))]
     return {
         "total": total,
         "passed": passed,
@@ -233,6 +289,18 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "average_latency_regret_ms": round(
             sum(row["latency_regret_ms"] for row in latency_rows) / len(latency_rows), 3
         ) if latency_rows else None,
+        "average_request_elapsed_ms": round(
+            sum(row["elapsed_ms"] for row in elapsed_rows) / len(elapsed_rows), 3
+        ) if elapsed_rows else None,
+        "average_agent_e2e_ms": round(
+            sum(row["agent_e2e_ms"] for row in agent_e2e_rows) / len(agent_e2e_rows), 3
+        ) if agent_e2e_rows else None,
+        "average_llm_total_ms": round(
+            sum(row["llm_total_ms"] for row in llm_rows) / len(llm_rows), 3
+        ) if llm_rows else None,
+        "average_dispatch_llm_ms": round(
+            sum(row["dispatch_llm_ms"] for row in dispatch_llm_rows) / len(dispatch_llm_rows), 3
+        ) if dispatch_llm_rows else None,
         "task_average_ete_ms": {
             task: {
                 "average_expected_ete_ms": round(
@@ -265,7 +333,37 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             }
             for task, item in sorted(by_task.items())
         },
-    }
+}
+
+
+def progress_line(done: int, total: int, started: float) -> str:
+    width = 28
+    ratio = done / total if total else 1
+    filled = min(width, int(width * ratio))
+    bar = "#" * filled + "-" * (width - filled)
+    elapsed = time.perf_counter() - started
+    rate = done / elapsed if elapsed > 0 else 0
+    eta = (total - done) / rate if rate > 0 else 0
+    return f"[{bar}] {done}/{total} {ratio * 100:5.1f}% elapsed={elapsed:.1f}s eta={eta:.1f}s"
+
+
+def log_progress(rows: list[dict[str, Any]], total: int, started: float) -> None:
+    done = len(rows)
+    if not rows:
+        message = progress_line(done, total, started)
+    else:
+        row = rows[-1]
+        passed = sum(1 for item in rows if item["status"] == "PASS")
+        avg_elapsed = sum(item["elapsed_ms"] for item in rows) / done
+        llm_values = [item["llm_total_ms"] for item in rows if isinstance(item.get("llm_total_ms"), (int, float))]
+        avg_llm = sum(llm_values) / len(llm_values) if llm_values else 0
+        message = (
+            f"{progress_line(done, total, started)} "
+            f"acc={passed / done:.4f} avg_req={avg_elapsed:.1f}ms avg_llm={avg_llm:.1f}ms "
+            f"last={row['case_id']} pred={row['predicted_node']} "
+            f"llm={row.get('llm_total_ms')}ms dispatch={row.get('dispatch_llm_ms')}ms"
+        )
+    print(message, file=sys.stderr, flush=True)
 
 
 def main() -> int:
@@ -280,6 +378,8 @@ def main() -> int:
     parser.add_argument("--summary-output")
     parser.add_argument("--timeout", type=int, default=240)
     parser.add_argument("--failures", type=int, default=10)
+    parser.add_argument("--progress-every", type=int, default=100)
+    parser.add_argument("--no-progress", action="store_true")
     parser.add_argument("--no-force-task-type", action="store_true")
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
@@ -289,8 +389,10 @@ def main() -> int:
         raise RuntimeError(f"image file does not exist: {image_path}")
 
     cases = load_cases(Path(args.case_dir), args.case_pattern, args.limit)
-    rows = [
-        evaluate_case(
+    rows = []
+    started = time.perf_counter()
+    for index, case in enumerate(cases, start=1):
+        row = evaluate_case(
             case,
             args.agent_url,
             args.case_server_url,
@@ -298,8 +400,13 @@ def main() -> int:
             force_task_type=not args.no_force_task_type,
             timeout=args.timeout,
         )
-        for case in cases
-    ]
+        rows.append(row)
+        if not args.no_progress:
+            should_log = index == len(cases) or (
+                args.progress_every > 0 and index % args.progress_every == 0
+            )
+            if should_log:
+                log_progress(rows, len(cases), started)
 
     output_path = Path(args.output)
     summary_output_path = Path(args.summary_output) if args.summary_output else output_path.with_suffix(".summary.json")
