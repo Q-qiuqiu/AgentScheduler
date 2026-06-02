@@ -11,6 +11,7 @@
       "mem_used": 0.20143,
       "npu_used": 0.0,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "ResNet50",
         "device_type": "ATLAS_H",
@@ -26,6 +27,7 @@
       "mem_used": 0.46323,
       "npu_used": 0.59,
       "network_latency": 1,
+      "container_running": true,
       "latency_profile": {
         "model": "ResNet50",
         "device_type": "ATLAS_L",
@@ -41,6 +43,7 @@
       "mem_used": 0.40426,
       "npu_used": 0.58444,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "ResNet50",
         "device_type": "RK3588",
@@ -56,6 +59,7 @@
   },
   "ground_truth": {
     "node_id": "ATLAS_H",
-    "ete_time": 5285.46
+    "ete_time": 5285.46,
+    "container_running": false
   }
 }

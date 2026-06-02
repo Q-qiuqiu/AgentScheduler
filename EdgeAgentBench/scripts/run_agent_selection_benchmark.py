@@ -14,7 +14,7 @@ from typing import Any
 BENCH_ROOT = Path(__file__).resolve().parents[1]
 CASE_DIR = BENCH_ROOT / "cases"
 DEFAULT_IMAGE_PATH = BENCH_ROOT / "samples" / "images" / "dog1.jpg"
-DEFAULT_CURRENT_CASE_FILE = Path("/tmp/edgeagentbench_current_case.txt")
+DEFAULT_CASE_SERVER_URL = "http://127.0.0.1:18082"
 
 FILE_TASKS = {"YoloV5", "MobileNet", "ResNet50", "deeplabv3"}
 
@@ -77,6 +77,29 @@ def post_agent(agent_url: str, fields: dict[str, str], files: dict[str, Path], t
         raise RuntimeError(f"failed to reach agent at {agent_url}: {exc.reason}") from exc
 
 
+def post_json(url: str, payload: dict[str, Any], timeout: int) -> dict[str, Any]:
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    request = urllib.request.Request(url, data=body, method="POST")
+    request.add_header("Content-Type", "application/json; charset=utf-8")
+    request.add_header("Content-Length", str(len(body)))
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    try:
+        with opener.open(request, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        body_text = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"case server returned HTTP {exc.code}: {body_text}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"failed to reach case server at {url}: {exc.reason}") from exc
+
+
+def set_current_case(case_server_url: str, case_id: str, timeout: int) -> None:
+    url = f"{case_server_url.rstrip('/')}/current"
+    result = post_json(url, {"case_id": case_id}, timeout)
+    if result.get("status") != "success":
+        raise RuntimeError(f"mock case server failed to set case {case_id}: {result}")
+
+
 def selected_node_from_response(response: dict[str, Any]) -> str | None:
     trace = response.get("trace", [])
     if isinstance(trace, list):
@@ -95,18 +118,27 @@ def selected_node_from_response(response: dict[str, Any]) -> str | None:
     return None
 
 
+def node_ete_ms(case: dict[str, Any], node_id: str | None) -> float | None:
+    if not node_id:
+        return None
+    for node in case.get("nodes", []):
+        if node.get("node_id") != node_id:
+            continue
+        e2e_ms = node.get("latency_profile", {}).get("e2e_ms")
+        if isinstance(e2e_ms, (int, float)) and e2e_ms >= 0:
+            return float(e2e_ms)
+    return None
+
+
 def evaluate_case(
     case: dict[str, Any],
     agent_url: str,
-    current_case_file: Path,
+    case_server_url: str,
     image_path: Path,
     force_task_type: bool,
     timeout: int,
 ) -> dict[str, Any]:
-    case_path = Path(case["_case_file"]).resolve()
-    current_case_file.parent.mkdir(parents=True, exist_ok=True)
-    current_case_file.write_text(str(case_path) + "\n", encoding="utf-8")
-
+    set_current_case(case_server_url, case["case_id"], timeout)
     task_type = case.get("task_type")
     fields = {
         "text": case.get("query", ""),
@@ -131,6 +163,13 @@ def evaluate_case(
     elapsed_ms = round((time.perf_counter() - started) * 1000, 3)
 
     expected_node = case.get("ground_truth", {}).get("node_id")
+    expected_ete_ms = case.get("ground_truth", {}).get("ete_time")
+    predicted_ete_ms = node_ete_ms(case, predicted_node)
+    latency_regret_ms = None
+    latency_ratio = None
+    if isinstance(expected_ete_ms, (int, float)) and predicted_ete_ms is not None:
+        latency_regret_ms = round(predicted_ete_ms - expected_ete_ms, 3)
+        latency_ratio = round(predicted_ete_ms / expected_ete_ms, 4) if expected_ete_ms > 0 else None
     passed = predicted_node == expected_node
     return {
         "case_id": case.get("case_id"),
@@ -139,7 +178,10 @@ def evaluate_case(
         "reason": "" if passed else (error or "selected_node_mismatch"),
         "expected_node": expected_node,
         "predicted_node": predicted_node,
-        "expected_ete_ms": case.get("ground_truth", {}).get("ete_time"),
+        "expected_ete_ms": expected_ete_ms,
+        "predicted_ete_ms": predicted_ete_ms,
+        "latency_regret_ms": latency_regret_ms,
+        "latency_ratio": latency_ratio,
         "elapsed_ms": elapsed_ms,
     }
 
@@ -154,6 +196,9 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         "expected_node",
         "predicted_node",
         "expected_ete_ms",
+        "predicted_ete_ms",
+        "latency_regret_ms",
+        "latency_ratio",
         "elapsed_ms",
     ]
     with path.open("w", encoding="utf-8", newline="") as file_obj:
@@ -165,20 +210,58 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(rows)
     passed = sum(1 for row in rows if row["status"] == "PASS")
-    by_task: dict[str, dict[str, int]] = {}
+    latency_rows = [row for row in rows if isinstance(row.get("predicted_ete_ms"), (int, float))]
+    by_task: dict[str, dict[str, Any]] = {}
     for row in rows:
-        item = by_task.setdefault(row["task_type"], {"total": 0, "passed": 0})
+        item = by_task.setdefault(row["task_type"], {"total": 0, "passed": 0, "rows": []})
         item["total"] += 1
         if row["status"] == "PASS":
             item["passed"] += 1
+        if isinstance(row.get("predicted_ete_ms"), (int, float)):
+            item["rows"].append(row)
     return {
         "total": total,
         "passed": passed,
         "accuracy": round(passed / total, 4) if total else 0,
+        "latency_sample_count": len(latency_rows),
+        "average_expected_ete_ms": round(
+            sum(row["expected_ete_ms"] for row in latency_rows) / len(latency_rows), 3
+        ) if latency_rows else None,
+        "average_predicted_ete_ms": round(
+            sum(row["predicted_ete_ms"] for row in latency_rows) / len(latency_rows), 3
+        ) if latency_rows else None,
+        "average_latency_regret_ms": round(
+            sum(row["latency_regret_ms"] for row in latency_rows) / len(latency_rows), 3
+        ) if latency_rows else None,
+        "task_average_ete_ms": {
+            task: {
+                "average_expected_ete_ms": round(
+                    sum(row["expected_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_predicted_ete_ms": round(
+                    sum(row["predicted_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_latency_regret_ms": round(
+                    sum(row["latency_regret_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+            }
+            for task, item in sorted(by_task.items())
+        },
         "by_task": {
             task: {
-                **item,
+                "total": item["total"],
+                "passed": item["passed"],
                 "accuracy": round(item["passed"] / item["total"], 4) if item["total"] else 0,
+                "latency_sample_count": len(item["rows"]),
+                "average_expected_ete_ms": round(
+                    sum(row["expected_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_predicted_ete_ms": round(
+                    sum(row["predicted_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_latency_regret_ms": round(
+                    sum(row["latency_regret_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
             }
             for task, item in sorted(by_task.items())
         },
@@ -191,7 +274,7 @@ def main() -> int:
     parser.add_argument("--case-dir", default=str(CASE_DIR))
     parser.add_argument("--case-pattern", default="*.json")
     parser.add_argument("--limit", type=int)
-    parser.add_argument("--current-case-file", default=str(DEFAULT_CURRENT_CASE_FILE))
+    parser.add_argument("--case-server-url", default=DEFAULT_CASE_SERVER_URL)
     parser.add_argument("--image", default=str(DEFAULT_IMAGE_PATH))
     parser.add_argument("--output", default=str(BENCH_ROOT / "results" / "agent_selection_results.csv"))
     parser.add_argument("--summary-output")
@@ -210,7 +293,7 @@ def main() -> int:
         evaluate_case(
             case,
             args.agent_url,
-            Path(args.current_case_file),
+            args.case_server_url,
             image_path,
             force_task_type=not args.no_force_task_type,
             timeout=args.timeout,
@@ -224,7 +307,7 @@ def main() -> int:
         "agent_url": args.agent_url,
         "case_count": len(cases),
         "force_task_type": not args.no_force_task_type,
-        "current_case_file": args.current_case_file,
+        "case_server_url": args.case_server_url,
         "output": args.output,
         "summary_output": str(summary_output_path),
         **summarize(rows),

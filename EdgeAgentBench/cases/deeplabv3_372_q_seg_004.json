@@ -11,6 +11,7 @@
       "mem_used": 0.67965,
       "npu_used": 0.19667,
       "network_latency": 1,
+      "container_running": true,
       "latency_profile": {
         "model": "deeplabv3",
         "device_type": "ATLAS_H",
@@ -26,6 +27,7 @@
       "mem_used": 0.48979,
       "npu_used": 0.39,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "deeplabv3",
         "device_type": "ATLAS_L",
@@ -41,6 +43,7 @@
   },
   "ground_truth": {
     "node_id": "ATLAS_H",
-    "ete_time": 26600.712
+    "ete_time": 26600.712,
+    "container_running": true
   }
 }

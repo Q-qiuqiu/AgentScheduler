@@ -6,6 +6,7 @@ Minimal MCP server over `stdio` that exposes tools backed by separate modules:
 
 - `get_cluster_resources`
 - `get_task_catalog`
+- `get_dispatch_snapshot`
 - `get_task_overhead`
 - `schedule_task`
 - `run_task_auto_schedule`
@@ -28,6 +29,11 @@ The tool reads cluster state from the gateway HTTP API:
 
 - default URL: `http://127.0.0.1:6666/cluster_resources`
 - execution URL: `http://127.0.0.1:6666/quest_on_node`
+
+`get_dispatch_snapshot` is the Agent's default context tool. It calls `get_cluster_resources`, derives the online device types, then returns the filtered `get_task_catalog` result in one MCP call:
+
+- `cluster_resources`
+- `task_catalog`
 
 `get_task_catalog` reads compact task metadata from:
 

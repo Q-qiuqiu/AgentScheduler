@@ -11,6 +11,7 @@
       "mem_used": 0.21695,
       "npu_used": 0.71,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "MobileNet",
         "device_type": "ATLAS_H",
@@ -26,6 +27,7 @@
       "mem_used": 0.67213,
       "npu_used": 0.63667,
       "network_latency": 1,
+      "container_running": true,
       "latency_profile": {
         "model": "MobileNet",
         "device_type": "ATLAS_L",
@@ -41,6 +43,7 @@
       "mem_used": 0.6016,
       "npu_used": 0.0,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "MobileNet",
         "device_type": "RK3588",
@@ -56,6 +59,7 @@
   },
   "ground_truth": {
     "node_id": "ATLAS_L",
-    "ete_time": 2289.309
+    "ete_time": 2289.309,
+    "container_running": true
   }
 }

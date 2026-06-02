@@ -5,16 +5,16 @@ nku docker-scheduler
 # AgentScheduler 单智能体流程
 
 当前仓库保留一个单智能体入口，由智能体直接完成“读取请求 -> 拉取集群和任务上下文 -> 选择任务与目标节点 -> 通过 gateway 启动/复用工具容器 -> 返回结果”的流程，不再拆分 main/sub agent。
-Agent 入口现在使用直接执行链路：代码默认调用 `get_cluster_resources` 和 `get_task_catalog`，把用户问题、集群资源、任务目录放入同一个上下文中交给大模型选择。大模型只需要输出一次选择结果，即 `task_type` 和 `target_global_id`，随后代码只调用一次执行工具 `run_task_on_node`。
+Agent 入口现在使用直接执行链路：代码默认调用一次 `get_dispatch_snapshot` 获取集群资源和过滤后的任务目录；如果请求没有明确 `task_type`，保留一次任务类型识别 LLM；开发板选择阶段再给大模型一个极简调度上下文，让它只输出 `task_type` 和 `target_global_id`，随后代码只调用一次执行工具 `run_task_on_node`。
 
 ## 关键文件
 
 - `agent/server/agent.py`：单智能体 HTTP 服务，接口为 `POST /v1/agent/chat`，健康检查为 `GET /health`。
 - `config_files/agent_info.json`：单智能体配置，描述可调度工具、工具入口、是否需要文件等任务语义信息。
 - `config_files/static_info.json`：集群静态任务部署配置，描述各设备类型支持的任务和调度开销。
-- `config_files/latency_profiles.json`：由真实设备采样表转换得到的端到端时延画像，用于给大模型提供当前资源附近的历史参考样本。
+- `config_files/latency_profiles.json`：由真实设备采样表转换得到的端到端时延画像，主要用于生成 EdgeAgentBench 和刷新低负载时延先验。
 - `agent/tools/convert_latency_xlsx.py`：将 `config_files/latency.xlsx` 转换为 `config_files/latency_profiles.json` 的无第三方依赖脚本。
-- `agent/tools/mcp_server.py`：本地 MCP 工具入口，提供 `get_cluster_resources`、`get_task_catalog`、`run_task_on_node`。
+- `agent/tools/mcp_server.py`：本地 MCP 工具入口，提供 `get_dispatch_snapshot`、`get_cluster_resources`、`get_task_catalog`、`run_task_on_node`。
 - `src/gateway/HttpServer.cpp`：gateway 仍负责 `/quest`、`/quest_on_node`、`/schedule_task`、`/cluster_resources`、`/register_node` 等接口。
 
 ## Gateway 调度接口
@@ -34,8 +34,7 @@ curl -F "image=@/path/to/image.jpg" \
 
 Agent 当前使用的 MCP 工具为：
 
-- `get_cluster_resources`
-- `get_task_catalog`
+- `get_dispatch_snapshot`
 - `run_task_on_node`
 
 `schedule_task` 和 `run_task_auto_schedule` 仍可作为 gateway/MCP 低层接口存在，但 Agent HTTP 入口不再使用它们。
@@ -44,30 +43,36 @@ Agent 当前使用的 MCP 工具为：
 
 `agent/server/agent.py` 的 `/v1/agent/chat` 默认执行：
 
-1. 固定调用 `get_cluster_resources`，获取当前节点 `global_id`、设备类型和资源状态。
-2. 固定调用 `get_task_catalog`，并按当前在线设备类型过滤可用任务。
-3. 先确定用户请求对应的 `task_type`：优先使用请求里的 `task_type`，其次使用本地规则，仍无法判断时再调用一次大模型从任务目录里选择。
-4. 从 `latency_profiles.json` 中只为该 `task_type` 和当前在线候选节点匹配 CPU/MEM/NPU 附近的历史采样，计算 `estimated_e2e_ms` 并放入 `latency_references`。
-5. 如果只有一个在线候选节点支持该任务，代码直接选择这个节点，不再调用大模型做开发板选择。
-6. 如果有多个候选节点，代码会整合成一个 `dispatch_context` JSON 发给大模型，让它基于候选节点和该任务的时延参考输出：
+1. 固定调用一次 `get_dispatch_snapshot`，同时获取当前节点 `global_id`、设备类型、资源状态和按在线设备类型过滤后的任务目录。
+2. 先确定用户请求对应的 `task_type`：优先使用请求里的 `task_type`，其次使用本地规则，仍无法判断时再调用一次大模型从任务目录里选择。
+3. 从 `config_files/static_info.json` 读取该 `task_type` 在各开发板上的 `taskOverhead`，和当前资源一起构造成候选节点上下文。
+4. 如果只有一个在线候选节点支持该任务，代码直接选择这个节点，不再调用大模型做开发板选择。
+5. 如果有多个候选节点，代码会整合成一个 `dispatch_context` JSON 发给大模型，让它基于当前资源和打分公式输出：
 
 ```json
 {"task_type":"YoloV5","target_global_id":"..."}
 ```
 
-7. 代码校验任务是否存在、目标节点是否存在、设备类型是否支持该任务、文件输入是否满足要求。
-8. 只调用 `run_task_on_node` 执行任务，不再走 `schedule_task` 或多轮 action 状态机。
+6. 代码校验任务是否存在、目标节点是否存在、设备类型是否支持该任务、文件输入是否满足要求。
+7. 只调用 `run_task_on_node` 执行任务，不再走 `schedule_task` 或多轮 action 状态机。
 
-时延参考的选择规则：
+开发板选择上下文：
 
-- `latency.xlsx` 中的 CPU/MEM/NPU 采样按百分比保存。
-- gateway 的实时资源如果是 0-1 比例，会在匹配时转换为 0-100 百分比。
-- 先确定任务类型，再对当前在线且支持该任务的候选节点默认各取最近 3 条采样。
-- 最近样本使用全局加权距离匹配：`CPU=0.5`、`NPU=0.3`、`MEM=0.2`。
-- `estimated_e2e_ms` 是该候选节点最近 3 条端到端时间的平均值。
-- 发送给开发板选择模型的是一个合并后的 `dispatch_context` JSON，不再重复发送完整 `cluster_resources`、`task_catalog` 和原始采样来源。
-- `dispatch_context.candidate_nodes` 只保留选择必需字段：`target_global_id`、`device_type`、当前资源百分比、`estimated_e2e_ms` 和最近 3 条端到端样本；平局时参考 `npu_percent` 和 `mem_percent`。
-- prompt 明确要求大模型优先按 `estimated_e2e_ms` 选择开发板；接近时再参考 NPU/MEM 当前负载。
+- 不再向大模型提供 `latency_profiles.json` 中的相近采样，避免用 bench GT 同源数据测试 Agent。
+- gateway 的实时资源如果是 0-1 比例，会在上下文里转换为 0-100 百分比。
+- 发给大模型的 `dispatch_context` 只保留 `task_type`、`policy`、`columns` 和 `nodes`。
+- `nodes` 使用数组压缩，列含义固定为 `[id, base, cpu, npu, mem]`，其中资源值是百分比。
+- `base_latency_ms` 写在 `config_files/static_info.json` 的 `taskOverhead` 中，由真实采样里 CPU/MEM/NPU 总占用最低的记录作为该任务在该开发板上的低负载端到端时延先验。
+- prompt 要求大模型在所有在线且支持任务的候选中选择分数最小的开发板，分数公式为：
+
+```text
+score = 0.0008*base + 0.0012*cpu + 0.002*npu + 0.01*mem
+```
+
+- 权重直接写在公式里告诉大模型：低负载端到端先验为 `0.0008`，CPU 为 `0.0012`，NPU 为 `0.002`，MEM 为 `0.01`。
+- 这组权重由 `EdgeAgentBench/scripts/optimize_scheduler_weights.py` 在当前 bench 上按平均 `predicted_ete_ms` 搜索得到；当前全量 12450 个 case 的搜索结果为 `average_predicted_ete_ms=8384.612`、`accuracy=0.9193`。
+- `cpu`、`mem`、`npu` 直接使用当前资源百分比；bench 资源值已经是用于调度的状态，不再叠加任务 overhead。
+- 如果计算后的资源超过 100%，大模型也不能过滤候选；实际执行时可能通过内存回收或 CPU 共用继续运行。
 
 重新生成时延画像：
 
@@ -75,7 +80,7 @@ Agent 当前使用的 MCP 工具为：
 python3 agent/tools/convert_latency_xlsx.py
 ```
 
-可用 `LATENCY_PROFILE_PATH` 覆盖默认画像文件路径。
+`latency_profiles.json` 现在主要用于生成 EdgeAgentBench 的状态和 ground truth，不进入 Agent 开发板选择上下文。
 
 ## 单智能体接口示例
 
@@ -106,6 +111,7 @@ curl -F "text=请对这句话做文本分类：这家店体验很好" \
 
 - `EdgeAgentBench/scripts/generate_latency_profile_bench.py`：从 `latency_profiles.json` 生成 states/cases。
 - `EdgeAgentBench/scripts/run_benchmark.py`：离线评测 scheduler 和 baseline policy。
+- `EdgeAgentBench/scripts/mock_case_server.py`：真实 Agent 仿真时维护当前 bench case。
 - `EdgeAgentBench/scripts/mock_mcp_server.py`：真实 Agent 评测时注入 bench case 资源状态。
 - `EdgeAgentBench/scripts/run_agent_selection_benchmark.py`：请求真实 Agent，只比较最终选择的 device id。
 
@@ -114,7 +120,8 @@ curl -F "text=请对这句话做文本分类：这家店体验很好" \
 ```bash
 python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py \
   --states-per-model 500 \
-  --offline-every 5
+  --offline-every 5 \
+  --warm-every 3
 ```
 
 参数含义：
@@ -122,6 +129,7 @@ python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py \
 - `--profile`：时延画像路径，默认 `config_files/latency_profiles.json`。
 - `--states-per-model`：每个模型生成多少个资源状态，默认 `500`。
 - `--offline-every`：每 N 个 state 人为设置一个节点 offline，默认 `5`，设置为 `0` 表示不生成 offline。
+- `--warm-every`：每 N 个设备位置设置一个已启动容器节点，默认 `3`，设置为 `0` 表示不生成 warm container 状态。
 
 测试当前 scheduler：
 
@@ -155,20 +163,30 @@ runner 常用参数：
 测试真实 Agent 的开发板选择：
 
 ```bash
-EDGE_BENCH_CURRENT_CASE_FILE=/tmp/edgeagentbench_current_case.txt \
+python3 EdgeAgentBench/scripts/mock_case_server.py \
+  --host 127.0.0.1 \
+  --port 18082 \
+  --case-dir EdgeAgentBench/cases
+```
+
+另开终端启动 Agent：
+
+```bash
+EDGE_BENCH_CASE_SERVER_URL=http://127.0.0.1:18082 \
 MCP_SERVER_PATH=/root/AgentScheduler/EdgeAgentBench/scripts/mock_mcp_server.py \
 python3 agent/server/agent.py --host 0.0.0.0 --port 8082
 ```
 
-另开终端：
+再开一个终端运行评测：
 
 ```bash
 python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
   --agent-url http://127.0.0.1:8082/v1/agent/chat \
+  --case-server-url http://127.0.0.1:18082 \
   --output EdgeAgentBench/results/agent_selection_results.csv
 ```
 
-默认会把 `case.task_type` 直接传给 Agent，只测试“当前资源状态下选哪个开发板”。如果想同时测试任务识别，加 `--no-force-task-type`。
+runner 会先把当前 case_id 设置到 mock case server，mock MCP 再读取同一个 case 返回 cluster resource，因此传给大模型和 mock server 的资源状态保持一致。默认会把 `case.task_type` 直接传给 Agent，只测试“当前资源状态下选哪个开发板”。如果想同时测试任务识别，加 `--no-force-task-type`。
 
 #docker API
 

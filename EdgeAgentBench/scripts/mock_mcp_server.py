@@ -2,13 +2,15 @@
 import json
 import os
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any
 
 
 BENCH_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = BENCH_ROOT.parent
-DEFAULT_CURRENT_CASE_FILE = Path("/tmp/edgeagentbench_current_case.txt")
+DEFAULT_CASE_SERVER_URL = "http://127.0.0.1:18082"
 AGENT_INFO_PATH = REPO_ROOT / "config_files" / "agent_info.json"
 STATIC_INFO_PATH = REPO_ROOT / "config_files" / "static_info.json"
 
@@ -17,19 +19,24 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def current_case_path() -> Path:
-    pointer_path = Path(os.environ.get("EDGE_BENCH_CURRENT_CASE_FILE", str(DEFAULT_CURRENT_CASE_FILE)))
-    try:
-        case_path = Path(pointer_path.read_text(encoding="utf-8").strip())
-    except OSError as exc:
-        raise RuntimeError(f"failed to read current case pointer {pointer_path}: {exc}") from exc
-    if not case_path.exists():
-        raise RuntimeError(f"current case does not exist: {case_path}")
-    return case_path
+def case_server_url() -> str:
+    return os.environ.get("EDGE_BENCH_CASE_SERVER_URL", DEFAULT_CASE_SERVER_URL).rstrip("/")
 
 
 def load_current_case() -> dict[str, Any]:
-    return load_json(current_case_path())
+    url = f"{case_server_url()}/current"
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    try:
+        with opener.open(url, timeout=10) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"mock case server returned HTTP {exc.code}: {body}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"failed to reach mock case server at {url}: {exc.reason}") from exc
+    if payload.get("status") != "success" or not isinstance(payload.get("case"), dict):
+        raise RuntimeError(f"mock case server returned invalid current case: {payload}")
+    return payload["case"]
 
 
 def make_response(request_id: Any, result: dict[str, Any]) -> dict[str, Any]:
@@ -72,6 +79,7 @@ def node_to_cluster_resource(node: dict[str, Any]) -> dict[str, Any]:
         "ip_address": "127.0.0.1",
         "agent_port": 0,
         "online": node.get("online", True),
+        "container_running": node.get("container_running", False),
         "resource": {
             "cpu_used": node.get("cpu_used"),
             "mem_used": node.get("mem_used"),
@@ -124,6 +132,21 @@ def get_task_catalog(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
     return {"status": "success", "result": result}
 
 
+def get_dispatch_snapshot(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
+    cluster_resources = get_cluster_resources(arguments)
+    available_device_types = sorted({
+        node.get("type")
+        for node in cluster_resources.get("result", [])
+        if isinstance(node, dict) and node.get("type")
+    })
+    catalog_args = {"available_device_types": available_device_types} if available_device_types else {}
+    return {
+        "status": "success",
+        "cluster_resources": cluster_resources,
+        "task_catalog": get_task_catalog(catalog_args),
+    }
+
+
 def run_task_on_node(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
     arguments = arguments or {}
     target_global_id = arguments.get("target_global_id")
@@ -148,6 +171,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
         request_id,
         {
             "tools": [
+                {"name": "get_dispatch_snapshot", "inputSchema": {"type": "object", "properties": {}}},
                 {"name": "get_cluster_resources", "inputSchema": {"type": "object", "properties": {}}},
                 {
                     "name": "get_task_catalog",
@@ -178,6 +202,8 @@ def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]
     name = params.get("name")
     arguments = params.get("arguments", {})
     try:
+        if name == "get_dispatch_snapshot":
+            return tool_response_text(get_dispatch_snapshot(arguments), request_id)
         if name == "get_cluster_resources":
             return tool_response_text(get_cluster_resources(arguments), request_id)
         if name == "get_task_catalog":

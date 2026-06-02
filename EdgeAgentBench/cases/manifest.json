@@ -4,6 +4,7 @@
   "case_count": 12450,
   "states_per_model": 500,
   "offline_every": 5,
+  "warm_every": 3,
   "case_files": [
     "bert_001_q_txt_001.json",
     "bert_001_q_txt_002.json",

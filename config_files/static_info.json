@@ -19,7 +19,8 @@
         "proc_time": 43.39,
         "mem_usage": 0.035,
         "cpu_usage": 0.05,
-        "xpu_usage": 0.07
+        "xpu_usage": 0.07,
+        "base_latency_ms": 171.624
       }
     },
     "ATLAS_L": {
@@ -83,7 +84,8 @@
         "proc_time": 63.77,
         "mem_usage": 0.24,
         "cpu_usage": 0.09,
-        "xpu_usage": 0.22
+        "xpu_usage": 0.22,
+        "base_latency_ms": 3681.075
       }
     },
     "ATLAS_H": {
@@ -147,7 +149,8 @@
         "proc_time": 32.96,
         "mem_usage": 0.07,
         "cpu_usage": 0.08,
-        "xpu_usage": 0.1
+        "xpu_usage": 0.1,
+        "base_latency_ms": 2036.36
       }
     }
   },
@@ -171,7 +174,8 @@
         "proc_time": 14.95,
         "mem_usage": 0.015,
         "cpu_usage": 0.04,
-        "xpu_usage": 0.01
+        "xpu_usage": 0.01,
+        "base_latency_ms": 2935.7
       }
     },
     "ATLAS_L": {
@@ -235,7 +239,8 @@
         "proc_time": 23.02,
         "mem_usage": 0.08,
         "cpu_usage": 0.2,
-        "xpu_usage": 0.06
+        "xpu_usage": 0.06,
+        "base_latency_ms": 3157.139
       }
     },
     "ATLAS_H": {
@@ -299,7 +304,8 @@
         "proc_time": 16.07,
         "mem_usage": 0.02,
         "cpu_usage": 0.19,
-        "xpu_usage": 0.03
+        "xpu_usage": 0.03,
+        "base_latency_ms": 1567.781
       }
     }
   },
@@ -323,7 +329,8 @@
         "proc_time": 32.18,
         "mem_usage": 0.045,
         "cpu_usage": 0.03,
-        "xpu_usage": 0.06
+        "xpu_usage": 0.06,
+        "base_latency_ms": 3849.363
       }
     },
     "ATLAS_L": {
@@ -387,7 +394,8 @@
         "proc_time": 38.93,
         "mem_usage": 0.11,
         "cpu_usage": 0.19,
-        "xpu_usage": 0.2
+        "xpu_usage": 0.2,
+        "base_latency_ms": 6860.208
       }
     },
     "ATLAS_H": {
@@ -451,7 +459,8 @@
         "proc_time": 23.8,
         "mem_usage": 0.02,
         "cpu_usage": 0.19,
-        "xpu_usage": 0.08
+        "xpu_usage": 0.08,
+        "base_latency_ms": 4187.971
       }
     }
   },
@@ -517,7 +526,8 @@
         "proc_time": 144.84,
         "mem_usage": 0.14,
         "cpu_usage": 0.03,
-        "xpu_usage": 0.44
+        "xpu_usage": 0.44,
+        "base_latency_ms": 10110.44
       }
     },
     "ATLAS_H": {
@@ -581,7 +591,8 @@
         "proc_time": 55.91,
         "mem_usage": 0.04,
         "cpu_usage": 0.06,
-        "xpu_usage": 0.42
+        "xpu_usage": 0.42,
+        "base_latency_ms": 4379.043
       }
     }
   },
@@ -647,7 +658,8 @@
         "proc_time": 625.99,
         "mem_usage": 0.16,
         "cpu_usage": 0.06,
-        "xpu_usage": 0.52
+        "xpu_usage": 0.52,
+        "base_latency_ms": 51688.653
       }
     },
     "ATLAS_H": {
@@ -711,7 +723,8 @@
         "proc_time": 283.07,
         "mem_usage": 0.04,
         "cpu_usage": 0.06,
-        "xpu_usage": 0.43
+        "xpu_usage": 0.43,
+        "base_latency_ms": 26153.898
       }
     }
   },

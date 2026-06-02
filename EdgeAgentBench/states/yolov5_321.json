@@ -9,6 +9,7 @@
       "mem_used": 0.7149,
       "npu_used": 0.0,
       "network_latency": 1,
+      "container_running": true,
       "latency_profile": {
         "model": "YoloV5",
         "device_type": "ATLAS_H",
@@ -24,6 +25,7 @@
       "mem_used": 0.62039,
       "npu_used": 0.89667,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "YoloV5",
         "device_type": "ATLAS_L",
@@ -39,6 +41,7 @@
       "mem_used": 0.2513,
       "npu_used": 0.6178,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "YoloV5",
         "device_type": "RK3588",

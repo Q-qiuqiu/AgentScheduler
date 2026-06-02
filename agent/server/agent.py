@@ -24,12 +24,7 @@ DEFAULT_MCP_SERVER_PATH = os.environ.get(
     os.path.join(AGENT_DIR, "tools", "mcp_server.py"),
 )
 DEFAULT_AGENT_INFO_PATH = os.path.join(REPO_ROOT, "config_files", "agent_info.json")
-DEFAULT_LATENCY_PROFILE_PATH = os.path.join(REPO_ROOT, "config_files", "latency_profiles.json")
-RESOURCE_DISTANCE_WEIGHTS = {
-    "cpu_percent": 0.5,
-    "mem_percent": 0.2,
-    "npu_percent": 0.3,
-}
+DEFAULT_STATIC_INFO_PATH = os.path.join(REPO_ROOT, "config_files", "static_info.json")
 
 lock = threading.Lock()
 is_blocking = False
@@ -321,6 +316,7 @@ def build_deterministic_summary(selected_execution, tool_result):
 
 
 ACTION_TIMEOUTS = {
+    "get_dispatch_snapshot": 30,
     "get_task_catalog": 30,
     "get_cluster_resources": 30,
     "run_task_on_node": 150,
@@ -428,27 +424,19 @@ def compact_task_catalog_for_selection(task_catalog):
             "task_type": item.get("task_type"),
             "requires_file": item.get("requires_file", False),
             "capabilities": item.get("capabilities", []),
-            "supported_device_types": item.get("supported_device_types", []),
-            "description": item.get("description", ""),
         })
     return result
 
 
-def load_latency_profiles():
-    config_path = os.environ.get("LATENCY_PROFILE_PATH", DEFAULT_LATENCY_PROFILE_PATH)
-    if not os.path.exists(config_path):
-        return []
+def load_static_info():
+    config_path = os.environ.get("STATIC_INFO_PATH", DEFAULT_STATIC_INFO_PATH)
     try:
         with open(config_path, "r", encoding="utf-8") as file_obj:
-            payload = json.load(file_obj)
+            return json.load(file_obj)
     except OSError as exc:
-        raise RuntimeError(f"failed to read latency profile {config_path}: {exc}") from exc
+        raise RuntimeError(f"failed to read static info {config_path}: {exc}") from exc
     except json.JSONDecodeError as exc:
-        raise RuntimeError(f"invalid JSON in latency profile {config_path}: {exc}") from exc
-    records = payload.get("records", [])
-    if not isinstance(records, list):
-        raise RuntimeError("latency profile must contain a list field named records")
-    return [record for record in records if isinstance(record, dict)]
+        raise RuntimeError(f"invalid JSON in static info {config_path}: {exc}") from exc
 
 
 def resource_value_percent(resource, *keys):
@@ -470,136 +458,35 @@ def node_resource_percent(node):
     }
 
 
-def resource_distance(current_resource, latency_record):
-    pairs = [
-        ("cpu_percent", "avg_cpu_percent"),
-        ("mem_percent", "avg_mem_percent"),
-        ("npu_percent", "avg_npu_percent"),
+def ratio_to_percent(value):
+    if not isinstance(value, (int, float)):
+        return None
+    return round(value * 100, 3)
+
+
+def task_device_base_latency_ms(static_info, task_type, device_type):
+    task_entry = static_info.get(task_type, {}) if isinstance(static_info, dict) else {}
+    device_entry = task_entry.get(device_type, {}) if isinstance(task_entry, dict) else {}
+    overhead = device_entry.get("taskOverhead", {}) if isinstance(device_entry, dict) else {}
+    value = overhead.get("base_latency_ms")
+    return round(value, 3) if isinstance(value, (int, float)) else None
+
+
+def compact_dispatch_node(candidate):
+    current = candidate.get("current_resource_percent", {}) if isinstance(candidate, dict) else {}
+    base_latency_ms = candidate.get("base_latency_ms")
+    if not isinstance(base_latency_ms, (int, float)):
+        base_latency_ms = 0
+    return [
+        candidate.get("target_global_id"),
+        base_latency_ms,
+        current.get("cpu_percent") if isinstance(current.get("cpu_percent"), (int, float)) else 100,
+        current.get("npu_percent") if isinstance(current.get("npu_percent"), (int, float)) else 100,
+        current.get("mem_percent") if isinstance(current.get("mem_percent"), (int, float)) else 100,
     ]
-    distance = 0.0
-    compared = 0
-    for current_key, record_key in pairs:
-        current_value = current_resource.get(current_key)
-        record_value = latency_record.get(record_key)
-        if isinstance(current_value, (int, float)) and isinstance(record_value, (int, float)):
-            weight = RESOURCE_DISTANCE_WEIGHTS.get(current_key, 1.0)
-            distance += weight * ((current_value - record_value) ** 2)
-            compared += 1
-    if compared == 0:
-        return None
-    return round(distance ** 0.5, 3)
 
 
-def tasks_supported_by_node(task_catalog, device_type):
-    result = []
-    if not isinstance(task_catalog, dict):
-        return result
-    for item in task_catalog.get("result", []):
-        if not isinstance(item, dict):
-            continue
-        if device_type in (item.get("supported_device_types") or []) and item.get("task_type"):
-            result.append(item["task_type"])
-    return result
-
-
-def nearest_latency_samples(records, task_type, device_type, current_resource, limit=3):
-    candidates = []
-    for record in records:
-        if record.get("task_type") != task_type or record.get("device_type") != device_type:
-            continue
-        distance = resource_distance(current_resource, record)
-        if distance is None:
-            continue
-        candidates.append((distance, record))
-    candidates.sort(key=lambda item: (item[0], item[1].get("e2e_ms", float("inf"))))
-
-    samples = []
-    for distance, record in candidates[:limit]:
-        samples.append({
-            "avg_cpu_percent": record.get("avg_cpu_percent"),
-            "avg_mem_percent": record.get("avg_mem_percent"),
-            "avg_npu_percent": record.get("avg_npu_percent"),
-            "e2e_ms": record.get("e2e_ms"),
-            "exec_ms": record.get("exec_ms"),
-            "distance": distance,
-            "source": record.get("source"),
-        })
-    return samples
-
-
-def build_latency_references(cluster_resources, task_catalog, task_type_filter=None, samples_per_node_task=3):
-    records = load_latency_profiles()
-    if not records:
-        return []
-
-    references = []
-    for node in online_cluster_nodes(cluster_resources):
-        target_global_id = node_global_id(node)
-        device_type = node.get("type")
-        if not target_global_id or not device_type:
-            continue
-        current_resource = node_resource_percent(node)
-        if not any(isinstance(value, (int, float)) for value in current_resource.values()):
-            continue
-
-        for task_type in tasks_supported_by_node(task_catalog, device_type):
-            if task_type_filter and task_type != task_type_filter:
-                continue
-            samples = nearest_latency_samples(
-                records,
-                task_type,
-                device_type,
-                current_resource,
-                limit=samples_per_node_task,
-            )
-            if not samples:
-                continue
-            e2e_values = [
-                sample.get("e2e_ms")
-                for sample in samples
-                if isinstance(sample.get("e2e_ms"), (int, float))
-            ]
-            references.append({
-                "target_global_id": target_global_id,
-                "device_type": device_type,
-                "task_type": task_type,
-                "current_resource_percent": current_resource,
-                "estimated_e2e_ms": round(sum(e2e_values) / len(e2e_values), 3) if e2e_values else None,
-                "nearest_samples": samples,
-            })
-    return references
-
-
-def latency_reference_for_node(latency_references, target_global_id):
-    for reference in latency_references:
-        if reference.get("target_global_id") == target_global_id:
-            return reference
-    return None
-
-
-def compact_latency_reference(reference):
-    if not isinstance(reference, dict):
-        return None
-    nearest_samples = []
-    for sample in reference.get("nearest_samples", []):
-        if not isinstance(sample, dict):
-            continue
-        nearest_samples.append({
-            "sample_resource_percent": {
-                "cpu": sample.get("avg_cpu_percent"),
-                "mem": sample.get("avg_mem_percent"),
-                "npu": sample.get("avg_npu_percent"),
-            },
-            "e2e_ms": sample.get("e2e_ms"),
-            "distance": sample.get("distance"),
-        })
-    return {
-        "estimated_e2e_ms": reference.get("estimated_e2e_ms"),
-        "nearest_samples": nearest_samples,
-    }
-
-
-def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, latency_references):
+def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, static_info):
     catalog_entry = get_task_catalog_entry(task_type, {"task_catalog": task_catalog})
     supported_device_types = set(catalog_entry.get("supported_device_types") or [])
     candidates = []
@@ -610,33 +497,23 @@ def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, latency
             continue
         if supported_device_types and device_type not in supported_device_types:
             continue
-        latency_reference = latency_reference_for_node(latency_references, target_global_id)
-        compact_reference = compact_latency_reference(latency_reference)
+        current_percent = node_resource_percent(node)
         candidate = {
             "target_global_id": target_global_id,
             "device_type": device_type,
-            "current_resource_percent": node_resource_percent(node),
+            "base_latency_ms": task_device_base_latency_ms(static_info, task_type, device_type),
+            "current_resource_percent": current_percent,
         }
-        if compact_reference:
-            candidate["latency_reference"] = compact_reference
         candidates.append(candidate)
     return candidates
 
 
-def build_dispatch_context(user_text, has_file, text_fields, selected_task_type, task_catalog, candidate_nodes):
+def build_dispatch_context(selected_task_type, candidate_nodes):
     return {
-        "user_request": {
-            "text": user_text,
-            "fields": text_fields,
-            "has_file": has_file,
-        },
-        "selected_task_type": selected_task_type,
-        "task": get_task_catalog_entry(selected_task_type, {"task_catalog": task_catalog}),
-        "candidate_nodes": candidate_nodes,
-        "selection_metric": {
-            "primary": "latency_reference.estimated_e2e_ms",
-            "tie_breakers": ["current_resource_percent.npu_percent", "current_resource_percent.mem_percent"],
-        },
+        "task_type": selected_task_type,
+        "policy": "minimize 0.0008*base + 0.0012*cpu + 0.002*npu + 0.01*mem",
+        "columns": ["id", "base", "cpu", "npu", "mem"],
+        "nodes": [compact_dispatch_node(candidate) for candidate in candidate_nodes],
     }
 
 
@@ -653,15 +530,9 @@ def build_direct_task_type_messages(user_text, has_file, text_fields, task_catal
         {
             "role": "system",
             "content": (
-                "You are an edge task classifier.\n"
-                "Select exactly one executable task_type from task_catalog for the user request.\n"
-                "Return JSON only in this exact shape:\n"
-                "{\"task_type\":\"<catalog task_type>\"}\n"
-                "Rules:\n"
-                "1. Choose task_type only from task_catalog.result[].task_type.\n"
-                "2. If has_file is false, do not choose a task whose requires_file is true.\n"
-                "3. Do not choose a board or node id in this step.\n"
-                "4. Do not invent task types or extra JSON fields."
+                "Select one executable task_type from task_catalog for the user request.\n"
+                "Return JSON only: {\"task_type\":\"<catalog task_type>\"}. "
+                "Use only listed task types; if has_file=false avoid file-required tasks."
             ),
         },
         {
@@ -708,30 +579,20 @@ def resolve_direct_task_type(user_text, has_file, text_fields, task_catalog, for
 def build_direct_selection_messages(
     dispatch_context,
 ):
-    selected_task_type = dispatch_context.get("selected_task_type", "")
+    selected_task_type = dispatch_context.get("task_type", "")
 
     return [
         {
             "role": "system",
             "content": (
-                "You are an edge-cluster dispatch selector.\n"
-                "Select the target node for the already selected task_type.\n"
-                "Return JSON only in this exact shape:\n"
-                "{\"task_type\":\"<catalog task_type>\",\"target_global_id\":\"<cluster global_id>\"}\n"
-                "Rules:\n"
-                f"1. Use this task_type exactly: {selected_task_type}.\n"
-                "2. Choose target_global_id only from dispatch_context.candidate_nodes[].target_global_id.\n"
-                "3. Use candidate_nodes[].latency_reference.estimated_e2e_ms as the primary board-selection metric when available.\n"
-                "4. Each latency_reference contains the three nearest historical samples for this task and node type.\n"
-                "5. If estimated_e2e_ms is similar within 5%, prefer lower current_resource_percent.npu_percent, then lower current_resource_percent.mem_percent.\n"
-                "6. Prefer lower current resource usage only when latency_reference is missing.\n"
-                "7. All candidate_nodes are already online and support the selected task.\n"
-                "8. Do not invent node ids, task types, or extra JSON fields.\n"
+                f"Task type is fixed: {selected_task_type}. Choose one node by minimizing policy; "
+                "columns are [id,base,cpu,npu,mem].\n"
+                "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
             ),
         },
         {
             "role": "user",
-            "content": json.dumps({"dispatch_context": dispatch_context}, ensure_ascii=False),
+            "content": json.dumps(dispatch_context, ensure_ascii=False),
         },
     ]
 
@@ -755,7 +616,7 @@ def choose_direct_execution(
 
     task_type = selection.get("task_type")
     target_global_id = selection.get("target_global_id")
-    selected_task_type = dispatch_context.get("selected_task_type")
+    selected_task_type = dispatch_context.get("task_type")
     if selected_task_type and task_type != selected_task_type:
         raise RuntimeError(f"model selected task_type {task_type}, but selected task_type is {selected_task_type}")
     if task_type not in task_types_from_catalog(task_catalog):
@@ -770,13 +631,12 @@ def choose_direct_execution(
     if not selected_node:
         raise RuntimeError(f"model selected unavailable target_global_id: {target_global_id}")
 
-    candidate_ids = {
-        node.get("target_global_id")
-        for node in dispatch_context.get("candidate_nodes", [])
-        if isinstance(node, dict)
-    }
+    candidate_ids = set()
+    for node in dispatch_context.get("nodes", []):
+        if isinstance(node, list) and node:
+            candidate_ids.add(node[0])
     if target_global_id not in candidate_ids:
-        raise RuntimeError(f"model selected target_global_id outside candidate_nodes: {target_global_id}")
+        raise RuntimeError(f"model selected target_global_id outside dispatch nodes: {target_global_id}")
 
     catalog_entry = get_task_catalog_entry(task_type, {"task_catalog": task_catalog})
     supported_device_types = set(catalog_entry.get("supported_device_types") or [])
@@ -849,31 +709,24 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
             raise RuntimeError(f"unsupported task_type: {forced_task_type}")
         validate_task_input_requirements(forced_task_type, has_file)
 
-    cluster_timing_marker = start_timing()
-    cluster_resources = json.loads(call_mcp_tool("get_cluster_resources", timeout=ACTION_TIMEOUTS["get_cluster_resources"]))
-    cluster_timing = finish_timing(cluster_timing_marker)
-    log_timing("tool.get_cluster_resources", **cluster_timing)
+    snapshot_timing_marker = start_timing()
+    dispatch_snapshot = json.loads(call_mcp_tool("get_dispatch_snapshot", timeout=ACTION_TIMEOUTS["get_dispatch_snapshot"]))
+    snapshot_timing = finish_timing(snapshot_timing_marker)
+    log_timing("tool.get_dispatch_snapshot", **snapshot_timing)
+    if dispatch_snapshot.get("status") != "success":
+        raise RuntimeError(f"get_dispatch_snapshot failed: {dispatch_snapshot}")
+    cluster_resources = dispatch_snapshot.get("cluster_resources")
+    task_catalog = dispatch_snapshot.get("task_catalog")
+    if not isinstance(cluster_resources, dict) or not isinstance(task_catalog, dict):
+        raise RuntimeError(f"get_dispatch_snapshot returned invalid payload: {dispatch_snapshot}")
     trace.append({
-        "action": "get_cluster_resources",
+        "action": "get_dispatch_snapshot",
         "arguments": {},
-        "tool_timing": {"segment": "tool.get_cluster_resources", **cluster_timing},
-        "result": redact_large_binary_fields(cluster_resources),
-        "generated_by_model": False,
-    })
-
-    catalog_args = {}
-    available_device_types = available_device_types_from_cluster(cluster_resources)
-    if available_device_types:
-        catalog_args["available_device_types"] = available_device_types
-    catalog_timing_marker = start_timing()
-    task_catalog = json.loads(call_mcp_tool("get_task_catalog", catalog_args, timeout=ACTION_TIMEOUTS["get_task_catalog"]))
-    catalog_timing = finish_timing(catalog_timing_marker)
-    log_timing("tool.get_task_catalog", **catalog_timing)
-    trace.append({
-        "action": "get_task_catalog",
-        "arguments": catalog_args,
-        "tool_timing": {"segment": "tool.get_task_catalog", **catalog_timing},
-        "result": task_catalog,
+        "tool_timing": {"segment": "tool.get_dispatch_snapshot", **snapshot_timing},
+        "result": {
+            "cluster_resources": redact_large_binary_fields(cluster_resources),
+            "task_catalog": task_catalog,
+        },
         "generated_by_model": False,
     })
 
@@ -898,26 +751,18 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
         task_trace_item["model_timing"] = task_usage["timing"]
     trace.append(task_trace_item)
 
-    latency_references = build_latency_references(
-        cluster_resources,
-        task_catalog,
-        task_type_filter=selected_task_type,
-    )
+    static_info = load_static_info()
     candidate_nodes = candidate_nodes_for_task(
         cluster_resources,
         task_catalog,
         selected_task_type,
-        latency_references,
+        static_info,
     )
     if not candidate_nodes:
         raise RuntimeError(f"no online candidate nodes support task_type: {selected_task_type}")
 
     dispatch_context = build_dispatch_context(
-        user_text,
-        has_file,
-        text_fields,
         selected_task_type,
-        task_catalog,
         candidate_nodes,
     )
     if len(candidate_nodes) == 1:
@@ -977,7 +822,6 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
         "cluster_resources": cluster_resources,
         "task_catalog": task_catalog,
         "selected_task_type": selected_task_type,
-        "latency_references": latency_references,
         "candidate_nodes": candidate_nodes,
         "dispatch_context": dispatch_context,
         "selected_execution": selected_execution,

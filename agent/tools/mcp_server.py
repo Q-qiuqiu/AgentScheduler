@@ -13,6 +13,7 @@ from schedule_task_tool import schedule_task
 
 GET_CLUSTER_RESOURCES_TOOL = "get_cluster_resources"
 GET_TASK_CATALOG_TOOL = "get_task_catalog"
+GET_DISPATCH_SNAPSHOT_TOOL = "get_dispatch_snapshot"
 GET_TASK_OVERHEAD_TOOL = "get_task_overhead"
 SCHEDULE_TASK_TOOL = "schedule_task"
 RUN_TASK_ON_NODE_TOOL = "run_task_on_node"
@@ -66,6 +67,15 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
         request_id,
         {
             "tools": [
+                {
+                    "name": GET_DISPATCH_SNAPSHOT_TOOL,
+                    "description": "Fetch cluster resources and the filtered task catalog in one call for direct dispatch.",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": False,
+                    },
+                },
                 {
                     "name": GET_CLUSTER_RESOURCES_TOOL,
                     "description": "Fetch the latest cluster resource snapshot collected by the gateway.",
@@ -180,6 +190,23 @@ def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]
     arguments = params.get("arguments", {})
 
     try:
+        if name == GET_DISPATCH_SNAPSHOT_TOOL:
+            cluster_resources = get_cluster_resources(arguments)
+            available_device_types = sorted({
+                node.get("type")
+                for node in cluster_resources.get("result", [])
+                if isinstance(node, dict) and node.get("type")
+            })
+            catalog_args = {"available_device_types": available_device_types} if available_device_types else {}
+            task_catalog = get_task_catalog(catalog_args)
+            return tool_response_text(
+                {
+                    "status": "success",
+                    "cluster_resources": cluster_resources,
+                    "task_catalog": task_catalog,
+                },
+                request_id,
+            )
         if name == GET_CLUSTER_RESOURCES_TOOL:
             return tool_response_text(get_cluster_resources(arguments), request_id)
         if name == GET_TASK_CATALOG_TOOL:

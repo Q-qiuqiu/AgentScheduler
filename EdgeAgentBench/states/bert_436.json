@@ -9,6 +9,7 @@
       "mem_used": 0.41733,
       "npu_used": 0.82333,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "Bert",
         "device_type": "ATLAS_H",
@@ -24,6 +25,7 @@
       "mem_used": 0.47875,
       "npu_used": 0.48,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "Bert",
         "device_type": "ATLAS_L",

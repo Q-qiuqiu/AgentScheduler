@@ -92,10 +92,17 @@ def pick_record(records: list[dict[str, Any]], state_index: int, device_index: i
     return records[(state_index * stride + offset) % len(records)]
 
 
+def container_running_for_node(state_index: int, device_index: int, online: bool, warm_every: int) -> bool:
+    if not online or warm_every <= 0:
+        return False
+    return (state_index + device_index + 1) % warm_every == 0
+
+
 def build_states(
     grouped_profiles: dict[str, dict[str, list[dict[str, Any]]]],
     states_per_model: int,
     offline_every: int,
+    warm_every: int,
 ) -> list[dict[str, Any]]:
     states = []
     for model in sorted(grouped_profiles):
@@ -109,6 +116,7 @@ def build_states(
             for device_index, device_type in enumerate(devices):
                 record = pick_record(by_device[device_type], state_index, device_index)
                 online = device_type != offline_device
+                container_running = container_running_for_node(state_index, device_index, online, warm_every)
                 latency_profile = {
                     "model": model,
                     "device_type": device_type,
@@ -123,6 +131,7 @@ def build_states(
                     "mem_used": percent_to_ratio(record.get("avg_mem_percent")),
                     "npu_used": percent_to_ratio(record.get("avg_npu_percent")),
                     "network_latency": 1,
+                    "container_running": container_running,
                     "latency_profile": latency_profile,
                 })
             state_id = f"{model_slug(model)}_{state_index + 1:03d}"
@@ -179,6 +188,7 @@ def build_ground_truth(model: str, state: dict[str, Any], constraints: dict[str,
             "cpu_used": node.get("cpu_used"),
             "mem_used": node.get("mem_used"),
             "npu_used": node.get("npu_used"),
+            "container_running": node.get("container_running", False),
         })
     ranking.sort(key=lambda item: (item["e2e_ms"], item["node_id"]))
     selected = ranking[0] if ranking else None
@@ -187,6 +197,7 @@ def build_ground_truth(model: str, state: dict[str, Any], constraints: dict[str,
     return {
         "node_id": selected["node_id"],
         "ete_time": selected["e2e_ms"],
+        "container_running": selected["container_running"],
     }
 
 
@@ -235,10 +246,16 @@ def main() -> int:
         default=5,
         help="Mark one node offline every N generated states per model. Use 0 to disable.",
     )
+    parser.add_argument(
+        "--warm-every",
+        type=int,
+        default=3,
+        help="Mark one online node as already running the task container every N device positions. Use 0 to disable.",
+    )
     args = parser.parse_args()
 
     grouped_profiles = load_profiles(Path(args.profile))
-    states = build_states(grouped_profiles, args.states_per_model, args.offline_every)
+    states = build_states(grouped_profiles, args.states_per_model, args.offline_every, args.warm_every)
     cases = build_cases(states)
 
     clear_generated_json(STATE_ROOT)
@@ -258,6 +275,7 @@ def main() -> int:
         "case_count": len(cases),
         "states_per_model": args.states_per_model,
         "offline_every": args.offline_every,
+        "warm_every": args.warm_every,
         "case_files": [f"{case['case_id']}.json" for case in cases],
     }
     write_json(MANIFEST_PATH, manifest)

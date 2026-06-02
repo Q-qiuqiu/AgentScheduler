@@ -10,6 +10,12 @@ from typing import Any
 BENCH_ROOT = Path(__file__).resolve().parents[1]
 CASE_DIR = BENCH_ROOT / "cases"
 STATIC_INFO_PATH = BENCH_ROOT.parent / "config_files" / "static_info.json"
+SCHEDULER_WEIGHTS = {
+    "base_latency_ms": 0.0008,
+    "cpu_after": 0.12,
+    "mem_after": 1.0,
+    "npu_after": 0.2,
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -105,21 +111,21 @@ def feasible_scheduler_candidates(
         if not profile:
             continue
 
-        cold_start = False
+        overhead = profile.get("taskOverhead", {}) if isinstance(profile, dict) else {}
         cpu_after = node.get("cpu_used", 1)
         mem_after = node.get("mem_used", 1)
         npu_after = node.get("npu_used", 1)
-
-        if cpu_after > 1 or mem_after > 1 or npu_after > 1:
-            continue
+        base_latency_ms = overhead.get("base_latency_ms", 0)
+        if not isinstance(base_latency_ms, (int, float)):
+            base_latency_ms = 0
 
         candidates.append({
             "node": node,
             "detail": {
+                "base_latency_ms": round(base_latency_ms, 3),
                 "cpu_after": round(cpu_after, 4),
                 "mem_after": round(mem_after, 4),
                 "npu_after": round(npu_after, 4),
-                "cold_start": cold_start,
                 "model_name": model_name,
                 "device_type": platform,
             },
@@ -138,12 +144,16 @@ def scheduler_prediction(
     for item in feasible_scheduler_candidates(case, state, static_info, honor_constraints):
         node = item["node"]
         detail = item["detail"]
-        # Mirrors gateway scheduleDeviceByTType.
+        cpu_after = detail["cpu_after"]
+        mem_after = detail["mem_after"]
+        npu_after = detail["npu_after"]
+        base_latency_ms = detail.get("base_latency_ms", 0)
+        detail = {**detail, "scheduler_weights": SCHEDULER_WEIGHTS}
         score = round(
-            0.4 * detail["cpu_after"]
-            + 0.8 * detail["npu_after"]
-            + 0.25 * detail["mem_after"]
-            + 0.1 * (1 if detail["cold_start"] else 0),
+            SCHEDULER_WEIGHTS["base_latency_ms"] * base_latency_ms
+            + SCHEDULER_WEIGHTS["cpu_after"] * cpu_after
+            + SCHEDULER_WEIGHTS["npu_after"] * npu_after
+            + SCHEDULER_WEIGHTS["mem_after"] * mem_after,
             4,
         )
         ranked.append((score, node, detail))
@@ -274,6 +284,18 @@ def ranked_candidate_prediction(
     }
 
 
+def node_ete_ms(case: dict[str, Any], node_id: str | None) -> float | None:
+    if not node_id:
+        return None
+    for node in case.get("nodes", []):
+        if node.get("node_id") != node_id:
+            continue
+        e2e_ms = node.get("latency_profile", {}).get("e2e_ms")
+        if isinstance(e2e_ms, (int, float)) and e2e_ms >= 0:
+            return float(e2e_ms)
+    return None
+
+
 def evaluate_case(
     case: dict[str, Any],
     policy: str,
@@ -317,6 +339,13 @@ def evaluate_case(
         raise RuntimeError(f"unsupported policy: {policy}")
 
     predicted_node = prediction.get("selected_node")
+    expected_ete_ms = gt.get("ete_time")
+    predicted_ete_ms = node_ete_ms(case, predicted_node)
+    latency_regret_ms = None
+    latency_ratio = None
+    if isinstance(expected_ete_ms, (int, float)) and predicted_ete_ms is not None:
+        latency_regret_ms = round(predicted_ete_ms - expected_ete_ms, 3)
+        latency_ratio = round(predicted_ete_ms / expected_ete_ms, 4) if expected_ete_ms > 0 else None
     passed = predicted_node == expected_node
     return {
         "case_id": case["case_id"],
@@ -325,7 +354,10 @@ def evaluate_case(
         "reason": "" if passed else "selected_node_mismatch",
         "expected_node": expected_node,
         "predicted_node": predicted_node,
-        "expected_ete_ms": gt.get("ete_time"),
+        "expected_ete_ms": expected_ete_ms,
+        "predicted_ete_ms": predicted_ete_ms,
+        "latency_regret_ms": latency_regret_ms,
+        "latency_ratio": latency_ratio,
         "predicted_score": prediction.get("score"),
         "eligible_nodes": ",".join(prediction.get("eligible_nodes", [])),
     }
@@ -341,6 +373,9 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         "expected_node",
         "predicted_node",
         "expected_ete_ms",
+        "predicted_ete_ms",
+        "latency_regret_ms",
+        "latency_ratio",
         "predicted_score",
         "eligible_nodes",
     ]
@@ -358,20 +393,58 @@ def write_summary_json(path: Path, payload: dict[str, Any]) -> None:
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(rows)
     passed = sum(1 for row in rows if row["status"] == "PASS")
-    by_task: dict[str, dict[str, int]] = {}
+    latency_rows = [row for row in rows if isinstance(row.get("predicted_ete_ms"), (int, float))]
+    by_task: dict[str, dict[str, Any]] = {}
     for row in rows:
-        item = by_task.setdefault(row["task_type"], {"total": 0, "passed": 0})
+        item = by_task.setdefault(row["task_type"], {"total": 0, "passed": 0, "rows": []})
         item["total"] += 1
         if row["status"] == "PASS":
             item["passed"] += 1
+        if isinstance(row.get("predicted_ete_ms"), (int, float)):
+            item["rows"].append(row)
     return {
         "total": total,
         "passed": passed,
         "accuracy": round(passed / total, 4) if total else 0,
+        "latency_sample_count": len(latency_rows),
+        "average_expected_ete_ms": round(
+            sum(row["expected_ete_ms"] for row in latency_rows) / len(latency_rows), 3
+        ) if latency_rows else None,
+        "average_predicted_ete_ms": round(
+            sum(row["predicted_ete_ms"] for row in latency_rows) / len(latency_rows), 3
+        ) if latency_rows else None,
+        "average_latency_regret_ms": round(
+            sum(row["latency_regret_ms"] for row in latency_rows) / len(latency_rows), 3
+        ) if latency_rows else None,
+        "task_average_ete_ms": {
+            task: {
+                "average_expected_ete_ms": round(
+                    sum(row["expected_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_predicted_ete_ms": round(
+                    sum(row["predicted_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_latency_regret_ms": round(
+                    sum(row["latency_regret_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+            }
+            for task, item in sorted(by_task.items())
+        },
         "by_task": {
             task: {
-                **item,
+                "total": item["total"],
+                "passed": item["passed"],
                 "accuracy": round(item["passed"] / item["total"], 4) if item["total"] else 0,
+                "latency_sample_count": len(item["rows"]),
+                "average_expected_ete_ms": round(
+                    sum(row["expected_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_predicted_ete_ms": round(
+                    sum(row["predicted_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
+                "average_latency_regret_ms": round(
+                    sum(row["latency_regret_ms"] for row in item["rows"]) / len(item["rows"]), 3
+                ) if item["rows"] else None,
             }
             for task, item in sorted(by_task.items())
         },

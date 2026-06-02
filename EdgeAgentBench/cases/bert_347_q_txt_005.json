@@ -11,6 +11,7 @@
       "mem_used": 0.68391,
       "npu_used": 0.76333,
       "network_latency": 1,
+      "container_running": false,
       "latency_profile": {
         "model": "Bert",
         "device_type": "ATLAS_H",
@@ -26,6 +27,7 @@
       "mem_used": 0.7795,
       "npu_used": 0.93667,
       "network_latency": 1,
+      "container_running": true,
       "latency_profile": {
         "model": "Bert",
         "device_type": "ATLAS_L",
@@ -37,6 +39,7 @@
   "constraints": {},
   "ground_truth": {
     "node_id": "ATLAS_H",
-    "ete_time": 5446.968
+    "ete_time": 5446.968,
+    "container_running": false
   }
 }
