@@ -25,6 +25,9 @@ DEFAULT_MCP_SERVER_PATH = os.environ.get(
 )
 DEFAULT_AGENT_INFO_PATH = os.path.join(REPO_ROOT, "config_files", "agent_info.json")
 DEFAULT_STATIC_INFO_PATH = os.path.join(REPO_ROOT, "config_files", "static_info.json")
+DEFAULT_DISPATCH_HISTORY_PATH = os.path.join(REPO_ROOT, "config_files", "dispatch_history.json")
+DISPATCH_HISTORY_ENABLED = os.environ.get("DISPATCH_HISTORY_ENABLED", "1").lower() not in {"0", "false", "no", "off"}
+HISTORY_RESOURCE_TOLERANCE_PERCENT = float(os.environ.get("DISPATCH_HISTORY_TOLERANCE_PERCENT", "1.0"))
 
 lock = threading.Lock()
 is_blocking = False
@@ -445,7 +448,8 @@ def resource_value_percent(resource, *keys):
     for key in keys:
         value = resource.get(key)
         if isinstance(value, (int, float)):
-            return value * 100 if value <= 1 else value
+            percent = value * 100 if value <= 1 else value
+            return round(percent, 3)
     return None
 
 
@@ -472,6 +476,119 @@ def task_device_base_latency_ms(static_info, task_type, device_type):
     return round(value, 3) if isinstance(value, (int, float)) else None
 
 
+def dispatch_history_path():
+    return os.environ.get("DISPATCH_HISTORY_PATH", DEFAULT_DISPATCH_HISTORY_PATH)
+
+
+def load_dispatch_history():
+    path = dispatch_history_path()
+    if not os.path.exists(path):
+        return {"version": 2, "by_task": {}}
+    try:
+        with open(path, "r", encoding="utf-8") as file_obj:
+            payload = json.load(file_obj)
+    except (OSError, json.JSONDecodeError):
+        return {"version": 2, "by_task": {}}
+    if not isinstance(payload, dict):
+        return {"version": 2, "by_task": {}}
+    if isinstance(payload.get("by_task"), dict):
+        payload.setdefault("version", 2)
+        return payload
+    if isinstance(payload.get("records"), list):
+        migrated = {"version": 2, "by_task": {}}
+        for record in payload["records"]:
+            if not isinstance(record, dict):
+                continue
+            task_type = record.get("task_type")
+            device_type = record.get("device_type")
+            if not task_type or not device_type:
+                continue
+            migrated["by_task"].setdefault(task_type, {}).setdefault(device_type, []).append(record)
+        return migrated
+    return {"version": 2, "by_task": {}}
+
+
+def write_dispatch_history(payload):
+    path = dispatch_history_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as file_obj:
+        json.dump(payload, file_obj, ensure_ascii=False, indent=2)
+        file_obj.write("\n")
+    os.replace(tmp_path, path)
+
+
+def history_resource_distance(current, record_resource):
+    distances = []
+    for key in ("cpu_percent", "mem_percent", "npu_percent"):
+        current_value = current.get(key) if isinstance(current, dict) else None
+        record_value = record_resource.get(key) if isinstance(record_resource, dict) else None
+        if not isinstance(current_value, (int, float)) or not isinstance(record_value, (int, float)):
+            return None
+        distances.append(abs(current_value - record_value))
+    return {
+        "max_abs_percent": round(max(distances), 3),
+        "avg_abs_percent": round(sum(distances) / len(distances), 3),
+    }
+
+
+def nearest_history_record(task_type, candidate, history, tolerance_percent=HISTORY_RESOURCE_TOLERANCE_PERCENT):
+    current = candidate.get("current_resource_percent", {})
+    target_global_id = candidate.get("target_global_id")
+    device_type = candidate.get("device_type")
+    matches = []
+    records = (
+        history.get("by_task", {})
+        .get(task_type, {})
+        .get(device_type, [])
+    )
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        if record.get("target_global_id") not in {None, target_global_id}:
+            continue
+        ete_ms = record.get("ete_ms")
+        if not isinstance(ete_ms, (int, float)):
+            continue
+        distance = history_resource_distance(current, record.get("resource_percent", {}))
+        if not distance or distance["max_abs_percent"] > tolerance_percent:
+            continue
+        matches.append((distance["max_abs_percent"], distance["avg_abs_percent"], record))
+    if not matches:
+        return None
+    matches.sort(key=lambda item: (item[0], item[1], -float(item[2].get("timestamp_ms", 0))))
+    distance = {
+        "max_abs_percent": matches[0][0],
+        "avg_abs_percent": matches[0][1],
+    }
+    return {**matches[0][2], "distance": distance}
+
+
+def build_history_dispatch_context(selected_task_type, candidate_nodes):
+    if not DISPATCH_HISTORY_ENABLED:
+        return None
+    history = load_dispatch_history()
+    matched_nodes = []
+    matched_count = 0
+    for candidate in candidate_nodes:
+        matched = nearest_history_record(selected_task_type, candidate, history)
+        if matched:
+            matched_count += 1
+            matched_nodes.append([
+                candidate.get("target_global_id"),
+                round(matched["ete_ms"], 3),
+            ])
+    if matched_count != len(candidate_nodes):
+        return None
+    return {
+        "task_type": selected_task_type,
+        "history_policy": "choose min latency_ms",
+        "history_coverage": "full",
+        "columns": ["id", "latency_ms"],
+        "nodes": matched_nodes,
+    }
+
+
 def compact_dispatch_node(candidate):
     current = candidate.get("current_resource_percent", {}) if isinstance(candidate, dict) else {}
     base_latency_ms = candidate.get("base_latency_ms")
@@ -479,10 +596,10 @@ def compact_dispatch_node(candidate):
         base_latency_ms = 0
     return [
         candidate.get("target_global_id"),
-        base_latency_ms,
-        current.get("cpu_percent") if isinstance(current.get("cpu_percent"), (int, float)) else 100,
-        current.get("npu_percent") if isinstance(current.get("npu_percent"), (int, float)) else 100,
-        current.get("mem_percent") if isinstance(current.get("mem_percent"), (int, float)) else 100,
+        round(base_latency_ms, 3),
+        round(current.get("cpu_percent"), 3) if isinstance(current.get("cpu_percent"), (int, float)) else 100,
+        round(current.get("npu_percent"), 3) if isinstance(current.get("npu_percent"), (int, float)) else 100,
+        round(current.get("mem_percent"), 3) if isinstance(current.get("mem_percent"), (int, float)) else 100,
     ]
 
 
@@ -511,8 +628,8 @@ def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, static_
 def build_dispatch_context(selected_task_type, candidate_nodes):
     return {
         "task_type": selected_task_type,
-        "policy": "minimize 0.0008*base + 0.0012*cpu + 0.002*npu + 0.01*mem",
-        "columns": ["id", "base", "cpu", "npu", "mem"],
+        "policy": "minimize 8*base_latency + 12*cpu + 20*npu + 100*mem",
+        "columns": ["id", "base_latency", "cpu", "npu", "mem"],
         "nodes": [compact_dispatch_node(candidate) for candidate in candidate_nodes],
     }
 
@@ -580,15 +697,23 @@ def build_direct_selection_messages(
     dispatch_context,
 ):
     selected_task_type = dispatch_context.get("task_type", "")
+    if dispatch_context.get("history_policy"):
+        system_content = (
+            f"Task type is fixed: {selected_task_type}. Choose the node with the smallest latency_ms.\n"
+            "Use only latency_ms values in user.nodes; do not use resources or formulas.\n"
+            "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
+        )
+    else:
+        system_content = (
+            f"Task type is fixed: {selected_task_type}. Choose one node by minimizing policy.\n"
+            "You must calculate with the exact formula in user.policy and select the smallest value.\n"
+            "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
+        )
 
     return [
         {
             "role": "system",
-            "content": (
-                f"Task type is fixed: {selected_task_type}. Choose one node by minimizing policy; "
-                "columns are [id,base,cpu,npu,mem].\n"
-                "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
-            ),
+            "content": system_content,
         },
         {
             "role": "user",
@@ -680,6 +805,76 @@ def choose_single_candidate_execution(task_type, candidate_nodes, cluster_resour
     }
 
 
+def extract_ete_ms(payload):
+    if not isinstance(payload, dict):
+        return None
+    for key in ("ete_ms", "ete_time", "e2e_ms", "end_to_end_ms", "gateway_time", "total_time_ms"):
+        value = payload.get(key)
+        if isinstance(value, (int, float)):
+            return round(value, 3)
+    for key in ("result", "results", "data"):
+        value = payload.get(key)
+        if isinstance(value, dict):
+            nested = extract_ete_ms(value)
+            if nested is not None:
+                return nested
+    return None
+
+
+def record_dispatch_history(task_type, target_global_id, selected_node, candidate_nodes, tool_result):
+    ete_ms = extract_ete_ms(tool_result)
+    if ete_ms is None:
+        return None
+    candidate = next(
+        (
+            item for item in candidate_nodes
+            if item.get("target_global_id") == target_global_id
+        ),
+        None,
+    )
+    if not candidate:
+        return None
+    resource_percent = candidate.get("current_resource_percent", {})
+    record = {
+        "timestamp_ms": int(time.time() * 1000),
+        "task_type": task_type,
+        "target_global_id": target_global_id,
+        "device_type": selected_node.get("type") if isinstance(selected_node, dict) else candidate.get("device_type"),
+        "resource_percent": {
+            "cpu_percent": round(resource_percent.get("cpu_percent"), 3) if isinstance(resource_percent.get("cpu_percent"), (int, float)) else None,
+            "mem_percent": round(resource_percent.get("mem_percent"), 3) if isinstance(resource_percent.get("mem_percent"), (int, float)) else None,
+            "npu_percent": round(resource_percent.get("npu_percent"), 3) if isinstance(resource_percent.get("npu_percent"), (int, float)) else None,
+        },
+        "ete_ms": ete_ms,
+    }
+    payload = load_dispatch_history()
+    records = (
+        payload.setdefault("by_task", {})
+        .setdefault(task_type, {})
+        .setdefault(record["device_type"], [])
+    )
+    for existing in records:
+        if not isinstance(existing, dict):
+            continue
+        if existing.get("resource_percent") != record["resource_percent"]:
+            continue
+        existing.update({
+            "timestamp_ms": record["timestamp_ms"],
+            "task_type": record["task_type"],
+            "target_global_id": record["target_global_id"],
+            "device_type": record["device_type"],
+            "ete_ms": record["ete_ms"],
+        })
+        write_dispatch_history(payload)
+        return {**existing, "updated": True}
+    records.append(record)
+    max_records = int(os.environ.get("DISPATCH_HISTORY_MAX_RECORDS", "5000"))
+    if max_records > 0:
+        records[:] = records[-max_records:]
+    write_dispatch_history(payload)
+    return record
+
+
 def build_direct_final_message(selected_execution, tool_result):
     deterministic_summary = build_deterministic_summary(selected_execution, tool_result)
     if deterministic_summary:
@@ -761,7 +956,8 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
     if not candidate_nodes:
         raise RuntimeError(f"no online candidate nodes support task_type: {selected_task_type}")
 
-    dispatch_context = build_dispatch_context(
+    history_dispatch_context = build_history_dispatch_context(selected_task_type, candidate_nodes)
+    dispatch_context = history_dispatch_context or build_dispatch_context(
         selected_task_type,
         candidate_nodes,
     )
@@ -799,11 +995,19 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
     tool_result = json.loads(call_mcp_tool("run_task_on_node", run_arguments, timeout=ACTION_TIMEOUTS["run_task_on_node"]))
     run_timing = finish_timing(run_timing_marker)
     log_timing("tool.run_task_on_node", **run_timing)
+    history_record = record_dispatch_history(
+        selection["task_type"],
+        selection["target_global_id"],
+        selection["selected_node"],
+        candidate_nodes,
+        tool_result,
+    )
     selected_execution = {
         "task_type": selection["task_type"],
         "target_global_id": selection["target_global_id"],
         "scheduled_node": selection["selected_node"],
         "real_url": execution_metadata["real_url"],
+        "history_recorded": history_record is not None,
     }
     trace.append({
         "action": "run_task_on_node",
@@ -812,6 +1016,7 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
         "selection_source": node_selection_source,
         "model_timing": selection_usage.get("timing"),
         "tool_timing": {"segment": "tool.run_task_on_node", **run_timing},
+        "history_record": history_record,
         "result": redact_large_binary_fields(tool_result),
         "generated_by_model": node_selection_source == "model",
     })
@@ -826,6 +1031,7 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
         "dispatch_context": dispatch_context,
         "selected_execution": selected_execution,
         "tool_result": tool_result,
+        "history_record": history_record,
     }
     total_usage["total_tokens"] = total_usage["prompt_tokens"] + total_usage["completion_tokens"]
     e2e_timing = finish_timing(e2e_marker)

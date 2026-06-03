@@ -1,0 +1,83 @@
+{
+  "version": 2,
+  "by_task": {
+    "YoloV5": {
+      "ATLAS_H": [
+        {
+          "timestamp_ms": 1780478024786,
+          "task_type": "YoloV5",
+          "target_global_id": "ATLAS_H",
+          "device_type": "ATLAS_H",
+          "resource_percent": {
+            "cpu_percent": 3.483,
+            "mem_percent": 11.814,
+            "npu_percent": 81.667
+          },
+          "ete_ms": 2123.495
+        },
+        {
+          "timestamp_ms": 1780478038872,
+          "task_type": "YoloV5",
+          "target_global_id": "ATLAS_H",
+          "device_type": "ATLAS_H",
+          "resource_percent": {
+            "cpu_percent": 27.411,
+            "mem_percent": 21.587,
+            "npu_percent": 61.0
+          },
+          "ete_ms": 2453.235
+        },
+        {
+          "timestamp_ms": 1780478042055,
+          "task_type": "YoloV5",
+          "target_global_id": "ATLAS_H",
+          "device_type": "ATLAS_H",
+          "resource_percent": {
+            "cpu_percent": 28.218,
+            "mem_percent": 21.584,
+            "npu_percent": 81.333
+          },
+          "ete_ms": 2625.245
+        },
+        {
+          "timestamp_ms": 1780477588373,
+          "task_type": "YoloV5",
+          "target_global_id": "ATLAS_H",
+          "device_type": "ATLAS_H",
+          "resource_percent": {
+            "cpu_percent": 26.531,
+            "mem_percent": 41.626,
+            "npu_percent": 82.333
+          },
+          "ete_ms": 2558.215
+        },
+        {
+          "timestamp_ms": 1780477616992,
+          "task_type": "YoloV5",
+          "target_global_id": "ATLAS_H",
+          "device_type": "ATLAS_H",
+          "resource_percent": {
+            "cpu_percent": 28.856,
+            "mem_percent": 60.366,
+            "npu_percent": 81.0
+          },
+          "ete_ms": 2549.223
+        }
+      ],
+      "RK3588": [
+        {
+          "timestamp_ms": 1780477603948,
+          "task_type": "YoloV5",
+          "target_global_id": "RK3588",
+          "device_type": "RK3588",
+          "resource_percent": {
+            "cpu_percent": 2.5,
+            "mem_percent": 25.47,
+            "npu_percent": 33.0
+          },
+          "ete_ms": 166.37
+        }
+      ]
+    }
+  }
+}

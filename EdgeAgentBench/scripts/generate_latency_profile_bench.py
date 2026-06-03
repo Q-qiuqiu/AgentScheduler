@@ -98,47 +98,110 @@ def container_running_for_node(state_index: int, device_index: int, online: bool
     return (state_index + device_index + 1) % warm_every == 0
 
 
+def parse_model_set(value: str) -> set[str]:
+    return {item.strip() for item in value.split(",") if item.strip()}
+
+
+def build_model_state(
+    model: str,
+    by_device: dict[str, list[dict[str, Any]]],
+    state_index: int,
+    output_index: int,
+    offline_every: int,
+    warm_every: int,
+) -> dict[str, Any]:
+    devices = sorted(by_device)
+    offline_device = None
+    if offline_every > 0 and (output_index + 1) % offline_every == 0 and devices:
+        offline_device = devices[(output_index // offline_every) % len(devices)]
+    nodes = []
+    for device_index, device_type in enumerate(devices):
+        record = pick_record(by_device[device_type], state_index, device_index)
+        online = device_type != offline_device
+        container_running = container_running_for_node(output_index, device_index, online, warm_every)
+        latency_profile = {
+            "model": model,
+            "device_type": device_type,
+            "e2e_ms": record.get("e2e_ms") if online else -1,
+            "exec_ms": record.get("exec_ms") if online else -1,
+        }
+        nodes.append({
+            "node_id": device_type,
+            "platform": device_type,
+            "online": online,
+            "cpu_used": percent_to_ratio(record.get("avg_cpu_percent")),
+            "mem_used": percent_to_ratio(record.get("avg_mem_percent")),
+            "npu_used": percent_to_ratio(record.get("avg_npu_percent")),
+            "network_latency": 1,
+            "container_running": container_running,
+            "latency_profile": latency_profile,
+        })
+    state_id = f"{model_slug(model)}_{output_index + 1:03d}"
+    return {
+        "state_id": state_id,
+        "nodes": nodes,
+    }
+
+
+def resource_aligned_state(model: str, state: dict[str, Any]) -> bool:
+    candidates = []
+    for node in state.get("nodes", []):
+        profile = node.get("latency_profile", {})
+        if not node.get("online", False):
+            continue
+        if profile.get("model") != model:
+            continue
+        e2e_ms = profile.get("e2e_ms")
+        if not isinstance(e2e_ms, (int, float)) or e2e_ms < 0:
+            continue
+        avg_load = (
+            float(node.get("cpu_used", 1))
+            + float(node.get("mem_used", 1))
+            + float(node.get("npu_used", 1))
+        ) / 3.0
+        candidates.append((node.get("node_id"), e2e_ms, avg_load))
+    if not candidates:
+        return False
+    latency_best = min(candidates, key=lambda item: (item[1], item[0]))[0]
+    resource_best = min(candidates, key=lambda item: (item[2], item[0]))[0]
+    return latency_best == resource_best
+
+
 def build_states(
     grouped_profiles: dict[str, dict[str, list[dict[str, Any]]]],
     states_per_model: int,
     offline_every: int,
     warm_every: int,
+    resource_aligned_models: set[str],
+    max_attempts_per_model: int,
 ) -> list[dict[str, Any]]:
     states = []
     for model in sorted(grouped_profiles):
         by_device = grouped_profiles[model]
-        devices = sorted(by_device)
-        for state_index in range(states_per_model):
-            offline_device = None
-            if offline_every > 0 and (state_index + 1) % offline_every == 0 and devices:
-                offline_device = devices[(state_index // offline_every) % len(devices)]
-            nodes = []
-            for device_index, device_type in enumerate(devices):
-                record = pick_record(by_device[device_type], state_index, device_index)
-                online = device_type != offline_device
-                container_running = container_running_for_node(state_index, device_index, online, warm_every)
-                latency_profile = {
-                    "model": model,
-                    "device_type": device_type,
-                    "e2e_ms": record.get("e2e_ms") if online else -1,
-                    "exec_ms": record.get("exec_ms") if online else -1,
-                }
-                nodes.append({
-                    "node_id": device_type,
-                    "platform": device_type,
-                    "online": online,
-                    "cpu_used": percent_to_ratio(record.get("avg_cpu_percent")),
-                    "mem_used": percent_to_ratio(record.get("avg_mem_percent")),
-                    "npu_used": percent_to_ratio(record.get("avg_npu_percent")),
-                    "network_latency": 1,
-                    "container_running": container_running,
-                    "latency_profile": latency_profile,
-                })
-            state_id = f"{model_slug(model)}_{state_index + 1:03d}"
-            states.append({
-                "state_id": state_id,
-                "nodes": nodes,
-            })
+        output_index = 0
+        candidate_index = 0
+        attempts = 0
+        max_attempts = max(states_per_model, max_attempts_per_model)
+        while output_index < states_per_model and attempts < max_attempts:
+            state = build_model_state(
+                model,
+                by_device,
+                state_index=candidate_index,
+                output_index=output_index,
+                offline_every=offline_every,
+                warm_every=warm_every,
+            )
+            attempts += 1
+            candidate_index += 1
+            if model in resource_aligned_models and not resource_aligned_state(model, state):
+                continue
+            states.append(state)
+            output_index += 1
+        if output_index < states_per_model:
+            raise RuntimeError(
+                f"only generated {output_index}/{states_per_model} states for {model}; "
+                "increase --align-max-attempts or disable resource alignment"
+            )
     return states
 
 
@@ -252,10 +315,32 @@ def main() -> int:
         default=3,
         help="Mark one online node as already running the task container every N device positions. Use 0 to disable.",
     )
+    parser.add_argument(
+        "--resource-aligned-models",
+        default="",
+        help=(
+            "Comma-separated models whose generated states must have the lowest-e2e node "
+            "also be the lowest average-load node, for example YoloV5."
+        ),
+    )
+    parser.add_argument(
+        "--align-max-attempts",
+        type=int,
+        default=10000,
+        help="Maximum candidate states to scan per model when --resource-aligned-models is used.",
+    )
     args = parser.parse_args()
 
     grouped_profiles = load_profiles(Path(args.profile))
-    states = build_states(grouped_profiles, args.states_per_model, args.offline_every, args.warm_every)
+    resource_aligned_models = parse_model_set(args.resource_aligned_models)
+    states = build_states(
+        grouped_profiles,
+        args.states_per_model,
+        args.offline_every,
+        args.warm_every,
+        resource_aligned_models,
+        args.align_max_attempts,
+    )
     cases = build_cases(states)
 
     clear_generated_json(STATE_ROOT)
@@ -276,6 +361,8 @@ def main() -> int:
         "states_per_model": args.states_per_model,
         "offline_every": args.offline_every,
         "warm_every": args.warm_every,
+        "resource_aligned_models": sorted(resource_aligned_models),
+        "align_max_attempts": args.align_max_attempts,
         "case_files": [f"{case['case_id']}.json" for case in cases],
     }
     write_json(MANIFEST_PATH, manifest)

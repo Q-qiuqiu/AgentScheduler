@@ -23,16 +23,16 @@
       "node_id": "ATLAS_L",
       "platform": "ATLAS_L",
       "online": true,
-      "cpu_used": 0.51872,
-      "mem_used": 0.63607,
-      "npu_used": 0.39,
+      "cpu_used": 0.0303,
+      "mem_used": 0.62351,
+      "npu_used": 0.40667,
       "network_latency": 1,
       "container_running": true,
       "latency_profile": {
         "model": "YoloV5",
         "device_type": "ATLAS_L",
-        "e2e_ms": 4915.026,
-        "exec_ms": 903.77
+        "e2e_ms": 3759.636,
+        "exec_ms": 626.453
       }
     },
     {

@@ -155,6 +155,7 @@ def run_task_on_node(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
     node = next((item for item in case.get("nodes", []) if item.get("node_id") == target_global_id), None)
     if not node:
         raise RuntimeError(f"target_global_id is not in current case: {target_global_id}")
+    latency_profile = node.get("latency_profile", {})
     return {
         "status": "success",
         "mocked": True,
@@ -162,6 +163,9 @@ def run_task_on_node(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
         "target_global_id": target_global_id,
         "device_type": node.get("platform"),
         "case_id": case.get("case_id"),
+        "ete_ms": latency_profile.get("e2e_ms"),
+        "e2e_ms": latency_profile.get("e2e_ms"),
+        "exec_ms": latency_profile.get("exec_ms"),
         "results": [],
     }
 

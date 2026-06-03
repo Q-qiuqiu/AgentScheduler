@@ -97,6 +97,14 @@ EdgeAgentBench/cases/manifest.json
 --warm-every N
   每 N 个设备位置给一个 online 节点标记 container_running=true，默认 3。
   设置为 0 表示不生成已启动容器状态。
+
+--resource-aligned-models MODELS
+  逗号分隔的模型名，例如 YoloV5。
+  对这些模型，只保留“真实端到端时延最短节点同时也是平均资源负载最低节点”的 state。
+  这会让生成的 workload 更符合大模型“低负载更适合调度”的原始直觉；默认关闭。
+
+--align-max-attempts N
+  开启 --resource-aligned-models 时，每个模型最多扫描多少个候选 state，默认 10000。
 ```
 
 示例：
@@ -108,6 +116,17 @@ python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py \
   --warm-every 3
 ```
 
+如果希望 YoloV5 的 case 更符合大模型低负载直觉，可以显式开启资源对齐生成：
+
+```bash
+python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py \
+  --states-per-model 500 \
+  --offline-every 5 \
+  --warm-every 3 \
+  --resource-aligned-models YoloV5 \
+  --align-max-attempts 10000
+```
+
 生成逻辑：
 
 - 按 `task_type + device_type` 读取真实时延画像。
@@ -116,6 +135,7 @@ python3 EdgeAgentBench/scripts/generate_latency_profile_bench.py \
 - 每 5 个 state 默认人为设置一个 offline 节点。
 - 每 3 个设备位置默认人为设置一个 `container_running=true` 的已启动容器节点。
 - `container_running` 只影响调度策略输入，不改变 GT 的真实 `e2e_ms`。
+- 如果使用 `--resource-aligned-models`，对应模型会跳过“最低时延节点与最低平均负载节点冲突”的 state。
 - 如果某个 query 约束导致没有可用在线节点，则跳过该 case。
 
 ## 运行评测
@@ -257,8 +277,10 @@ python3 EdgeAgentBench/scripts/optimize_scheduler_weights.py \
 当前全量 bench 局部细化得到的 Agent 权重为：
 
 ```text
-rank_score = 0.0008*base_latency_ms + 0.0012*cpu_after_percent + 0.002*npu_after_percent + 0.01*mem_after_percent
+rank_score = 8*base + 12*cpu + 20*npu + 100*mem
 ```
+
+这是离线小数权重整体乘以 10000 后的等价形式。Agent 上下文中的 `cpu`、`npu`、`mem` 是百分比，保留 3 位小数。
 
 对应 `EdgeAgentBench/results/weight_search_base_latency_results.summary.json` 中的全量结果：
 

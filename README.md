@@ -12,6 +12,7 @@ Agent 入口现在使用直接执行链路：代码默认调用一次 `get_dispa
 - `agent/server/agent.py`：单智能体 HTTP 服务，接口为 `POST /v1/agent/chat`，健康检查为 `GET /health`。
 - `config_files/agent_info.json`：单智能体配置，描述可调度工具、工具入口、是否需要文件等任务语义信息。
 - `config_files/static_info.json`：集群静态任务部署配置，描述各设备类型支持的任务和调度开销。
+- `config_files/dispatch_history.json`：Agent 在线执行后记录的历史调度样本，包含任务、节点、资源状态和端到端时延。
 - `config_files/latency_profiles.json`：由真实设备采样表转换得到的端到端时延画像，主要用于生成 EdgeAgentBench 和刷新低负载时延先验。
 - `agent/tools/convert_latency_xlsx.py`：将 `config_files/latency.xlsx` 转换为 `config_files/latency_profiles.json` 的无第三方依赖脚本。
 - `agent/tools/mcp_server.py`：本地 MCP 工具入口，提供 `get_dispatch_snapshot`、`get_cluster_resources`、`get_task_catalog`、`run_task_on_node`。
@@ -66,13 +67,51 @@ Agent 当前使用的 MCP 工具为：
 - prompt 要求大模型在所有在线且支持任务的候选中选择分数最小的开发板，分数公式为：
 
 ```text
-score = 0.0008*base + 0.0012*cpu + 0.002*npu + 0.01*mem
+score = 8*base + 12*cpu + 20*npu + 100*mem
 ```
 
-- 权重直接写在公式里告诉大模型：低负载端到端先验为 `0.0008`，CPU 为 `0.0012`，NPU 为 `0.002`，MEM 为 `0.01`。
+- 这个整数公式和离线 scheduler 的 `0.0008*base + 0.0012*cpu + 0.002*npu + 0.01*mem` 完全等价，只是整体乘以 10000，避免大模型在小数加权上不稳定。
+- 权重直接写在公式里告诉大模型：低负载端到端先验为 `8`，CPU 为 `12`，NPU 为 `20`，MEM 为 `100`。
 - 这组权重由 `EdgeAgentBench/scripts/optimize_scheduler_weights.py` 在当前 bench 上按平均 `predicted_ete_ms` 搜索得到；当前全量 12450 个 case 的搜索结果为 `average_predicted_ete_ms=8384.612`、`accuracy=0.9193`。
 - `cpu`、`mem`、`npu` 直接使用当前资源百分比；bench 资源值已经是用于调度的状态，不再叠加任务 overhead。
 - 如果计算后的资源超过 100%，大模型也不能过滤候选；实际执行时可能通过内存回收或 CPU 共用继续运行。
+
+历史记录驱动选择：
+
+- 每次 `run_task_on_node` 返回端到端时延字段后，Agent 会把本次 `task_type`、`target_global_id`、`device_type`、当前 CPU/MEM/NPU 百分比和 `ete_ms` 写入 `config_files/dispatch_history.json`。
+- 历史文件按 `task_type -> device_type` 分桶记录，查找时只扫描当前任务和当前平台，避免所有样本堆在一个列表里。
+- 同一任务、同一平台、同一资源状态已存在时，不追加新记录；如果新的 `ete_ms` 不同，会更新已有记录的 `ete_ms` 和时间戳。
+- 下一次请求到达时，Agent 会先扫描历史记录。只有所有候选节点都有相近历史时，才启用历史上下文。
+- 严格历史模式下，Agent 只发送每个开发板的历史 `latency_ms`，不再发送资源信息和权重公式。
+- 如果任意候选节点缺少相近历史，Agent 会回退到普通权重公式上下文。
+- 历史开关默认开启；做无历史消融实验时可以设置 `DISPATCH_HISTORY_ENABLED=0`。
+- 默认相近阈值是 CPU/MEM/NPU 三个指标各自最大偏差不超过 `1.0` 个百分点，可用环境变量调整：
+
+```bash
+DISPATCH_HISTORY_ENABLED=1
+DISPATCH_HISTORY_TOLERANCE_PERCENT=1.0
+DISPATCH_HISTORY_PATH=/root/AgentScheduler/config_files/dispatch_history.json
+DISPATCH_HISTORY_MAX_RECORDS=5000
+```
+
+所有候选都有历史时，发给大模型的是：
+
+```json
+{
+  "task_type": "YoloV5",
+  "history_policy": "choose min latency_ms",
+  "history_coverage": "full",
+  "columns": ["id", "latency_ms"],
+  "nodes": [["RK3588", 239.28], ["ATLAS_H", 2036.36]]
+}
+```
+
+可从当前 EdgeAgentBench cases 生成一份完整历史记录，用于测试历史命中时的 Agent 表现：
+
+```bash
+python3 EdgeAgentBench/scripts/build_dispatch_history_from_cases.py \
+  --output config_files/dispatch_history.json
+```
 
 重新生成时延画像：
 
