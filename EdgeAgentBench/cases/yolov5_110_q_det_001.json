@@ -7,9 +7,9 @@
       "node_id": "ATLAS_H",
       "platform": "ATLAS_H",
       "online": false,
-      "cpu_used": 0.6599,
-      "mem_used": 0.21695,
-      "npu_used": 0.73667,
+      "cpu_used": 0.26263,
+      "mem_used": 0.20137,
+      "npu_used": 0.0,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
@@ -23,39 +23,39 @@
       "node_id": "ATLAS_L",
       "platform": "ATLAS_L",
       "online": true,
-      "cpu_used": 0.18274,
-      "mem_used": 0.62077,
-      "npu_used": 0.59667,
+      "cpu_used": 0.0303,
+      "mem_used": 0.62272,
+      "npu_used": 0.58,
       "network_latency": 1,
       "container_running": true,
       "latency_profile": {
         "model": "YoloV5",
         "device_type": "ATLAS_L",
-        "e2e_ms": 4515.255,
-        "exec_ms": 748.166
+        "e2e_ms": 3690.046,
+        "exec_ms": 621.249
       }
     },
     {
       "node_id": "RK3588",
       "platform": "RK3588",
       "online": true,
-      "cpu_used": 0.48,
-      "mem_used": 0.40466,
-      "npu_used": 0.88111,
+      "cpu_used": 0.19307,
+      "mem_used": 0.40452,
+      "npu_used": 0.23889,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
         "model": "YoloV5",
         "device_type": "RK3588",
-        "e2e_ms": 5846.205,
-        "exec_ms": 131.1
+        "e2e_ms": 3909.361,
+        "exec_ms": 88.116
       }
     }
   ],
   "constraints": {},
   "ground_truth": {
     "node_id": "ATLAS_L",
-    "ete_time": 4515.255,
+    "ete_time": 3690.046,
     "container_running": true
   }
 }

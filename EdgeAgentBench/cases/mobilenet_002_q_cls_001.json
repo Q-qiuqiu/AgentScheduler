@@ -6,7 +6,7 @@
     {
       "node_id": "ATLAS_H",
       "platform": "ATLAS_H",
-      "online": true,
+      "online": false,
       "cpu_used": 0.02985,
       "mem_used": 0.0907,
       "npu_used": 0.19667,
@@ -15,8 +15,8 @@
       "latency_profile": {
         "model": "MobileNet",
         "device_type": "ATLAS_H",
-        "e2e_ms": 1586.47,
-        "exec_ms": 39.521
+        "e2e_ms": -1,
+        "exec_ms": -1
       }
     },
     {
@@ -54,8 +54,8 @@
   ],
   "constraints": {},
   "ground_truth": {
-    "node_id": "ATLAS_H",
-    "ete_time": 1586.47,
-    "container_running": false
+    "node_id": "ATLAS_L",
+    "ete_time": 2731.409,
+    "container_running": true
   }
 }

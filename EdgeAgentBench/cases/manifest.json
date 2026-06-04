@@ -6,7 +6,13 @@
   "offline_every": 5,
   "warm_every": 3,
   "resource_aligned_models": [],
-  "align_max_attempts": 10000,
+  "gt_balance_models": [
+    "MobileNet",
+    "ResNet50",
+    "YoloV5"
+  ],
+  "gt_balance_offline_ratio": 0.2,
+  "align_max_attempts": 50000,
   "case_files": [
     "bert_001_q_txt_001.json",
     "bert_001_q_txt_002.json",

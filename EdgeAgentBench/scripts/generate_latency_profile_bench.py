@@ -109,10 +109,11 @@ def build_model_state(
     output_index: int,
     offline_every: int,
     warm_every: int,
+    forced_offline_device: str | None = None,
 ) -> dict[str, Any]:
     devices = sorted(by_device)
-    offline_device = None
-    if offline_every > 0 and (output_index + 1) % offline_every == 0 and devices:
+    offline_device = forced_offline_device
+    if offline_device is None and offline_every > 0 and (output_index + 1) % offline_every == 0 and devices:
         offline_device = devices[(output_index // offline_every) % len(devices)]
     nodes = []
     for device_index, device_type in enumerate(devices):
@@ -167,17 +168,127 @@ def resource_aligned_state(model: str, state: dict[str, Any]) -> bool:
     return latency_best == resource_best
 
 
+def state_best_node(model: str, state: dict[str, Any]) -> str | None:
+    candidates = []
+    for node in state.get("nodes", []):
+        profile = node.get("latency_profile", {})
+        if not node.get("online", False):
+            continue
+        if profile.get("model") != model:
+            continue
+        e2e_ms = profile.get("e2e_ms")
+        if not isinstance(e2e_ms, (int, float)) or e2e_ms < 0:
+            continue
+        candidates.append((e2e_ms, node.get("node_id")))
+    if not candidates:
+        return None
+    return min(candidates, key=lambda item: (item[0], item[1]))[1]
+
+
+def build_balanced_model_states(
+    model: str,
+    by_device: dict[str, list[dict[str, Any]]],
+    states_per_model: int,
+    warm_every: int,
+    max_attempts_per_model: int,
+    offline_ratio: float,
+) -> list[dict[str, Any]]:
+    devices = sorted(by_device)
+    if len(devices) < 2:
+        return [
+            build_model_state(model, by_device, index, index, 0, warm_every)
+            for index in range(states_per_model)
+        ]
+
+    states = []
+    gt_counts = {device: 0 for device in devices}
+    offline_budget = max(0, int(states_per_model * offline_ratio))
+    offline_count = 0
+    candidate_index = 0
+    attempts = 0
+    max_attempts = max(states_per_model, max_attempts_per_model)
+
+    while len(states) < states_per_model and attempts < max_attempts:
+        output_index = len(states)
+        target = min(devices, key=lambda device: (gt_counts[device], device))
+        accepted_state = None
+        accepted_best = None
+
+        natural_state = build_model_state(
+            model,
+            by_device,
+            state_index=candidate_index,
+            output_index=output_index,
+            offline_every=0,
+            warm_every=warm_every,
+        )
+        natural_best = state_best_node(model, natural_state)
+        attempts += 1
+
+        if natural_best == target:
+            accepted_state = natural_state
+            accepted_best = natural_best
+        elif target != "ATLAS_H" and offline_count < offline_budget and "ATLAS_H" in devices:
+            forced_state = build_model_state(
+                model,
+                by_device,
+                state_index=candidate_index,
+                output_index=output_index,
+                offline_every=0,
+                warm_every=warm_every,
+                forced_offline_device="ATLAS_H",
+            )
+            forced_best = state_best_node(model, forced_state)
+            if forced_best == target:
+                accepted_state = forced_state
+                accepted_best = forced_best
+                offline_count += 1
+
+        # Once the offline budget is consumed, keep the dataset size stable by
+        # accepting natural states. This preserves real sampled latency values.
+        if accepted_state is None and offline_count >= offline_budget:
+            accepted_state = natural_state
+            accepted_best = natural_best
+
+        candidate_index += 1
+        if accepted_state is None or accepted_best is None:
+            continue
+
+        accepted_state["state_id"] = f"{model_slug(model)}_{output_index + 1:03d}"
+        states.append(accepted_state)
+        gt_counts[accepted_best] += 1
+
+    if len(states) < states_per_model:
+        raise RuntimeError(
+            f"only generated {len(states)}/{states_per_model} balanced states for {model}; "
+            "increase --align-max-attempts or reduce --gt-balance-offline-ratio"
+        )
+    return states
+
+
 def build_states(
     grouped_profiles: dict[str, dict[str, list[dict[str, Any]]]],
     states_per_model: int,
     offline_every: int,
     warm_every: int,
     resource_aligned_models: set[str],
+    gt_balance_models: set[str],
     max_attempts_per_model: int,
+    gt_balance_offline_ratio: float,
 ) -> list[dict[str, Any]]:
     states = []
     for model in sorted(grouped_profiles):
         by_device = grouped_profiles[model]
+        if model in gt_balance_models:
+            states.extend(build_balanced_model_states(
+                model,
+                by_device,
+                states_per_model,
+                warm_every,
+                max_attempts_per_model,
+                gt_balance_offline_ratio,
+            ))
+            continue
         output_index = 0
         candidate_index = 0
         attempts = 0
@@ -329,17 +440,34 @@ def main() -> int:
         default=10000,
         help="Maximum candidate states to scan per model when --resource-aligned-models is used.",
     )
+    parser.add_argument(
+        "--gt-balance-models",
+        default="",
+        help=(
+            "Comma-separated models whose state GT distribution should be made less skewed "
+            "by filtering real sampled records and, within budget, forcing ATLAS_H offline."
+        ),
+    )
+    parser.add_argument(
+        "--gt-balance-offline-ratio",
+        type=float,
+        default=0.2,
+        help="Maximum fraction of states per balanced model that may force ATLAS_H offline. Default 0.2.",
+    )
     args = parser.parse_args()
 
     grouped_profiles = load_profiles(Path(args.profile))
     resource_aligned_models = parse_model_set(args.resource_aligned_models)
+    gt_balance_models = parse_model_set(args.gt_balance_models)
     states = build_states(
         grouped_profiles,
         args.states_per_model,
         args.offline_every,
         args.warm_every,
         resource_aligned_models,
+        gt_balance_models,
         args.align_max_attempts,
+        args.gt_balance_offline_ratio,
     )
     cases = build_cases(states)
 
@@ -362,6 +490,8 @@ def main() -> int:
         "offline_every": args.offline_every,
         "warm_every": args.warm_every,
         "resource_aligned_models": sorted(resource_aligned_models),
+        "gt_balance_models": sorted(gt_balance_models),
+        "gt_balance_offline_ratio": args.gt_balance_offline_ratio,
         "align_max_attempts": args.align_max_attempts,
         "case_files": [f"{case['case_id']}.json" for case in cases],
     }
