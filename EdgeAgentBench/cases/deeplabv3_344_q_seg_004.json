@@ -7,32 +7,32 @@
       "node_id": "ATLAS_H",
       "platform": "ATLAS_H",
       "online": true,
-      "cpu_used": 0.42347,
-      "mem_used": 0.61775,
-      "npu_used": 0.83333,
+      "cpu_used": 0.61856,
+      "mem_used": 0.6177,
+      "npu_used": 0.62333,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
         "model": "deeplabv3",
         "device_type": "ATLAS_H",
-        "e2e_ms": 26985.159,
-        "exec_ms": 352.164
+        "e2e_ms": 27120.281,
+        "exec_ms": 353.541
       }
     },
     {
       "node_id": "ATLAS_L",
       "platform": "ATLAS_L",
       "online": true,
-      "cpu_used": 0.21429,
-      "mem_used": 0.48952,
-      "npu_used": 0.89667,
+      "cpu_used": 0.50256,
+      "mem_used": 0.48366,
+      "npu_used": 0.39667,
       "network_latency": 1,
       "container_running": true,
       "latency_profile": {
         "model": "deeplabv3",
         "device_type": "ATLAS_L",
-        "e2e_ms": 54091.352,
-        "exec_ms": 797.352
+        "e2e_ms": 54985.095,
+        "exec_ms": 798.345
       }
     }
   ],
@@ -43,7 +43,7 @@
   },
   "ground_truth": {
     "node_id": "ATLAS_H",
-    "ete_time": 26985.159,
+    "ete_time": 27120.281,
     "container_running": false
   }
 }

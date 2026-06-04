@@ -67,6 +67,8 @@ def normalize_task_type(value: Any) -> str | None:
     if value is None:
         return None
     text = str(value).strip()
+    if text in {"模型", "model", "Model"}:
+        return None
     return TASK_NAME_MAP.get(text, text or None)
 
 
@@ -135,6 +137,65 @@ def detect_blocks(header_values: dict[str, Any]) -> list[dict[str, str]]:
     return blocks
 
 
+def detect_sampling_blocks(rows: list[tuple[int, dict[str, Any]]]) -> list[dict[str, Any]]:
+    rows_by_index = {row_index: values for row_index, values in rows}
+    blocks: list[dict[str, Any]] = []
+    block_starts = [
+        ("J", "K", "L", "M", "N", "O", "P", "Q"),
+        ("S", "T", "U", "V", "W", "X", "Y", "Z"),
+        ("AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI"),
+    ]
+    for block_start_index, columns in enumerate(block_starts):
+        detected_for_start: list[dict[str, Any]] = []
+        for row_index, values in rows:
+            model_col, device_col, interval_col, cpu_col, mem_col, npu_col, e2e_col, exec_col = columns
+            task_type = normalize_task_type(values.get(model_col))
+            device_type = normalize_device_type(values.get(device_col))
+            if not task_type or not device_type:
+                continue
+
+            metric_values = values
+            metric_row_index = row_index
+            if not all(header_role(metric_values.get(column)) for column in (cpu_col, mem_col, npu_col, e2e_col)):
+                metric_values = rows_by_index.get(row_index + 1, {})
+                metric_row_index = row_index + 1
+            if not all(header_role(metric_values.get(column)) for column in (cpu_col, mem_col, npu_col, e2e_col)):
+                metric_values = rows_by_index.get(row_index - 1, {})
+                metric_row_index = row_index - 1
+            if not all(header_role(metric_values.get(column)) for column in (cpu_col, mem_col, npu_col, e2e_col)):
+                continue
+
+            data_start = row_index + 1
+            if metric_row_index > row_index:
+                data_start = row_index + 2
+            elif metric_row_index < row_index:
+                data_start = row_index
+            detected_for_start.append({
+                "task_type": task_type,
+                "device_type": device_type,
+                "interval_ms": parse_number(values.get(interval_col)),
+                "data_start": data_start,
+                "data_end": None,
+                "columns": {
+                    "cpu": cpu_col,
+                    "mem": mem_col,
+                    "npu": npu_col,
+                    "e2e": e2e_col,
+                    "exec": exec_col,
+                },
+                "block_start_index": block_start_index,
+            })
+        detected_for_start.sort(key=lambda item: item["data_start"])
+        for index, block in enumerate(detected_for_start):
+            if index + 1 < len(detected_for_start):
+                block["data_end"] = detected_for_start[index + 1]["data_start"] - 1
+            blocks.append(block)
+    blocks.sort(key=lambda item: (item["data_start"], column_index(item["columns"]["cpu"])))
+    for block_index, block in enumerate(blocks, 1):
+        block["block"] = block_index
+    return blocks
+
+
 def load_shared_strings(zip_file: zipfile.ZipFile) -> list[str]:
     try:
         root = ET.fromstring(zip_file.read("xl/sharedStrings.xml"))
@@ -177,25 +238,17 @@ def convert_latency_xlsx(input_path: Path) -> dict[str, Any]:
                 for cell in row.findall("a:c", NS):
                     values[cell_column(cell.attrib["r"])] = cell_value(cell, shared_strings)
                 rows.append((int(row.attrib["r"]), values))
-            header_values = next((values for row_index, values in rows if row_index == 1), {})
-            blocks = detect_blocks(header_values)
-            current: dict[int, dict[str, str | None]] = {
-                index: {"task_type": None, "device_type": None}
-                for index in range(len(blocks))
-            }
+            blocks = detect_sampling_blocks(rows)
+            if not blocks:
+                continue
 
             for row_index, values in rows:
-                if row_index == 1:
-                    continue
-
-                for block_index, columns in enumerate(blocks):
-                    task_type = normalize_task_type(values.get(columns["model"]))
-                    device_type = normalize_device_type(values.get(columns["device"]))
-                    if task_type:
-                        current[block_index]["task_type"] = task_type
-                    if device_type:
-                        current[block_index]["device_type"] = device_type
-
+                for block in blocks:
+                    if row_index < block["data_start"]:
+                        continue
+                    if block.get("data_end") is not None and row_index > block["data_end"]:
+                        continue
+                    columns = block["columns"]
                     avg_cpu = parse_number(values.get(columns["cpu"]))
                     avg_mem = parse_number(values.get(columns["mem"]))
                     avg_npu = parse_number(values.get(columns["npu"]))
@@ -204,14 +257,10 @@ def convert_latency_xlsx(input_path: Path) -> dict[str, Any]:
                     if avg_cpu is None or avg_mem is None or avg_npu is None or e2e_ms is None:
                         continue
 
-                    block_context = current[block_index]
-                    if not block_context["task_type"] or not block_context["device_type"]:
-                        continue
-
                     records.append({
-                        "task_type": block_context["task_type"],
-                        "device_type": block_context["device_type"],
-                        "interval_ms": parse_number(values.get(columns.get("interval"))),
+                        "task_type": block["task_type"],
+                        "device_type": block["device_type"],
+                        "interval_ms": block["interval_ms"],
                         "avg_cpu_percent": avg_cpu,
                         "avg_mem_percent": avg_mem,
                         "avg_npu_percent": avg_npu,
@@ -221,7 +270,7 @@ def convert_latency_xlsx(input_path: Path) -> dict[str, Any]:
                             "file": input_path.name,
                             "sheet": sheet_name,
                             "row": row_index,
-                            "block": block_index + 1,
+                            "block": block["block"],
                         },
                     })
 

@@ -5,25 +5,25 @@
       "node_id": "ATLAS_H",
       "platform": "ATLAS_H",
       "online": true,
-      "cpu_used": 0.28218,
-      "mem_used": 0.60218,
-      "npu_used": 0.0,
+      "cpu_used": 0.41837,
+      "mem_used": 0.41733,
+      "npu_used": 0.82667,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
         "model": "MobileNet",
         "device_type": "ATLAS_H",
-        "e2e_ms": 1483.53,
-        "exec_ms": 39.88
+        "e2e_ms": 1225.998,
+        "exec_ms": 40.927
       }
     },
     {
       "node_id": "ATLAS_L",
       "platform": "ATLAS_L",
       "online": false,
-      "cpu_used": 0.19,
-      "mem_used": 0.434,
-      "npu_used": 0.89,
+      "cpu_used": 0.58,
+      "mem_used": 0.71701,
+      "npu_used": 0.0,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
