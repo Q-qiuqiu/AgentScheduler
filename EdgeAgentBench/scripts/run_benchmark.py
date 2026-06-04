@@ -11,10 +11,10 @@ BENCH_ROOT = Path(__file__).resolve().parents[1]
 CASE_DIR = BENCH_ROOT / "cases"
 STATIC_INFO_PATH = BENCH_ROOT.parent / "config_files" / "static_info.json"
 SCHEDULER_WEIGHTS = {
-    "base_latency_ms": 0.0008,
-    "cpu_after": 0.12,
-    "mem_after": 1.0,
-    "npu_after": 0.2,
+    "base_latency_ms": 0.0003,
+    "cpu_after": 0.01,
+    "mem_after": 2.0,
+    "npu_after": 0.8,
 }
 
 

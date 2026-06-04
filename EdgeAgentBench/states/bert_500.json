@@ -5,25 +5,25 @@
       "node_id": "ATLAS_H",
       "platform": "ATLAS_H",
       "online": true,
-      "cpu_used": 0.02,
-      "mem_used": 0.09805,
-      "npu_used": 0.61,
+      "cpu_used": 0.59113,
+      "mem_used": 0.61773,
+      "npu_used": 0.41,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
         "model": "Bert",
         "device_type": "ATLAS_H",
-        "e2e_ms": 6897.895,
-        "exec_ms": 97.513
+        "e2e_ms": 5250.644,
+        "exec_ms": 96.221
       }
     },
     {
       "node_id": "ATLAS_L",
       "platform": "ATLAS_L",
       "online": false,
-      "cpu_used": 0.39796,
-      "mem_used": 0.47908,
-      "npu_used": 0.95333,
+      "cpu_used": 0.71204,
+      "mem_used": 0.66972,
+      "npu_used": 0.94333,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {

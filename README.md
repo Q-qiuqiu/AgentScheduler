@@ -67,12 +67,12 @@ Agent 当前使用的 MCP 工具为：
 - prompt 要求大模型在所有在线且支持任务的候选中选择分数最小的开发板，分数公式为：
 
 ```text
-score = 8*base + 12*cpu + 20*npu + 100*mem
+score = 3*base + 1*cpu + 80*npu + 200*mem
 ```
 
-- 这个整数公式和离线 scheduler 的 `0.0008*base + 0.0012*cpu + 0.002*npu + 0.01*mem` 完全等价，只是整体乘以 10000，避免大模型在小数加权上不稳定。
-- 权重直接写在公式里告诉大模型：低负载端到端先验为 `8`，CPU 为 `12`，NPU 为 `20`，MEM 为 `100`。
-- 这组权重由 `EdgeAgentBench/scripts/optimize_scheduler_weights.py` 在当前 bench 上按平均 `predicted_ete_ms` 搜索得到；当前全量 12450 个 case 的搜索结果为 `average_predicted_ete_ms=8384.612`、`accuracy=0.9193`。
+- 这个整数公式和离线 scheduler 的 `0.0003*base + 0.01*cpu_ratio + 0.8*npu_ratio + 2.0*mem_ratio` 等价；Agent 上下文中的 `cpu`、`npu`、`mem` 是百分比，因此资源权重除以 100 后对应离线 ratio 权重。
+- 权重直接写在公式里告诉大模型：低负载端到端先验为 `3`，CPU 为 `1`，NPU 为 `80`，MEM 为 `200`。
+- 这组权重由 `EdgeAgentBench/scripts/optimize_scheduler_weights.py` 在当前 bench 上按平均 `predicted_ete_ms` 搜索得到；当前全量 12450 个 case 的 runner 复现结果为 `average_predicted_ete_ms=9592.809`、`accuracy=0.7443`。
 - `cpu`、`mem`、`npu` 直接使用当前资源百分比；bench 资源值已经是用于调度的状态，不再叠加任务 overhead。
 - 如果计算后的资源超过 100%，大模型也不能过滤候选；实际执行时可能通过内存回收或 CPU 共用继续运行。
 

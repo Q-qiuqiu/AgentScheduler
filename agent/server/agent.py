@@ -628,7 +628,7 @@ def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, static_
 def build_dispatch_context(selected_task_type, candidate_nodes):
     return {
         "task_type": selected_task_type,
-        "policy": "minimize 8*base_latency + 12*cpu + 20*npu + 100*mem",
+        "policy": "minimize 3*base_latency + 1*cpu + 80*npu + 200*mem",
         "columns": ["id", "base_latency", "cpu", "npu", "mem"],
         "nodes": [compact_dispatch_node(candidate) for candidate in candidate_nodes],
     }

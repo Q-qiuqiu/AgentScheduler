@@ -214,7 +214,7 @@ python3 EdgeAgentBench/scripts/run_benchmark.py --policy ground_truth --strict
 离线模拟优化后的 scheduler 资源打分逻辑，选择得分最低的节点：
 
 ```text
-0.0008 * base_latency_ms + 0.12 * cpu_after + 0.2 * npu_after + 1.0 * mem_after
+0.0003 * base_latency_ms + 0.01 * cpu_after + 0.8 * npu_after + 2.0 * mem_after
 ```
 
 其中 `cpu_after`、`mem_after`、`npu_after` 直接使用 case 中的当前资源比例值；bench 资源值已经是用于调度的状态，不再二次叠加任务 overhead。`base_latency_ms` 来自 `config_files/static_info.json` 的 `taskOverhead.base_latency_ms`，由 `update_static_base_latency.py` 从真实采样中选择 CPU/MEM/NPU 总占用最低的端到端时延写入。该组权重来自 `optimize_scheduler_weights.py` 的全量 bench 搜索，目标是降低平均 `predicted_ete_ms`。
@@ -277,18 +277,18 @@ python3 EdgeAgentBench/scripts/optimize_scheduler_weights.py \
 当前全量 bench 局部细化得到的 Agent 权重为：
 
 ```text
-rank_score = 8*base + 12*cpu + 20*npu + 100*mem
+rank_score = 3*base + 1*cpu + 80*npu + 200*mem
 ```
 
-这是离线小数权重整体乘以 10000 后的等价形式。Agent 上下文中的 `cpu`、`npu`、`mem` 是百分比，保留 3 位小数。
+这是离线权重换算到 Agent 百分比资源后的整数形式。Agent 上下文中的 `cpu`、`npu`、`mem` 是百分比，保留 3 位小数。
 
-对应 `EdgeAgentBench/results/weight_search_base_latency_results.summary.json` 中的全量结果：
+对应 `EdgeAgentBench/results/weight_search_refined.summary.json` 中的全量结果：
 
 ```text
 case_count=12450
-accuracy=0.9193
-average_predicted_ete_ms=8384.612
-average_latency_regret_ms=81.155
+accuracy=0.7443
+average_predicted_ete_ms=9592.809
+average_latency_regret_ms=1720.23
 ```
 
 ## 常用命令

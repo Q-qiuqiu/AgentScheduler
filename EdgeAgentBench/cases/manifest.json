@@ -5,9 +5,7 @@
   "states_per_model": 500,
   "offline_every": 5,
   "warm_every": 3,
-  "resource_aligned_models": [
-    "YoloV5"
-  ],
+  "resource_aligned_models": [],
   "align_max_attempts": 10000,
   "case_files": [
     "bert_001_q_txt_001.json",

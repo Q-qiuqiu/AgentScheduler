@@ -5,9 +5,9 @@
       "node_id": "ATLAS_H",
       "platform": "ATLAS_H",
       "online": false,
-      "cpu_used": 0.40704,
-      "mem_used": 0.72129,
-      "npu_used": 0.83667,
+      "cpu_used": 0.4,
+      "mem_used": 0.61765,
+      "npu_used": 0.21,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
@@ -21,16 +21,16 @@
       "node_id": "ATLAS_L",
       "platform": "ATLAS_L",
       "online": true,
-      "cpu_used": 0.2069,
-      "mem_used": 0.48945,
-      "npu_used": 0.89333,
+      "cpu_used": 0.000909,
+      "mem_used": 0.008808,
+      "npu_used": 0.0052,
       "network_latency": 1,
       "container_running": false,
       "latency_profile": {
         "model": "deeplabv3",
         "device_type": "ATLAS_L",
-        "e2e_ms": 53495.969,
-        "exec_ms": 796.78
+        "e2e_ms": 850.09,
+        "exec_ms": 808.1
       }
     }
   ]

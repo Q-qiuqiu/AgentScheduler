@@ -26,15 +26,15 @@ TASK_NAME_MAP = {
     "BERT": "Bert",
 }
 
-BLOCKS = [
-    ("A", "B", "C", "D", "E", "F", "G", "H"),
-    ("J", "K", "L", "M", "N", "O", "P", "Q"),
-    ("S", "T", "U", "V", "W", "X", "Y", "Z"),
-]
-
-
 def cell_column(ref: str) -> str:
     return re.match(r"([A-Z]+)", ref).group(1)
+
+
+def column_index(column: str) -> int:
+    result = 0
+    for char in column:
+        result = result * 26 + ord(char) - ord("A") + 1
+    return result
 
 
 def cell_value(cell: ET.Element, shared_strings: list[str]) -> Any:
@@ -68,6 +68,71 @@ def normalize_task_type(value: Any) -> str | None:
         return None
     text = str(value).strip()
     return TASK_NAME_MAP.get(text, text or None)
+
+
+def normalize_device_type(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    return text.replace("-", "_")
+
+
+def normalize_header(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def header_role(value: Any) -> str | None:
+    text = normalize_header(value)
+    if not text:
+        return None
+    if "模型" in text or text in {"model", "task", "task_type"}:
+        return "model"
+    if "开发板" in text or "device" in text or "board" in text:
+        return "device"
+    if "间隔" in text or "interval" in text:
+        return "interval"
+    if "cpu" in text:
+        return "cpu"
+    if "mem" in text or "内存" in text:
+        return "mem"
+    if "npu" in text or "xpu" in text:
+        return "npu"
+    if "端到端" in text or "e2e" in text or "ete" in text:
+        return "e2e"
+    if "执行" in text or "exec" in text:
+        return "exec"
+    return None
+
+
+def detect_blocks(header_values: dict[str, Any]) -> list[dict[str, str]]:
+    ordered = sorted(header_values, key=column_index)
+    model_columns = [
+        column
+        for column in ordered
+        if header_role(header_values.get(column)) == "model"
+    ]
+    blocks: list[dict[str, str]] = []
+    for index, model_column in enumerate(model_columns):
+        start = column_index(model_column)
+        end = (
+            column_index(model_columns[index + 1]) - 1
+            if index + 1 < len(model_columns)
+            else max(column_index(column) for column in ordered)
+        )
+        block: dict[str, str] = {}
+        for column, value in header_values.items():
+            column_number = column_index(column)
+            if column_number < start or column_number > end:
+                continue
+            role = header_role(value)
+            if role:
+                block[role] = column
+        required = {"model", "device", "cpu", "mem", "npu", "e2e"}
+        if required.issubset(block):
+            blocks.append(block)
+    return blocks
 
 
 def load_shared_strings(zip_file: zipfile.ZipFile) -> list[str]:
@@ -106,34 +171,36 @@ def convert_latency_xlsx(input_path: Path) -> dict[str, Any]:
         shared_strings = load_shared_strings(zip_file)
         for sheet_name, sheet_path in worksheet_paths(zip_file):
             root = ET.fromstring(zip_file.read(sheet_path))
-            current: dict[int, dict[str, str | None]] = {
-                index: {"task_type": None, "device_type": None}
-                for index in range(len(BLOCKS))
-            }
-
+            rows = []
             for row in root.findall("a:sheetData/a:row", NS):
-                row_index = int(row.attrib["r"])
-                if row_index == 1:
-                    continue
-
                 values = {}
                 for cell in row.findall("a:c", NS):
                     values[cell_column(cell.attrib["r"])] = cell_value(cell, shared_strings)
+                rows.append((int(row.attrib["r"]), values))
+            header_values = next((values for row_index, values in rows if row_index == 1), {})
+            blocks = detect_blocks(header_values)
+            current: dict[int, dict[str, str | None]] = {
+                index: {"task_type": None, "device_type": None}
+                for index in range(len(blocks))
+            }
 
-                for block_index, columns in enumerate(BLOCKS):
-                    model_col, device_col, interval_col, cpu_col, mem_col, npu_col, e2e_col, exec_col = columns
-                    task_type = normalize_task_type(values.get(model_col))
-                    device_type = values.get(device_col)
+            for row_index, values in rows:
+                if row_index == 1:
+                    continue
+
+                for block_index, columns in enumerate(blocks):
+                    task_type = normalize_task_type(values.get(columns["model"]))
+                    device_type = normalize_device_type(values.get(columns["device"]))
                     if task_type:
                         current[block_index]["task_type"] = task_type
                     if device_type:
-                        current[block_index]["device_type"] = str(device_type).strip()
+                        current[block_index]["device_type"] = device_type
 
-                    avg_cpu = parse_number(values.get(cpu_col))
-                    avg_mem = parse_number(values.get(mem_col))
-                    avg_npu = parse_number(values.get(npu_col))
-                    e2e_ms = parse_number(values.get(e2e_col))
-                    exec_ms = parse_number(values.get(exec_col))
+                    avg_cpu = parse_number(values.get(columns["cpu"]))
+                    avg_mem = parse_number(values.get(columns["mem"]))
+                    avg_npu = parse_number(values.get(columns["npu"]))
+                    e2e_ms = parse_number(values.get(columns["e2e"]))
+                    exec_ms = parse_number(values.get(columns.get("exec")))
                     if avg_cpu is None or avg_mem is None or avg_npu is None or e2e_ms is None:
                         continue
 
@@ -144,7 +211,7 @@ def convert_latency_xlsx(input_path: Path) -> dict[str, Any]:
                     records.append({
                         "task_type": block_context["task_type"],
                         "device_type": block_context["device_type"],
-                        "interval_ms": parse_number(values.get(interval_col)),
+                        "interval_ms": parse_number(values.get(columns.get("interval"))),
                         "avg_cpu_percent": avg_cpu,
                         "avg_mem_percent": avg_mem,
                         "avg_npu_percent": avg_npu,

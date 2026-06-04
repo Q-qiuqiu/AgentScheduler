@@ -20,7 +20,7 @@
         "mem_usage": 0.035,
         "cpu_usage": 0.05,
         "xpu_usage": 0.07,
-        "base_latency_ms": 171.624
+        "base_latency_ms": 4525.048
       }
     },
     "ATLAS_L": {
@@ -175,7 +175,7 @@
         "mem_usage": 0.015,
         "cpu_usage": 0.04,
         "xpu_usage": 0.01,
-        "base_latency_ms": 2935.7
+        "base_latency_ms": 33.05
       }
     },
     "ATLAS_L": {
@@ -240,7 +240,7 @@
         "mem_usage": 0.08,
         "cpu_usage": 0.2,
         "xpu_usage": 0.06,
-        "base_latency_ms": 3157.139
+        "base_latency_ms": 30.64
       }
     },
     "ATLAS_H": {
@@ -305,7 +305,7 @@
         "mem_usage": 0.02,
         "cpu_usage": 0.19,
         "xpu_usage": 0.03,
-        "base_latency_ms": 1567.781
+        "base_latency_ms": 24.51
       }
     }
   },
@@ -330,7 +330,7 @@
         "mem_usage": 0.045,
         "cpu_usage": 0.03,
         "xpu_usage": 0.06,
-        "base_latency_ms": 3849.363
+        "base_latency_ms": 62.99
       }
     },
     "ATLAS_L": {
@@ -395,7 +395,7 @@
         "mem_usage": 0.11,
         "cpu_usage": 0.19,
         "xpu_usage": 0.2,
-        "base_latency_ms": 6860.208
+        "base_latency_ms": 53.24
       }
     },
     "ATLAS_H": {
@@ -460,7 +460,7 @@
         "mem_usage": 0.02,
         "cpu_usage": 0.19,
         "xpu_usage": 0.08,
-        "base_latency_ms": 4187.971
+        "base_latency_ms": 56.08
       }
     }
   },
@@ -527,7 +527,7 @@
         "mem_usage": 0.14,
         "cpu_usage": 0.03,
         "xpu_usage": 0.44,
-        "base_latency_ms": 10110.44
+        "base_latency_ms": 154.03
       }
     },
     "ATLAS_H": {
@@ -592,7 +592,7 @@
         "mem_usage": 0.04,
         "cpu_usage": 0.06,
         "xpu_usage": 0.42,
-        "base_latency_ms": 4379.043
+        "base_latency_ms": 62.36
       }
     }
   },
@@ -659,7 +659,7 @@
         "mem_usage": 0.16,
         "cpu_usage": 0.06,
         "xpu_usage": 0.52,
-        "base_latency_ms": 51688.653
+        "base_latency_ms": 846.25
       }
     },
     "ATLAS_H": {
@@ -724,7 +724,7 @@
         "mem_usage": 0.04,
         "cpu_usage": 0.06,
         "xpu_usage": 0.43,
-        "base_latency_ms": 26153.898
+        "base_latency_ms": 1127.1
       }
     }
   },
