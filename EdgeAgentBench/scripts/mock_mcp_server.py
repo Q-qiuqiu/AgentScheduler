@@ -13,6 +13,12 @@ REPO_ROOT = BENCH_ROOT.parent
 DEFAULT_CASE_SERVER_URL = "http://127.0.0.1:18082"
 AGENT_INFO_PATH = REPO_ROOT / "config_files" / "agent_info.json"
 STATIC_INFO_PATH = REPO_ROOT / "config_files" / "static_info.json"
+SCHEDULER_WEIGHTS = {
+    "base_latency_ms": 0.0003,
+    "cpu_after": 0.01,
+    "mem_after": 2.0,
+    "npu_after": 0.8,
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -147,6 +153,132 @@ def get_dispatch_snapshot(arguments: dict[str, Any] | None = None) -> dict[str, 
     }
 
 
+def merge_constraints(case_constraints: dict[str, Any] | None, arguments: dict[str, Any]) -> dict[str, Any]:
+    case_constraints = case_constraints or {}
+    excluded = set(case_constraints.get("exclude_nodes", []))
+    excluded.update(arguments.get("exclude_nodes", []) or [])
+    require_nodes = set(case_constraints.get("require_nodes", []))
+    require_nodes.update(arguments.get("require_nodes", []) or [])
+    require_node = arguments.get("require_node") or case_constraints.get("require_node")
+    return {
+        "exclude_nodes": sorted(excluded),
+        "require_node": require_node,
+        "require_nodes": sorted(require_nodes),
+    }
+
+
+def is_excluded(node: dict[str, Any], constraints: dict[str, Any]) -> bool:
+    excluded = set((constraints or {}).get("exclude_nodes", []))
+    return node.get("node_id") in excluded or node.get("platform") in excluded
+
+
+def is_required(node: dict[str, Any], constraints: dict[str, Any]) -> bool:
+    required = set((constraints or {}).get("require_nodes", []))
+    require_node = (constraints or {}).get("require_node")
+    if require_node:
+        required.add(require_node)
+    if not required:
+        return True
+    return node.get("node_id") in required or node.get("platform") in required
+
+
+def static_base_latency_ms(static_info: dict[str, Any], task_type: str, device_type: str | None) -> float:
+    task_entry = static_info.get(task_type, {}) if isinstance(static_info, dict) else {}
+    device_entry = task_entry.get(device_type, {}) if isinstance(task_entry, dict) else {}
+    overhead = device_entry.get("taskOverhead", {}) if isinstance(device_entry, dict) else {}
+    value = overhead.get("base_latency_ms")
+    return float(value) if isinstance(value, (int, float)) else 0.0
+
+
+def schedule_candidates(case: dict[str, Any], arguments: dict[str, Any]) -> list[dict[str, Any]]:
+    task_type = arguments.get("task_type")
+    if not task_type:
+        raise RuntimeError("task_type is required")
+    static_info = load_json(STATIC_INFO_PATH)
+    supported = set(static_info.get(task_type, {}).keys())
+    constraints = merge_constraints(case.get("constraints", {}), arguments)
+    candidates = []
+    for node in case.get("nodes", []):
+        if not node.get("online", False):
+            continue
+        if node.get("latency_profile", {}).get("model") != task_type:
+            continue
+        if supported and node.get("platform") not in supported:
+            continue
+        if is_excluded(node, constraints) or not is_required(node, constraints):
+            continue
+        e2e_ms = node.get("latency_profile", {}).get("e2e_ms")
+        if not isinstance(e2e_ms, (int, float)) or e2e_ms < 0:
+            continue
+        candidates.append({
+            "node": node,
+            "detail": {
+                "target_global_id": node.get("node_id"),
+                "device_type": node.get("platform"),
+                "base_latency_ms": round(static_base_latency_ms(static_info, task_type, node.get("platform")), 3),
+                "cpu_after": round(float(node.get("cpu_used", 1)), 6),
+                "mem_after": round(float(node.get("mem_used", 1)), 6),
+                "npu_after": round(float(node.get("npu_used", 1)), 6),
+                "container_running": bool(node.get("container_running", False)),
+                "cold_start": not bool(node.get("container_running", False)),
+                "e2e_ms": e2e_ms,
+            },
+        })
+    return candidates
+
+
+def select_scheduled_candidate(candidates: list[dict[str, Any]], policy: str) -> dict[str, Any]:
+    if not candidates:
+        raise RuntimeError("no candidate nodes available for schedule_on_node")
+    policy = (policy or "scheduler").strip()
+    ranked = []
+    for item in candidates:
+        node = item["node"]
+        detail = item["detail"]
+        node_id = node.get("node_id", "")
+        avg_load = round((detail["cpu_after"] + detail["mem_after"] + detail["npu_after"]) / 3, 6)
+        if policy == "ground_truth":
+            score = detail["e2e_ms"]
+            sort_key = (score, node_id)
+        elif policy == "scheduler":
+            score = round(
+                SCHEDULER_WEIGHTS["base_latency_ms"] * detail["base_latency_ms"]
+                + SCHEDULER_WEIGHTS["cpu_after"] * detail["cpu_after"]
+                + SCHEDULER_WEIGHTS["npu_after"] * detail["npu_after"]
+                + SCHEDULER_WEIGHTS["mem_after"] * detail["mem_after"],
+                6,
+            )
+            sort_key = (score, node_id)
+        elif policy == "resource_average":
+            score = avg_load
+            sort_key = (score, node_id)
+        elif policy == "cpu_min":
+            score = detail["cpu_after"]
+            sort_key = (score, node_id)
+        elif policy == "npu_min":
+            score = detail["npu_after"]
+            sort_key = (score, node_id)
+        elif policy == "mem_min":
+            score = detail["mem_after"]
+            sort_key = (score, node_id)
+        elif policy == "container_first":
+            score = avg_load
+            sort_key = (1 if detail["cold_start"] else 0, score, node_id)
+        else:
+            raise RuntimeError(f"unsupported schedule_on_node policy: {policy}")
+        ranked.append((sort_key, score, item))
+    ranked.sort(key=lambda item: item[0])
+    _, score, selected = ranked[0]
+    return {
+        "policy": policy,
+        "target_global_id": selected["node"].get("node_id"),
+        "device_type": selected["node"].get("platform"),
+        "score": score,
+        "eligible_nodes": [item[2]["node"].get("node_id") for item in ranked],
+        "detail": selected["detail"],
+    }
+
+
 def run_task_on_node(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
     arguments = arguments or {}
     target_global_id = arguments.get("target_global_id")
@@ -170,6 +302,28 @@ def run_task_on_node(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
     }
 
 
+def schedule_on_node(arguments: dict[str, Any] | None = None) -> dict[str, Any]:
+    arguments = arguments or {}
+    case = load_current_case()
+    selection = select_scheduled_candidate(
+        schedule_candidates(case, arguments),
+        arguments.get("policy", "scheduler"),
+    )
+    run_result = run_task_on_node({
+        **arguments,
+        "target_global_id": selection["target_global_id"],
+    })
+    return {
+        **run_result,
+        "schedule_policy": selection["policy"],
+        "scheduled_target_global_id": selection["target_global_id"],
+        "scheduled_device_type": selection["device_type"],
+        "schedule_score": selection["score"],
+        "eligible_nodes": selection["eligible_nodes"],
+        "schedule_detail": selection["detail"],
+    }
+
+
 def handle_tools_list(request_id: Any) -> dict[str, Any]:
     return make_response(
         request_id,
@@ -184,6 +338,31 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                         "properties": {
                             "available_device_types": {"type": "array", "items": {"type": "string"}}
                         },
+                    },
+                },
+                {
+                    "name": "schedule_on_node",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "task_type": {"type": "string"},
+                            "policy": {
+                                "type": "string",
+                                "enum": [
+                                    "ground_truth",
+                                    "scheduler",
+                                    "resource_average",
+                                    "cpu_min",
+                                    "npu_min",
+                                    "mem_min",
+                                    "container_first",
+                                ],
+                            },
+                            "exclude_nodes": {"type": "array", "items": {"type": "string"}},
+                            "require_node": {"type": "string"},
+                            "require_nodes": {"type": "array", "items": {"type": "string"}},
+                        },
+                        "required": ["task_type", "policy"],
                     },
                 },
                 {
@@ -214,6 +393,8 @@ def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]
             return tool_response_text(get_task_catalog(arguments), request_id)
         if name == "run_task_on_node":
             return tool_response_text(run_task_on_node(arguments), request_id)
+        if name == "schedule_on_node":
+            return tool_response_text(schedule_on_node(arguments), request_id)
         return make_error(request_id, -32602, f"unknown tool: {name}")
     except RuntimeError as exc:
         return tool_response_error(str(exc), request_id)

@@ -2974,7 +2974,7 @@
     "deeplabv3": {
       "ATLAS_H": [
         {
-          "timestamp_ms": 1780571310587,
+          "timestamp_ms": 1780575156015,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -2986,7 +2986,7 @@
           "ete_ms": 26153.898
         },
         {
-          "timestamp_ms": 1780571329226,
+          "timestamp_ms": 1780575175157,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -2998,7 +2998,7 @@
           "ete_ms": 23916.518
         },
         {
-          "timestamp_ms": 1780571348080,
+          "timestamp_ms": 1780575194149,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3010,7 +3010,7 @@
           "ete_ms": 27832.655
         },
         {
-          "timestamp_ms": 1780571366685,
+          "timestamp_ms": 1780575212763,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3022,7 +3022,7 @@
           "ete_ms": 27333.772
         },
         {
-          "timestamp_ms": 1780571387524,
+          "timestamp_ms": 1780575233877,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3034,7 +3034,7 @@
           "ete_ms": 27410.1
         },
         {
-          "timestamp_ms": 1780571406530,
+          "timestamp_ms": 1780575253041,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3046,7 +3046,7 @@
           "ete_ms": 26658.109
         },
         {
-          "timestamp_ms": 1780571424928,
+          "timestamp_ms": 1780575271901,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3058,7 +3058,7 @@
           "ete_ms": 25428.753
         },
         {
-          "timestamp_ms": 1780571443113,
+          "timestamp_ms": 1780575290405,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3070,7 +3070,7 @@
           "ete_ms": 27904.884
         },
         {
-          "timestamp_ms": 1780569501598,
+          "timestamp_ms": 1780573366130,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3082,7 +3082,7 @@
           "ete_ms": 26159.258
         },
         {
-          "timestamp_ms": 1780571463354,
+          "timestamp_ms": 1780575310708,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3094,7 +3094,7 @@
           "ete_ms": 27795.08
         },
         {
-          "timestamp_ms": 1780571482262,
+          "timestamp_ms": 1780575329365,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3106,7 +3106,7 @@
           "ete_ms": 26528.569
         },
         {
-          "timestamp_ms": 1780571501710,
+          "timestamp_ms": 1780575348781,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3118,7 +3118,7 @@
           "ete_ms": 26012.174
         },
         {
-          "timestamp_ms": 1780571520575,
+          "timestamp_ms": 1780575367623,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3130,7 +3130,7 @@
           "ete_ms": 25986.546
         },
         {
-          "timestamp_ms": 1780571541207,
+          "timestamp_ms": 1780575389096,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3142,7 +3142,7 @@
           "ete_ms": 26978.912
         },
         {
-          "timestamp_ms": 1780571559892,
+          "timestamp_ms": 1780575407916,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3154,7 +3154,7 @@
           "ete_ms": 25333.976
         },
         {
-          "timestamp_ms": 1780571578674,
+          "timestamp_ms": 1780575426770,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3166,7 +3166,7 @@
           "ete_ms": 26994.507
         },
         {
-          "timestamp_ms": 1780571597785,
+          "timestamp_ms": 1780575445393,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3178,7 +3178,7 @@
           "ete_ms": 24305.942
         },
         {
-          "timestamp_ms": 1780569657387,
+          "timestamp_ms": 1780573520099,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3190,7 +3190,7 @@
           "ete_ms": 27000.426
         },
         {
-          "timestamp_ms": 1780571618082,
+          "timestamp_ms": 1780575465604,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3202,7 +3202,7 @@
           "ete_ms": 27572.055
         },
         {
-          "timestamp_ms": 1780571636542,
+          "timestamp_ms": 1780575484601,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3214,7 +3214,7 @@
           "ete_ms": 27159.73
         },
         {
-          "timestamp_ms": 1780571655706,
+          "timestamp_ms": 1780575503230,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3226,7 +3226,7 @@
           "ete_ms": 24975.674
         },
         {
-          "timestamp_ms": 1780571674447,
+          "timestamp_ms": 1780575521841,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3238,7 +3238,7 @@
           "ete_ms": 27493.372
         },
         {
-          "timestamp_ms": 1780571694863,
+          "timestamp_ms": 1780575542674,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3250,7 +3250,7 @@
           "ete_ms": 26623.327
         },
         {
-          "timestamp_ms": 1780571713488,
+          "timestamp_ms": 1780575561377,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3262,7 +3262,7 @@
           "ete_ms": 26130.387
         },
         {
-          "timestamp_ms": 1780571728648,
+          "timestamp_ms": 1780575580255,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3274,7 +3274,7 @@
           "ete_ms": 27525.919
         },
         {
-          "timestamp_ms": 1780569809896,
+          "timestamp_ms": 1780575599281,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3286,7 +3286,7 @@
           "ete_ms": 26966.304
         },
         {
-          "timestamp_ms": 1780569812272,
+          "timestamp_ms": 1780573673832,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3298,7 +3298,7 @@
           "ete_ms": 24991.594
         },
         {
-          "timestamp_ms": 1780569831784,
+          "timestamp_ms": 1780575619932,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3310,7 +3310,7 @@
           "ete_ms": 24821.239
         },
         {
-          "timestamp_ms": 1780569850551,
+          "timestamp_ms": 1780575639138,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3322,7 +3322,7 @@
           "ete_ms": 24299.182
         },
         {
-          "timestamp_ms": 1780569869437,
+          "timestamp_ms": 1780575657693,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3334,7 +3334,7 @@
           "ete_ms": 26995.959
         },
         {
-          "timestamp_ms": 1780569888568,
+          "timestamp_ms": 1780575676277,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3346,7 +3346,7 @@
           "ete_ms": 26336.523
         },
         {
-          "timestamp_ms": 1780569909692,
+          "timestamp_ms": 1780575697649,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3358,7 +3358,7 @@
           "ete_ms": 26319.642
         },
         {
-          "timestamp_ms": 1780569929475,
+          "timestamp_ms": 1780575715996,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3370,7 +3370,7 @@
           "ete_ms": 27621.158
         },
         {
-          "timestamp_ms": 1780569948623,
+          "timestamp_ms": 1780575734705,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3382,7 +3382,7 @@
           "ete_ms": 28164.991
         },
         {
-          "timestamp_ms": 1780569967432,
+          "timestamp_ms": 1780575753232,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3394,7 +3394,7 @@
           "ete_ms": 25864.865
         },
         {
-          "timestamp_ms": 1780569969774,
+          "timestamp_ms": 1780573827646,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3406,7 +3406,7 @@
           "ete_ms": 27037.527
         },
         {
-          "timestamp_ms": 1780569988458,
+          "timestamp_ms": 1780575773821,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3418,7 +3418,7 @@
           "ete_ms": 26864.522
         },
         {
-          "timestamp_ms": 1780570007200,
+          "timestamp_ms": 1780575792327,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3430,7 +3430,7 @@
           "ete_ms": 26437.435
         },
         {
-          "timestamp_ms": 1780570026384,
+          "timestamp_ms": 1780575810964,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3442,7 +3442,7 @@
           "ete_ms": 25839.782
         },
         {
-          "timestamp_ms": 1780570045465,
+          "timestamp_ms": 1780575829593,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3454,7 +3454,7 @@
           "ete_ms": 27224.796
         },
         {
-          "timestamp_ms": 1780570065574,
+          "timestamp_ms": 1780575850242,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3466,7 +3466,7 @@
           "ete_ms": 26620.794
         },
         {
-          "timestamp_ms": 1780570084243,
+          "timestamp_ms": 1780575868930,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3478,7 +3478,7 @@
           "ete_ms": 28446.487
         },
         {
-          "timestamp_ms": 1780570103009,
+          "timestamp_ms": 1780575887438,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3490,7 +3490,7 @@
           "ete_ms": 27213.07
         },
         {
-          "timestamp_ms": 1780570121903,
+          "timestamp_ms": 1780575906401,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3502,7 +3502,7 @@
           "ete_ms": 27375.247
         },
         {
-          "timestamp_ms": 1780570124130,
+          "timestamp_ms": 1780573980866,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3514,7 +3514,7 @@
           "ete_ms": 27070.659
         },
         {
-          "timestamp_ms": 1780570142577,
+          "timestamp_ms": 1780575927262,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3526,7 +3526,7 @@
           "ete_ms": 26937.347
         },
         {
-          "timestamp_ms": 1780570161705,
+          "timestamp_ms": 1780575946017,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3538,7 +3538,7 @@
           "ete_ms": 27112.441
         },
         {
-          "timestamp_ms": 1780570180258,
+          "timestamp_ms": 1780575964557,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3550,7 +3550,7 @@
           "ete_ms": 26249.699
         },
         {
-          "timestamp_ms": 1780570199235,
+          "timestamp_ms": 1780575983162,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3562,7 +3562,7 @@
           "ete_ms": 26471.513
         },
         {
-          "timestamp_ms": 1780570219835,
+          "timestamp_ms": 1780576003976,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3574,7 +3574,7 @@
           "ete_ms": 26477.17
         },
         {
-          "timestamp_ms": 1780570239339,
+          "timestamp_ms": 1780576023041,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3586,7 +3586,7 @@
           "ete_ms": 25140.861
         },
         {
-          "timestamp_ms": 1780570258361,
+          "timestamp_ms": 1780576042114,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3598,7 +3598,7 @@
           "ete_ms": 25108.605
         },
         {
-          "timestamp_ms": 1780570277348,
+          "timestamp_ms": 1780576060840,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3610,7 +3610,7 @@
           "ete_ms": 26622.183
         },
         {
-          "timestamp_ms": 1780570279804,
+          "timestamp_ms": 1780574135240,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3622,7 +3622,7 @@
           "ete_ms": 25115.104
         },
         {
-          "timestamp_ms": 1780570298610,
+          "timestamp_ms": 1780576081311,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3634,7 +3634,7 @@
           "ete_ms": 27969.446
         },
         {
-          "timestamp_ms": 1780570317694,
+          "timestamp_ms": 1780576100092,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3646,7 +3646,7 @@
           "ete_ms": 28637.898
         },
         {
-          "timestamp_ms": 1780570336491,
+          "timestamp_ms": 1780576119126,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3658,7 +3658,7 @@
           "ete_ms": 27044.622
         },
         {
-          "timestamp_ms": 1780570355876,
+          "timestamp_ms": 1780576137887,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3670,7 +3670,7 @@
           "ete_ms": 27164.46
         },
         {
-          "timestamp_ms": 1780570376834,
+          "timestamp_ms": 1780576158721,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3682,7 +3682,7 @@
           "ete_ms": 23637.379
         },
         {
-          "timestamp_ms": 1780570396150,
+          "timestamp_ms": 1780576177069,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3694,7 +3694,7 @@
           "ete_ms": 26628.756
         },
         {
-          "timestamp_ms": 1780570415473,
+          "timestamp_ms": 1780576195668,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3706,7 +3706,7 @@
           "ete_ms": 24289.512
         },
         {
-          "timestamp_ms": 1780570434463,
+          "timestamp_ms": 1780576214567,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3718,7 +3718,7 @@
           "ete_ms": 27522.29
         },
         {
-          "timestamp_ms": 1780570436659,
+          "timestamp_ms": 1780574290092,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3730,7 +3730,7 @@
           "ete_ms": 26985.159
         },
         {
-          "timestamp_ms": 1780570455211,
+          "timestamp_ms": 1780576235414,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3742,7 +3742,7 @@
           "ete_ms": 28154.77
         },
         {
-          "timestamp_ms": 1780570474558,
+          "timestamp_ms": 1780576253939,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3754,7 +3754,7 @@
           "ete_ms": 25723.667
         },
         {
-          "timestamp_ms": 1780570493519,
+          "timestamp_ms": 1780576272927,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3766,7 +3766,7 @@
           "ete_ms": 27307.551
         },
         {
-          "timestamp_ms": 1780570512326,
+          "timestamp_ms": 1780576291987,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3778,7 +3778,7 @@
           "ete_ms": 26848.887
         },
         {
-          "timestamp_ms": 1780570532377,
+          "timestamp_ms": 1780576313926,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3790,7 +3790,7 @@
           "ete_ms": 25870.172
         },
         {
-          "timestamp_ms": 1780570551204,
+          "timestamp_ms": 1780576333064,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3802,7 +3802,7 @@
           "ete_ms": 26526.756
         },
         {
-          "timestamp_ms": 1780570570189,
+          "timestamp_ms": 1780576352011,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3814,7 +3814,7 @@
           "ete_ms": 27892.312
         },
         {
-          "timestamp_ms": 1780570589474,
+          "timestamp_ms": 1780576370867,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3826,7 +3826,7 @@
           "ete_ms": 27600.438
         },
         {
-          "timestamp_ms": 1780570591732,
+          "timestamp_ms": 1780574444126,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3838,7 +3838,7 @@
           "ete_ms": 26496.36
         },
         {
-          "timestamp_ms": 1780570610366,
+          "timestamp_ms": 1780576391910,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3850,7 +3850,7 @@
           "ete_ms": 27964.575
         },
         {
-          "timestamp_ms": 1780570629500,
+          "timestamp_ms": 1780576410655,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3862,7 +3862,7 @@
           "ete_ms": 26475.89
         },
         {
-          "timestamp_ms": 1780570648742,
+          "timestamp_ms": 1780576429147,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3874,7 +3874,7 @@
           "ete_ms": 26570.345
         },
         {
-          "timestamp_ms": 1780570667710,
+          "timestamp_ms": 1780576447610,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3886,7 +3886,7 @@
           "ete_ms": 26484.055
         },
         {
-          "timestamp_ms": 1780570688815,
+          "timestamp_ms": 1780576468294,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3898,7 +3898,7 @@
           "ete_ms": 25342.642
         },
         {
-          "timestamp_ms": 1780570707422,
+          "timestamp_ms": 1780576487336,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3910,7 +3910,7 @@
           "ete_ms": 26081.408
         },
         {
-          "timestamp_ms": 1780570726422,
+          "timestamp_ms": 1780576505846,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3922,7 +3922,7 @@
           "ete_ms": 26195.607
         },
         {
-          "timestamp_ms": 1780570745338,
+          "timestamp_ms": 1780576524718,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3934,7 +3934,7 @@
           "ete_ms": 26230.768
         },
         {
-          "timestamp_ms": 1780570747663,
+          "timestamp_ms": 1780574598685,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3946,7 +3946,7 @@
           "ete_ms": 26672.826
         },
         {
-          "timestamp_ms": 1780570766915,
+          "timestamp_ms": 1780576545444,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3958,7 +3958,7 @@
           "ete_ms": 27192.226
         },
         {
-          "timestamp_ms": 1780570785547,
+          "timestamp_ms": 1780576564454,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3970,7 +3970,7 @@
           "ete_ms": 26932.81
         },
         {
-          "timestamp_ms": 1780570804649,
+          "timestamp_ms": 1780576583201,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3982,7 +3982,7 @@
           "ete_ms": 26388.238
         },
         {
-          "timestamp_ms": 1780570823918,
+          "timestamp_ms": 1780576602337,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -3994,7 +3994,7 @@
           "ete_ms": 27120.281
         },
         {
-          "timestamp_ms": 1780570845255,
+          "timestamp_ms": 1780576623296,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4006,7 +4006,7 @@
           "ete_ms": 26966.686
         },
         {
-          "timestamp_ms": 1780570864642,
+          "timestamp_ms": 1780576642317,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4018,7 +4018,7 @@
           "ete_ms": 27866.883
         },
         {
-          "timestamp_ms": 1780570883436,
+          "timestamp_ms": 1780576661503,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4030,7 +4030,7 @@
           "ete_ms": 27757.221
         },
         {
-          "timestamp_ms": 1780570902110,
+          "timestamp_ms": 1780576680097,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4042,7 +4042,7 @@
           "ete_ms": 26870.391
         },
         {
-          "timestamp_ms": 1780570904618,
+          "timestamp_ms": 1780574752542,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4054,7 +4054,7 @@
           "ete_ms": 26585.383
         },
         {
-          "timestamp_ms": 1780570923368,
+          "timestamp_ms": 1780576700989,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4066,7 +4066,7 @@
           "ete_ms": 27381.01
         },
         {
-          "timestamp_ms": 1780570942045,
+          "timestamp_ms": 1780576719934,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4078,7 +4078,7 @@
           "ete_ms": 27823.944
         },
         {
-          "timestamp_ms": 1780570960614,
+          "timestamp_ms": 1780576738778,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4090,7 +4090,7 @@
           "ete_ms": 27714.42
         },
         {
-          "timestamp_ms": 1780570979303,
+          "timestamp_ms": 1780576757690,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4102,7 +4102,7 @@
           "ete_ms": 26908.232
         },
         {
-          "timestamp_ms": 1780571000122,
+          "timestamp_ms": 1780576778653,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4114,7 +4114,7 @@
           "ete_ms": 27287.882
         },
         {
-          "timestamp_ms": 1780571018512,
+          "timestamp_ms": 1780576797418,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4126,7 +4126,7 @@
           "ete_ms": 27746.16
         },
         {
-          "timestamp_ms": 1780571037199,
+          "timestamp_ms": 1780576816214,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4138,7 +4138,7 @@
           "ete_ms": 27565.266
         },
         {
-          "timestamp_ms": 1780571056553,
+          "timestamp_ms": 1780576835287,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4150,7 +4150,7 @@
           "ete_ms": 26968.467
         },
         {
-          "timestamp_ms": 1780571058774,
+          "timestamp_ms": 1780574906293,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4162,7 +4162,7 @@
           "ete_ms": 27459.677
         },
         {
-          "timestamp_ms": 1780571078056,
+          "timestamp_ms": 1780576855760,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4174,7 +4174,7 @@
           "ete_ms": 26218.853
         },
         {
-          "timestamp_ms": 1780571097030,
+          "timestamp_ms": 1780576875201,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4186,7 +4186,7 @@
           "ete_ms": 26819.48
         },
         {
-          "timestamp_ms": 1780571115519,
+          "timestamp_ms": 1780576893719,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4198,7 +4198,7 @@
           "ete_ms": 25744.861
         },
         {
-          "timestamp_ms": 1780571134433,
+          "timestamp_ms": 1780576912390,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4210,7 +4210,7 @@
           "ete_ms": 26726.923
         },
         {
-          "timestamp_ms": 1780571155862,
+          "timestamp_ms": 1780576933406,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4222,7 +4222,7 @@
           "ete_ms": 28121.888
         },
         {
-          "timestamp_ms": 1780571175155,
+          "timestamp_ms": 1780576952144,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4234,7 +4234,7 @@
           "ete_ms": 27870.123
         },
         {
-          "timestamp_ms": 1780571194226,
+          "timestamp_ms": 1780576971089,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4246,7 +4246,7 @@
           "ete_ms": 28216.765
         },
         {
-          "timestamp_ms": 1780571213428,
+          "timestamp_ms": 1780576989926,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4258,7 +4258,7 @@
           "ete_ms": 27642.814
         },
         {
-          "timestamp_ms": 1780571215640,
+          "timestamp_ms": 1780575060805,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4270,7 +4270,7 @@
           "ete_ms": 25806.098
         },
         {
-          "timestamp_ms": 1780571234157,
+          "timestamp_ms": 1780577010570,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4282,7 +4282,7 @@
           "ete_ms": 26921.406
         },
         {
-          "timestamp_ms": 1780571252700,
+          "timestamp_ms": 1780577029251,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4294,7 +4294,7 @@
           "ete_ms": 26600.712
         },
         {
-          "timestamp_ms": 1780571271404,
+          "timestamp_ms": 1780577047991,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4306,7 +4306,7 @@
           "ete_ms": 26984.406
         },
         {
-          "timestamp_ms": 1780571290144,
+          "timestamp_ms": 1780577066545,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4318,7 +4318,7 @@
           "ete_ms": 25637.24
         },
         {
-          "timestamp_ms": 1780571368946,
+          "timestamp_ms": 1780575214912,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4330,7 +4330,7 @@
           "ete_ms": 27479.186
         },
         {
-          "timestamp_ms": 1780571522765,
+          "timestamp_ms": 1780575369878,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4342,7 +4342,7 @@
           "ete_ms": 25209.085
         },
         {
-          "timestamp_ms": 1780571676672,
+          "timestamp_ms": 1780575523987,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4354,7 +4354,7 @@
           "ete_ms": 26775.076
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575678610,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4366,7 +4366,7 @@
           "ete_ms": 26300.251
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575831700,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4378,7 +4378,7 @@
           "ete_ms": 25471.183
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575985256,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4390,7 +4390,7 @@
           "ete_ms": 26570.568
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576140101,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4402,7 +4402,7 @@
           "ete_ms": 27928.321
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576294191,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4414,7 +4414,7 @@
           "ete_ms": 25587.641
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576449796,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4426,7 +4426,7 @@
           "ete_ms": 25832.218
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576604662,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4438,7 +4438,7 @@
           "ete_ms": 25013.589
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576759844,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4450,7 +4450,7 @@
           "ete_ms": 25662.095
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576914571,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4462,7 +4462,7 @@
           "ete_ms": 25642.075
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780577068509,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -4500,7 +4500,7 @@
           "ete_ms": 52667.668
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576991763,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4536,7 +4536,7 @@
           "ete_ms": 51029.941
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575137714,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4572,7 +4572,7 @@
           "ete_ms": 53248.981
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780573289116,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4644,7 +4644,7 @@
           "ete_ms": 55949.674
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575292082,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4680,7 +4680,7 @@
           "ete_ms": 53568.233
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780573443162,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4752,7 +4752,7 @@
           "ete_ms": 53050.745
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575447267,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4788,7 +4788,7 @@
           "ete_ms": 51192.229
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780573596065,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4812,7 +4812,7 @@
           "ete_ms": 49049.649
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780571752947,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4860,7 +4860,7 @@
           "ete_ms": 53702.424
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575601015,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4896,7 +4896,7 @@
           "ete_ms": 53217.587
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780573751412,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4920,7 +4920,7 @@
           "ete_ms": 55896.197
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780571906912,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -4968,7 +4968,7 @@
           "ete_ms": 52519.023
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575754959,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5004,7 +5004,7 @@
           "ete_ms": 55860.476
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780573903937,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5028,7 +5028,7 @@
           "ete_ms": 53485.841
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780572060168,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5076,7 +5076,7 @@
           "ete_ms": 56236.481
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780575908166,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5112,7 +5112,7 @@
           "ete_ms": 52877.365
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780574057309,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5136,7 +5136,7 @@
           "ete_ms": 55498.758
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780572214008,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5184,7 +5184,7 @@
           "ete_ms": 55879.166
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576062606,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5220,7 +5220,7 @@
           "ete_ms": 55098.764
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780574212604,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5244,7 +5244,7 @@
           "ete_ms": 53762.526
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780572368207,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5292,7 +5292,7 @@
           "ete_ms": 53495.969
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576216484,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5328,7 +5328,7 @@
           "ete_ms": 50926.98
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780574366320,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5352,7 +5352,7 @@
           "ete_ms": 51865.591
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780572522626,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5400,7 +5400,7 @@
           "ete_ms": 54188.439
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576372779,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5436,7 +5436,7 @@
           "ete_ms": 53713.959
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780574521112,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5460,7 +5460,7 @@
           "ete_ms": 53670.59
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780572676203,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5508,7 +5508,7 @@
           "ete_ms": 53239.869
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576526542,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5544,7 +5544,7 @@
           "ete_ms": 54985.095
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780574674899,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5568,7 +5568,7 @@
           "ete_ms": 52986.649
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780572828743,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5616,7 +5616,7 @@
           "ete_ms": 52164.789
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576681760,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5652,7 +5652,7 @@
           "ete_ms": 49196.527
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780574829305,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5676,7 +5676,7 @@
           "ete_ms": 53409.729
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780572983006,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5724,7 +5724,7 @@
           "ete_ms": 55411.387
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780576837063,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5760,7 +5760,7 @@
           "ete_ms": 51503.642
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780574983068,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5784,7 +5784,7 @@
           "ete_ms": 52303.398
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780573135967,
           "task_type": "deeplabv3",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -5956,7 +5956,7 @@
     "MobileNet": {
       "ATLAS_H": [
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584136680,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -5968,7 +5968,7 @@
           "ete_ms": 1567.781
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584153517,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -5980,7 +5980,7 @@
           "ete_ms": 1586.47
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584170496,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -5992,7 +5992,7 @@
           "ete_ms": 1516.476
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584187460,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6004,7 +6004,7 @@
           "ete_ms": 1533.314
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584220638,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6016,7 +6016,7 @@
           "ete_ms": 1418.062
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584237932,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6028,7 +6028,7 @@
           "ete_ms": 1337.512
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584254848,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6040,7 +6040,7 @@
           "ete_ms": 1387.895
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584272263,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6052,7 +6052,7 @@
           "ete_ms": 1449.758
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584288763,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6064,7 +6064,7 @@
           "ete_ms": 1412.388
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584305746,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6076,7 +6076,7 @@
           "ete_ms": 1488.61
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584323066,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6088,7 +6088,7 @@
           "ete_ms": 1439.237
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584340137,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6100,7 +6100,7 @@
           "ete_ms": 1351.287
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584356895,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6112,7 +6112,7 @@
           "ete_ms": 1401.776
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584373837,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6124,7 +6124,7 @@
           "ete_ms": 1444.375
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584391154,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6136,7 +6136,7 @@
           "ete_ms": 1515.656
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584408062,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6148,7 +6148,7 @@
           "ete_ms": 1405.965
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584425059,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6160,7 +6160,7 @@
           "ete_ms": 1402.176
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584441963,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6172,7 +6172,7 @@
           "ete_ms": 1403.624
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584475609,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6184,7 +6184,7 @@
           "ete_ms": 1482.697
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584492831,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6196,7 +6196,7 @@
           "ete_ms": 1401.654
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584509480,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6208,7 +6208,7 @@
           "ete_ms": 1536.366
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584526225,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6220,7 +6220,7 @@
           "ete_ms": 1341.297
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584543150,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6232,7 +6232,7 @@
           "ete_ms": 1441.979
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584559820,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6244,7 +6244,7 @@
           "ete_ms": 1592.081
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584576518,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6256,7 +6256,7 @@
           "ete_ms": 1526.843
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584593689,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6268,7 +6268,7 @@
           "ete_ms": 1504.926
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584610726,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6280,7 +6280,7 @@
           "ete_ms": 1586.966
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584627383,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6292,7 +6292,7 @@
           "ete_ms": 1548.25
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584644392,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6304,7 +6304,7 @@
           "ete_ms": 1528.433
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584661669,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6316,7 +6316,7 @@
           "ete_ms": 1621.03
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584678548,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6328,7 +6328,7 @@
           "ete_ms": 1359.802
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584695809,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6340,7 +6340,7 @@
           "ete_ms": 1349.058
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584729435,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6352,7 +6352,7 @@
           "ete_ms": 1586.412
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584746446,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6364,7 +6364,7 @@
           "ete_ms": 1316.256
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584763452,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6376,7 +6376,7 @@
           "ete_ms": 1377.067
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584780176,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6388,7 +6388,7 @@
           "ete_ms": 1371.258
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584796511,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6400,7 +6400,7 @@
           "ete_ms": 1403.013
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584814174,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6412,7 +6412,7 @@
           "ete_ms": 1483.53
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584830999,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6424,7 +6424,7 @@
           "ete_ms": 1406.938
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584848023,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6436,7 +6436,7 @@
           "ete_ms": 1422.492
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584865559,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6448,7 +6448,7 @@
           "ete_ms": 1360.207
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584882260,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6460,7 +6460,7 @@
           "ete_ms": 1375.207
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584899047,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6472,7 +6472,7 @@
           "ete_ms": 1435.8
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584916163,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6484,7 +6484,7 @@
           "ete_ms": 1292.345
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584933129,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6496,7 +6496,7 @@
           "ete_ms": 2753.659
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584949845,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6508,7 +6508,7 @@
           "ete_ms": 1338.014
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584983606,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6520,7 +6520,7 @@
           "ete_ms": 1739.115
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585000599,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6532,7 +6532,7 @@
           "ete_ms": 1360.073
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585017211,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6544,7 +6544,7 @@
           "ete_ms": 1439.586
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585034063,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6556,7 +6556,7 @@
           "ete_ms": 1381.133
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585050724,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6568,7 +6568,7 @@
           "ete_ms": 1470.053
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585067939,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6580,7 +6580,7 @@
           "ete_ms": 1317.022
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585084985,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6592,7 +6592,7 @@
           "ete_ms": 1221.941
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585102533,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6604,7 +6604,7 @@
           "ete_ms": 1226.513
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585119908,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6616,7 +6616,7 @@
           "ete_ms": 1268.273
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585136612,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6628,7 +6628,7 @@
           "ete_ms": 1185.594
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585153107,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6640,7 +6640,7 @@
           "ete_ms": 1295.279
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585170025,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6652,7 +6652,7 @@
           "ete_ms": 1266.735
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585187106,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6664,7 +6664,7 @@
           "ete_ms": 1224.766
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585204034,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6676,7 +6676,7 @@
           "ete_ms": 1148.566
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585238209,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6688,7 +6688,7 @@
           "ete_ms": 1296.45
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585255548,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6700,7 +6700,7 @@
           "ete_ms": 1252.528
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585272255,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6712,7 +6712,7 @@
           "ete_ms": 1275.256
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585289202,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6724,7 +6724,7 @@
           "ete_ms": 1405.996
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585306079,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6736,7 +6736,7 @@
           "ete_ms": 1215.798
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585322831,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6748,7 +6748,7 @@
           "ete_ms": 1304.307
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585340071,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6760,7 +6760,7 @@
           "ete_ms": 1193.915
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585357386,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6772,7 +6772,7 @@
           "ete_ms": 1157.583
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585374125,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6784,7 +6784,7 @@
           "ete_ms": 2225.694
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585391458,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6796,7 +6796,7 @@
           "ete_ms": 1236.346
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585408278,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6808,7 +6808,7 @@
           "ete_ms": 1288.742
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585425525,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6820,7 +6820,7 @@
           "ete_ms": 1383.662
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585442297,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6832,7 +6832,7 @@
           "ete_ms": 1377.151
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585458968,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6844,7 +6844,7 @@
           "ete_ms": 1408.802
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585493426,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6856,7 +6856,7 @@
           "ete_ms": 1327.97
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583390050,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6868,7 +6868,7 @@
           "ete_ms": 1102.461
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583406594,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6880,7 +6880,7 @@
           "ete_ms": 1223.306
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583423333,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6892,7 +6892,7 @@
           "ete_ms": 1123.628
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583440778,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6904,7 +6904,7 @@
           "ete_ms": 1193.478
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583457880,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6916,7 +6916,7 @@
           "ete_ms": 1199.352
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583474922,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6928,7 +6928,7 @@
           "ete_ms": 1212.706
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583492269,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6940,7 +6940,7 @@
           "ete_ms": 1199.646
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583509144,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6952,7 +6952,7 @@
           "ete_ms": 1258.682
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583526996,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6964,7 +6964,7 @@
           "ete_ms": 1268.748
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583543475,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6976,7 +6976,7 @@
           "ete_ms": 1210.975
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583560109,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -6988,7 +6988,7 @@
           "ete_ms": 1423.729
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583577387,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7000,7 +7000,7 @@
           "ete_ms": 1167.461
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583594432,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7012,7 +7012,7 @@
           "ete_ms": 1391.949
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583628552,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7024,7 +7024,7 @@
           "ete_ms": 1216.76
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583645402,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7036,7 +7036,7 @@
           "ete_ms": 1163.119
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583662032,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7048,7 +7048,7 @@
           "ete_ms": 1163.256
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583678772,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7060,7 +7060,7 @@
           "ete_ms": 1160.835
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583695650,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7072,7 +7072,7 @@
           "ete_ms": 1157.519
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583712435,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7084,7 +7084,7 @@
           "ete_ms": 1206.872
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583729662,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7096,7 +7096,7 @@
           "ete_ms": 1430.34
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583746376,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7108,7 +7108,7 @@
           "ete_ms": 1344.543
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583763355,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7120,7 +7120,7 @@
           "ete_ms": 1349.594
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583780259,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7132,7 +7132,7 @@
           "ete_ms": 1372.9
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583797107,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7144,7 +7144,7 @@
           "ete_ms": 1121.215
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583814074,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7156,7 +7156,7 @@
           "ete_ms": 1007.927
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583830750,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7168,7 +7168,7 @@
           "ete_ms": 1164.865
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583847198,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7180,7 +7180,7 @@
           "ete_ms": 1214.03
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583881272,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7192,7 +7192,7 @@
           "ete_ms": 1406.388
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583898412,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7204,7 +7204,7 @@
           "ete_ms": 1156.195
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583915385,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7216,7 +7216,7 @@
           "ete_ms": 1075.883
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583932372,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7228,7 +7228,7 @@
           "ete_ms": 1097.053
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583949334,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7240,7 +7240,7 @@
           "ete_ms": 1153.787
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583966130,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7252,7 +7252,7 @@
           "ete_ms": 1265.037
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583982741,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7264,7 +7264,7 @@
           "ete_ms": 1145.644
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583999652,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7276,7 +7276,7 @@
           "ete_ms": 1194.593
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584016934,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7288,7 +7288,7 @@
           "ete_ms": 1141.329
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584034281,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7300,7 +7300,7 @@
           "ete_ms": 1330.352
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584051403,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7312,7 +7312,7 @@
           "ete_ms": 1207.662
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584068421,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7324,7 +7324,7 @@
           "ete_ms": 1148.91
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584085762,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7336,7 +7336,7 @@
           "ete_ms": 1103.564
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584102911,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7348,7 +7348,7 @@
           "ete_ms": 1181.949
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584203911,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7360,7 +7360,7 @@
           "ete_ms": 1589.072
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584458970,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7372,7 +7372,7 @@
           "ete_ms": 1367.018
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584712801,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7384,7 +7384,7 @@
           "ete_ms": 1372.463
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584966772,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7396,7 +7396,7 @@
           "ete_ms": 1332.813
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585220962,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7408,7 +7408,7 @@
           "ete_ms": 1225.998
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585476222,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7420,7 +7420,7 @@
           "ete_ms": 1093.985
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583611636,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7432,7 +7432,7 @@
           "ete_ms": 1189.34
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780583864178,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7444,7 +7444,7 @@
           "ete_ms": 1043.705
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780584119752,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -7470,7 +7470,7 @@
           "ete_ms": 2711.106
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780577102880,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7494,7 +7494,7 @@
           "ete_ms": 2524.366
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578782458,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7506,7 +7506,7 @@
           "ete_ms": 2985.068
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578531110,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7518,7 +7518,7 @@
           "ete_ms": 4726.163
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578816098,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7530,7 +7530,7 @@
           "ete_ms": 2662.558
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578565200,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7674,7 +7674,7 @@
           "ete_ms": 2759.425
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579484615,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7698,7 +7698,7 @@
           "ete_ms": 2832.944
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579517326,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7758,7 +7758,7 @@
           "ete_ms": 2322.672
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578130252,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7782,7 +7782,7 @@
           "ete_ms": 2675.721
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578164076,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7854,7 +7854,7 @@
           "ete_ms": 2752.311
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578983037,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7878,7 +7878,7 @@
           "ete_ms": 2464.787
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579016607,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7902,7 +7902,7 @@
           "ete_ms": 2754.043
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578581982,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -7926,7 +7926,7 @@
           "ete_ms": 2501.985
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578615367,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8046,7 +8046,7 @@
           "ete_ms": 1794.344
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578832497,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8262,7 +8262,7 @@
           "ete_ms": 2607.502
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578883759,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8274,7 +8274,7 @@
           "ete_ms": 3432.561
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579033015,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8286,7 +8286,7 @@
           "ete_ms": 2893.794
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578917053,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8298,7 +8298,7 @@
           "ete_ms": 2773.676
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579232998,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8322,7 +8322,7 @@
           "ete_ms": 2088.852
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579266094,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8346,7 +8346,7 @@
           "ete_ms": 2512.559
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579533773,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8370,7 +8370,7 @@
           "ete_ms": 2575.0
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579567293,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8430,7 +8430,7 @@
           "ete_ms": 2289.309
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579584054,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8454,7 +8454,7 @@
           "ete_ms": 2660.167
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579616844,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8478,7 +8478,7 @@
           "ete_ms": 2801.458
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578933517,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8502,7 +8502,7 @@
           "ete_ms": 2188.703
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578966594,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8742,7 +8742,7 @@
           "ete_ms": 2444.443
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579383511,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8766,7 +8766,7 @@
           "ete_ms": 2624.979
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579417266,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8778,7 +8778,7 @@
           "ete_ms": 2301.82
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579633257,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8802,7 +8802,7 @@
           "ete_ms": 2355.653
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780579666531,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -8886,7 +8886,7 @@
           "ete_ms": 2405.852
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780577861008,
           "task_type": "MobileNet",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -9812,7 +9812,7 @@
           "ete_ms": 2862.9
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578381041,
           "task_type": "MobileNet",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -10268,7 +10268,7 @@
           "ete_ms": 2938.09
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780578803050,
           "task_type": "MobileNet",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -10464,7 +10464,7 @@
     "ResNet50": {
       "ATLAS_H": [
         {
-          "timestamp_ms": 1780546801495,
+          "timestamp_ms": 1780593268164,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10476,7 +10476,7 @@
           "ete_ms": 4187.971
         },
         {
-          "timestamp_ms": 1780546816974,
+          "timestamp_ms": 1780593286479,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10488,7 +10488,7 @@
           "ete_ms": 4520.141
         },
         {
-          "timestamp_ms": 1780546832297,
+          "timestamp_ms": 1780593305314,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10500,7 +10500,7 @@
           "ete_ms": 3983.165
         },
         {
-          "timestamp_ms": 1780546847966,
+          "timestamp_ms": 1780593323529,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10512,7 +10512,7 @@
           "ete_ms": 5412.907
         },
         {
-          "timestamp_ms": 1780546878542,
+          "timestamp_ms": 1780593360137,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10524,7 +10524,7 @@
           "ete_ms": 3961.648
         },
         {
-          "timestamp_ms": 1780546894436,
+          "timestamp_ms": 1780593378650,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10536,7 +10536,7 @@
           "ete_ms": 5014.956
         },
         {
-          "timestamp_ms": 1780546910182,
+          "timestamp_ms": 1780593396791,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10548,7 +10548,7 @@
           "ete_ms": 5824.474
         },
         {
-          "timestamp_ms": 1780546925463,
+          "timestamp_ms": 1780593415050,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10560,7 +10560,7 @@
           "ete_ms": 5075.065
         },
         {
-          "timestamp_ms": 1780546940765,
+          "timestamp_ms": 1780593433838,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10572,7 +10572,7 @@
           "ete_ms": 4800.044
         },
         {
-          "timestamp_ms": 1780546956251,
+          "timestamp_ms": 1780593452303,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10584,7 +10584,7 @@
           "ete_ms": 4353.043
         },
         {
-          "timestamp_ms": 1780546971434,
+          "timestamp_ms": 1780593470617,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10596,7 +10596,7 @@
           "ete_ms": 4997.672
         },
         {
-          "timestamp_ms": 1780546986839,
+          "timestamp_ms": 1780593489697,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10608,7 +10608,7 @@
           "ete_ms": 4587.501
         },
         {
-          "timestamp_ms": 1780547001976,
+          "timestamp_ms": 1780593508309,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10620,7 +10620,7 @@
           "ete_ms": 4475.593
         },
         {
-          "timestamp_ms": 1780547017179,
+          "timestamp_ms": 1780593526125,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10632,7 +10632,7 @@
           "ete_ms": 4585.092
         },
         {
-          "timestamp_ms": 1780547032688,
+          "timestamp_ms": 1780591212959,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10644,7 +10644,7 @@
           "ete_ms": 5160.318
         },
         {
-          "timestamp_ms": 1780547048092,
+          "timestamp_ms": 1780593564643,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10656,7 +10656,7 @@
           "ete_ms": 4805.638
         },
         {
-          "timestamp_ms": 1780547063472,
+          "timestamp_ms": 1780593583217,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10668,7 +10668,7 @@
           "ete_ms": 5260.184
         },
         {
-          "timestamp_ms": 1780547078802,
+          "timestamp_ms": 1780593601572,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10680,7 +10680,7 @@
           "ete_ms": 5163.466
         },
         {
-          "timestamp_ms": 1780547109604,
+          "timestamp_ms": 1780593639150,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10692,7 +10692,7 @@
           "ete_ms": 6058.052
         },
         {
-          "timestamp_ms": 1780547124893,
+          "timestamp_ms": 1780593657889,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10704,7 +10704,7 @@
           "ete_ms": 4877.304
         },
         {
-          "timestamp_ms": 1780547140127,
+          "timestamp_ms": 1780593676127,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10716,7 +10716,7 @@
           "ete_ms": 4346.89
         },
         {
-          "timestamp_ms": 1780547155638,
+          "timestamp_ms": 1780591360970,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10728,7 +10728,7 @@
           "ete_ms": 5907.669
         },
         {
-          "timestamp_ms": 1780543319122,
+          "timestamp_ms": 1780593714568,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10740,7 +10740,7 @@
           "ete_ms": 5581.425
         },
         {
-          "timestamp_ms": 1780547187402,
+          "timestamp_ms": 1780593718620,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10752,7 +10752,7 @@
           "ete_ms": 4848.222
         },
         {
-          "timestamp_ms": 1780547202920,
+          "timestamp_ms": 1780593752240,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10764,7 +10764,7 @@
           "ete_ms": 5253.615
         },
         {
-          "timestamp_ms": 1780547218064,
+          "timestamp_ms": 1780593770416,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10776,7 +10776,7 @@
           "ete_ms": 4858.379
         },
         {
-          "timestamp_ms": 1780547233509,
+          "timestamp_ms": 1780593789123,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10788,7 +10788,7 @@
           "ete_ms": 4951.258
         },
         {
-          "timestamp_ms": 1780547248539,
+          "timestamp_ms": 1780591473507,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10800,7 +10800,7 @@
           "ete_ms": 5528.163
         },
         {
-          "timestamp_ms": 1780547264558,
+          "timestamp_ms": 1780593826942,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10812,7 +10812,7 @@
           "ete_ms": 5285.46
         },
         {
-          "timestamp_ms": 1780547279951,
+          "timestamp_ms": 1780593845637,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10824,7 +10824,7 @@
           "ete_ms": 4648.132
         },
         {
-          "timestamp_ms": 1780547295453,
+          "timestamp_ms": 1780593864037,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10836,7 +10836,7 @@
           "ete_ms": 5597.346
         },
         {
-          "timestamp_ms": 1780547310813,
+          "timestamp_ms": 1780593882110,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10848,7 +10848,7 @@
           "ete_ms": 4504.222
         },
         {
-          "timestamp_ms": 1780547341745,
+          "timestamp_ms": 1780593919376,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10860,7 +10860,7 @@
           "ete_ms": 5140.647
         },
         {
-          "timestamp_ms": 1780547357283,
+          "timestamp_ms": 1780593938335,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10872,7 +10872,7 @@
           "ete_ms": 4706.426
         },
         {
-          "timestamp_ms": 1780547372627,
+          "timestamp_ms": 1780593956351,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10884,7 +10884,7 @@
           "ete_ms": 4842.381
         },
         {
-          "timestamp_ms": 1780547388291,
+          "timestamp_ms": 1780593974696,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10896,7 +10896,7 @@
           "ete_ms": 4598.316
         },
         {
-          "timestamp_ms": 1780543549290,
+          "timestamp_ms": 1780593993148,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10920,7 +10920,7 @@
           "ete_ms": 4730.593
         },
         {
-          "timestamp_ms": 1780547435477,
+          "timestamp_ms": 1780594031812,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10932,7 +10932,7 @@
           "ete_ms": 5264.696
         },
         {
-          "timestamp_ms": 1780547450805,
+          "timestamp_ms": 1780594050052,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10944,7 +10944,7 @@
           "ete_ms": 5480.142
         },
         {
-          "timestamp_ms": 1780547466476,
+          "timestamp_ms": 1780591734046,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10956,7 +10956,7 @@
           "ete_ms": 5419.967
         },
         {
-          "timestamp_ms": 1780547481807,
+          "timestamp_ms": 1780594088136,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10968,7 +10968,7 @@
           "ete_ms": 5357.89
         },
         {
-          "timestamp_ms": 1780547497227,
+          "timestamp_ms": 1780594106249,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10980,7 +10980,7 @@
           "ete_ms": 5644.985
         },
         {
-          "timestamp_ms": 1780547512469,
+          "timestamp_ms": 1780594124132,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -10992,7 +10992,7 @@
           "ete_ms": 5177.165
         },
         {
-          "timestamp_ms": 1780547527858,
+          "timestamp_ms": 1780594143205,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11004,7 +11004,7 @@
           "ete_ms": 4705.573
         },
         {
-          "timestamp_ms": 1780547543524,
+          "timestamp_ms": 1780594160926,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11016,7 +11016,7 @@
           "ete_ms": 5892.799
         },
         {
-          "timestamp_ms": 1780547574231,
+          "timestamp_ms": 1780594198038,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11028,7 +11028,7 @@
           "ete_ms": 5956.392
         },
         {
-          "timestamp_ms": 1780547589421,
+          "timestamp_ms": 1780594216547,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11040,7 +11040,7 @@
           "ete_ms": 4751.26
         },
         {
-          "timestamp_ms": 1780547604863,
+          "timestamp_ms": 1780594235585,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11052,7 +11052,7 @@
           "ete_ms": 4978.494
         },
         {
-          "timestamp_ms": 1780547620646,
+          "timestamp_ms": 1780594254041,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11064,7 +11064,7 @@
           "ete_ms": 5573.983
         },
         {
-          "timestamp_ms": 1780543780761,
+          "timestamp_ms": 1780594273386,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11076,7 +11076,7 @@
           "ete_ms": 5156.281
         },
         {
-          "timestamp_ms": 1780547652634,
+          "timestamp_ms": 1780594277401,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11088,7 +11088,7 @@
           "ete_ms": 5170.375
         },
         {
-          "timestamp_ms": 1780547668266,
+          "timestamp_ms": 1780594311122,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11100,7 +11100,7 @@
           "ete_ms": 4677.634
         },
         {
-          "timestamp_ms": 1780547683677,
+          "timestamp_ms": 1780594329410,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11112,7 +11112,7 @@
           "ete_ms": 4475.241
         },
         {
-          "timestamp_ms": 1780547699258,
+          "timestamp_ms": 1780594348031,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11124,7 +11124,7 @@
           "ete_ms": 4136.335
         },
         {
-          "timestamp_ms": 1780547714934,
+          "timestamp_ms": 1780594367278,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11136,7 +11136,7 @@
           "ete_ms": 4642.043
         },
         {
-          "timestamp_ms": 1780547730363,
+          "timestamp_ms": 1780594385778,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11148,7 +11148,7 @@
           "ete_ms": 4026.623
         },
         {
-          "timestamp_ms": 1780547745809,
+          "timestamp_ms": 1780594404352,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11160,7 +11160,7 @@
           "ete_ms": 4481.858
         },
         {
-          "timestamp_ms": 1780547761230,
+          "timestamp_ms": 1780594423003,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11172,7 +11172,7 @@
           "ete_ms": 4065.567
         },
         {
-          "timestamp_ms": 1780547776698,
+          "timestamp_ms": 1780594442271,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11184,7 +11184,7 @@
           "ete_ms": 4521.232
         },
         {
-          "timestamp_ms": 1780547808728,
+          "timestamp_ms": 1780594479296,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11196,7 +11196,7 @@
           "ete_ms": 5609.181
         },
         {
-          "timestamp_ms": 1780547824214,
+          "timestamp_ms": 1780594497249,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11208,7 +11208,7 @@
           "ete_ms": 5152.624
         },
         {
-          "timestamp_ms": 1780547840150,
+          "timestamp_ms": 1780594515991,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11220,7 +11220,7 @@
           "ete_ms": 4599.939
         },
         {
-          "timestamp_ms": 1780547855380,
+          "timestamp_ms": 1780594534105,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11232,7 +11232,7 @@
           "ete_ms": 4233.118
         },
         {
-          "timestamp_ms": 1780547870571,
+          "timestamp_ms": 1780594552823,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11244,7 +11244,7 @@
           "ete_ms": 4710.597
         },
         {
-          "timestamp_ms": 1780547885884,
+          "timestamp_ms": 1780594571287,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11256,7 +11256,7 @@
           "ete_ms": 4299.341
         },
         {
-          "timestamp_ms": 1780547901231,
+          "timestamp_ms": 1780594589321,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11268,7 +11268,7 @@
           "ete_ms": 4420.085
         },
         {
-          "timestamp_ms": 1780547916834,
+          "timestamp_ms": 1780592274527,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11280,7 +11280,7 @@
           "ete_ms": 5606.027
         },
         {
-          "timestamp_ms": 1780547932161,
+          "timestamp_ms": 1780594626882,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11292,7 +11292,7 @@
           "ete_ms": 4823.249
         },
         {
-          "timestamp_ms": 1780547947330,
+          "timestamp_ms": 1780594645171,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11304,7 +11304,7 @@
           "ete_ms": 4714.328
         },
         {
-          "timestamp_ms": 1780547962551,
+          "timestamp_ms": 1780594663724,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11316,7 +11316,7 @@
           "ete_ms": 4968.965
         },
         {
-          "timestamp_ms": 1780547977933,
+          "timestamp_ms": 1780594682775,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11328,7 +11328,7 @@
           "ete_ms": 4322.069
         },
         {
-          "timestamp_ms": 1780547993392,
+          "timestamp_ms": 1780594701342,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11340,7 +11340,7 @@
           "ete_ms": 4345.174
         },
         {
-          "timestamp_ms": 1780548008919,
+          "timestamp_ms": 1780594719848,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11352,7 +11352,7 @@
           "ete_ms": 4760.306
         },
         {
-          "timestamp_ms": 1780548039244,
+          "timestamp_ms": 1780594756709,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11364,7 +11364,7 @@
           "ete_ms": 4842.973
         },
         {
-          "timestamp_ms": 1780548054622,
+          "timestamp_ms": 1780592441117,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11376,7 +11376,7 @@
           "ete_ms": 4629.885
         },
         {
-          "timestamp_ms": 1780548070075,
+          "timestamp_ms": 1780594794611,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11388,7 +11388,7 @@
           "ete_ms": 4207.002
         },
         {
-          "timestamp_ms": 1780548085399,
+          "timestamp_ms": 1780594812907,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11400,7 +11400,7 @@
           "ete_ms": 4555.095
         },
         {
-          "timestamp_ms": 1780544240560,
+          "timestamp_ms": 1780594831273,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11412,7 +11412,7 @@
           "ete_ms": 5231.269
         },
         {
-          "timestamp_ms": 1780548116959,
+          "timestamp_ms": 1780594849416,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11424,7 +11424,7 @@
           "ete_ms": 4493.702
         },
         {
-          "timestamp_ms": 1780548132494,
+          "timestamp_ms": 1780594867477,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11436,7 +11436,7 @@
           "ete_ms": 4279.543
         },
         {
-          "timestamp_ms": 1780548147814,
+          "timestamp_ms": 1780592552830,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11448,7 +11448,7 @@
           "ete_ms": 4023.216
         },
         {
-          "timestamp_ms": 1780548163410,
+          "timestamp_ms": 1780594905826,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11460,7 +11460,7 @@
           "ete_ms": 4245.011
         },
         {
-          "timestamp_ms": 1780548178703,
+          "timestamp_ms": 1780594924497,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11472,7 +11472,7 @@
           "ete_ms": 4714.914
         },
         {
-          "timestamp_ms": 1780548193889,
+          "timestamp_ms": 1780592608436,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11484,7 +11484,7 @@
           "ete_ms": 5105.911
         },
         {
-          "timestamp_ms": 1780548209620,
+          "timestamp_ms": 1780592612405,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11496,7 +11496,7 @@
           "ete_ms": 4479.386
         },
         {
-          "timestamp_ms": 1780548225127,
+          "timestamp_ms": 1780590322237,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11508,7 +11508,7 @@
           "ete_ms": 4948.551
         },
         {
-          "timestamp_ms": 1780548240483,
+          "timestamp_ms": 1780592666671,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11520,7 +11520,7 @@
           "ete_ms": 4234.064
         },
         {
-          "timestamp_ms": 1780548272473,
+          "timestamp_ms": 1780592690351,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11532,7 +11532,7 @@
           "ete_ms": 4351.955
         },
         {
-          "timestamp_ms": 1780548287801,
+          "timestamp_ms": 1780592724029,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11544,7 +11544,7 @@
           "ete_ms": 4337.28
         },
         {
-          "timestamp_ms": 1780548303059,
+          "timestamp_ms": 1780592742762,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11556,7 +11556,7 @@
           "ete_ms": 4756.161
         },
         {
-          "timestamp_ms": 1780548318755,
+          "timestamp_ms": 1780592761120,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11568,7 +11568,7 @@
           "ete_ms": 4685.789
         },
         {
-          "timestamp_ms": 1780548334082,
+          "timestamp_ms": 1780592779532,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11580,7 +11580,7 @@
           "ete_ms": 3572.243
         },
         {
-          "timestamp_ms": 1780548349657,
+          "timestamp_ms": 1780592798525,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11592,7 +11592,7 @@
           "ete_ms": 4002.054
         },
         {
-          "timestamp_ms": 1780548365029,
+          "timestamp_ms": 1780592816921,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11604,7 +11604,7 @@
           "ete_ms": 4666.337
         },
         {
-          "timestamp_ms": 1780548380601,
+          "timestamp_ms": 1780592835167,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11616,7 +11616,7 @@
           "ete_ms": 4561.312
         },
         {
-          "timestamp_ms": 1780548395954,
+          "timestamp_ms": 1780592853366,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11628,7 +11628,7 @@
           "ete_ms": 4769.959
         },
         {
-          "timestamp_ms": 1780548411072,
+          "timestamp_ms": 1780592872594,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11640,7 +11640,7 @@
           "ete_ms": 4821.398
         },
         {
-          "timestamp_ms": 1780548426733,
+          "timestamp_ms": 1780592891284,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11652,7 +11652,7 @@
           "ete_ms": 4203.746
         },
         {
-          "timestamp_ms": 1780548442042,
+          "timestamp_ms": 1780592910049,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11664,7 +11664,7 @@
           "ete_ms": 4162.273
         },
         {
-          "timestamp_ms": 1780548457640,
+          "timestamp_ms": 1780592928163,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11676,7 +11676,7 @@
           "ete_ms": 4665.95
         },
         {
-          "timestamp_ms": 1780548473272,
+          "timestamp_ms": 1780592946215,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11700,7 +11700,7 @@
           "ete_ms": 4553.987
         },
         {
-          "timestamp_ms": 1780548519327,
+          "timestamp_ms": 1780593003192,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11712,7 +11712,7 @@
           "ete_ms": 4960.104
         },
         {
-          "timestamp_ms": 1780548534888,
+          "timestamp_ms": 1780587741747,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11724,7 +11724,7 @@
           "ete_ms": 4138.513
         },
         {
-          "timestamp_ms": 1780548550291,
+          "timestamp_ms": 1780593026834,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11736,7 +11736,7 @@
           "ete_ms": 4528.244
         },
         {
-          "timestamp_ms": 1780548553562,
+          "timestamp_ms": 1780593060755,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11748,7 +11748,7 @@
           "ete_ms": 4243.849
         },
         {
-          "timestamp_ms": 1780548582311,
+          "timestamp_ms": 1780590748024,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11760,7 +11760,7 @@
           "ete_ms": 4671.572
         },
         {
-          "timestamp_ms": 1780548597592,
+          "timestamp_ms": 1780593100293,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11772,7 +11772,7 @@
           "ete_ms": 3948.412
         },
         {
-          "timestamp_ms": 1780548613092,
+          "timestamp_ms": 1780593118731,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11784,7 +11784,7 @@
           "ete_ms": 4428.771
         },
         {
-          "timestamp_ms": 1780548628453,
+          "timestamp_ms": 1780590804835,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11796,7 +11796,7 @@
           "ete_ms": 4776.668
         },
         {
-          "timestamp_ms": 1780548643643,
+          "timestamp_ms": 1780593156689,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11808,7 +11808,7 @@
           "ete_ms": 4467.651
         },
         {
-          "timestamp_ms": 1780548658764,
+          "timestamp_ms": 1780593175458,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11820,7 +11820,7 @@
           "ete_ms": 4122.385
         },
         {
-          "timestamp_ms": 1780548673944,
+          "timestamp_ms": 1780593194005,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11832,7 +11832,7 @@
           "ete_ms": 3546.383
         },
         {
-          "timestamp_ms": 1780548689399,
+          "timestamp_ms": 1780593212808,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11844,7 +11844,7 @@
           "ete_ms": 4816.167
         },
         {
-          "timestamp_ms": 1780548704838,
+          "timestamp_ms": 1780593231760,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11856,7 +11856,7 @@
           "ete_ms": 4103.925
         },
         {
-          "timestamp_ms": 1780544935181,
+          "timestamp_ms": 1780593341733,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11868,7 +11868,7 @@
           "ete_ms": 4590.1
         },
         {
-          "timestamp_ms": 1780545165199,
+          "timestamp_ms": 1780593619989,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11880,7 +11880,7 @@
           "ete_ms": 5378.91
         },
         {
-          "timestamp_ms": 1780545396026,
+          "timestamp_ms": 1780593901178,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11892,7 +11892,7 @@
           "ete_ms": 4610.706
         },
         {
-          "timestamp_ms": 1780545628998,
+          "timestamp_ms": 1780594179902,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11904,7 +11904,7 @@
           "ete_ms": 4683.736
         },
         {
-          "timestamp_ms": 1780545859856,
+          "timestamp_ms": 1780594460788,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11916,7 +11916,7 @@
           "ete_ms": 4662.921
         },
         {
-          "timestamp_ms": 1780546092143,
+          "timestamp_ms": 1780594738317,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11928,7 +11928,7 @@
           "ete_ms": 5282.053
         },
         {
-          "timestamp_ms": 1780546323096,
+          "timestamp_ms": 1780592670860,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11940,7 +11940,7 @@
           "ete_ms": 4299.213
         },
         {
-          "timestamp_ms": 1780546554753,
+          "timestamp_ms": 1780592964955,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -11952,7 +11952,7 @@
           "ete_ms": 4690.662
         },
         {
-          "timestamp_ms": 1780546786122,
+          "timestamp_ms": 1780593250064,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -12182,7 +12182,7 @@
           "ete_ms": 9935.96
         },
         {
-          "timestamp_ms": 1780541314831,
+          "timestamp_ms": 1780589949321,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -12254,7 +12254,7 @@
           "ete_ms": 8676.857
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588563136,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -12818,7 +12818,7 @@
           "ete_ms": 3925.122
         },
         {
-          "timestamp_ms": 1780544087434,
+          "timestamp_ms": 1780585775272,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -13154,7 +13154,7 @@
           "ete_ms": 6189.986
         },
         {
-          "timestamp_ms": 1780544547306,
+          "timestamp_ms": 1780588415057,
           "task_type": "ResNet50",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -13444,7 +13444,7 @@
       ],
       "RK3588": [
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780590920914,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13456,7 +13456,7 @@
           "ete_ms": 3642.247
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780590954175,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13516,7 +13516,7 @@
           "ete_ms": 4704.472
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589912805,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13528,7 +13528,7 @@
           "ete_ms": 5246.753
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588507993,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13576,7 +13576,7 @@
           "ete_ms": 3781.416
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780591139676,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13600,7 +13600,7 @@
           "ete_ms": 4080.179
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780586100198,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13612,7 +13612,7 @@
           "ete_ms": 5763.573
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780593545562,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13624,7 +13624,7 @@
           "ete_ms": 5806.086
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589402858,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13636,7 +13636,7 @@
           "ete_ms": 6352.975
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780586176570,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13696,7 +13696,7 @@
           "ete_ms": 3195.93
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585737855,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13708,7 +13708,7 @@
           "ete_ms": 4432.625
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780593696359,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13732,7 +13732,7 @@
           "ete_ms": 5179.585
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780593734216,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13744,7 +13744,7 @@
           "ete_ms": 5997.768
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588753468,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13756,7 +13756,7 @@
           "ete_ms": 5479.908
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588984925,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13792,7 +13792,7 @@
           "ete_ms": 3104.353
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780585568957,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13828,7 +13828,7 @@
           "ete_ms": 5396.836
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588299689,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13840,7 +13840,7 @@
           "ete_ms": 5810.523
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780591585708,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13852,7 +13852,7 @@
           "ete_ms": 5462.327
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589440222,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13900,7 +13900,7 @@
           "ete_ms": 3807.364
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780594013052,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13936,7 +13936,7 @@
           "ete_ms": 4808.769
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780594069848,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13948,7 +13948,7 @@
           "ete_ms": 5268.149
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780591772609,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13960,7 +13960,7 @@
           "ete_ms": 5901.718
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780587433153,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -13984,7 +13984,7 @@
           "ete_ms": 3673.028
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780591829103,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14032,7 +14032,7 @@
           "ete_ms": 5552.271
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780587148852,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14056,7 +14056,7 @@
           "ete_ms": 5555.147
         },
         {
-          "timestamp_ms": 1780547637183,
+          "timestamp_ms": 1780588338299,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14068,7 +14068,7 @@
           "ete_ms": 6373.655
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780594292603,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14128,7 +14128,7 @@
           "ete_ms": 4738.338
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780592070538,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14140,7 +14140,7 @@
           "ete_ms": 5618.187
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780586571674,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14152,7 +14152,7 @@
           "ete_ms": 6006.425
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588396039,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14164,7 +14164,7 @@
           "ete_ms": 6194.747
         },
         {
-          "timestamp_ms": 1780547793139,
+          "timestamp_ms": 1780589099351,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14176,7 +14176,7 @@
           "ete_ms": 7200.981
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589118740,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14236,7 +14236,7 @@
           "ete_ms": 3415.982
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588145381,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14248,7 +14248,7 @@
           "ete_ms": 5489.255
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780592255698,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14260,7 +14260,7 @@
           "ete_ms": 5535.168
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780594608633,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14272,7 +14272,7 @@
           "ete_ms": 6340.907
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780587206006,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14284,7 +14284,7 @@
           "ete_ms": 5658.876
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589799593,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14344,7 +14344,7 @@
           "ete_ms": 4893.48
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780590099883,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14356,7 +14356,7 @@
           "ete_ms": 5094.585
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780594776271,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14368,7 +14368,7 @@
           "ete_ms": 5768.984
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589857198,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14380,7 +14380,7 @@
           "ete_ms": 6471.764
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589515652,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14392,7 +14392,7 @@
           "ete_ms": 5179.449
         },
         {
-          "timestamp_ms": 1780548101705,
+          "timestamp_ms": 1780589270769,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14428,7 +14428,7 @@
           "ete_ms": 3509.501
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780594887322,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14464,7 +14464,7 @@
           "ete_ms": 4362.359
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780592628612,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14476,7 +14476,7 @@
           "ete_ms": 5900.318
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780592648632,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14488,7 +14488,7 @@
           "ete_ms": 5775.615
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589156451,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14500,7 +14500,7 @@
           "ete_ms": 6056.665
         },
         {
-          "timestamp_ms": 1780548256854,
+          "timestamp_ms": 1780592686345,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14512,7 +14512,7 @@
           "ete_ms": 5600.736
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780592705523,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14560,7 +14560,7 @@
           "ete_ms": 3273.813
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589195581,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14572,7 +14572,7 @@
           "ete_ms": 5443.163
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588891742,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14584,7 +14584,7 @@
           "ete_ms": 4954.853
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588676508,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14596,7 +14596,7 @@
           "ete_ms": 6142.341
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588696502,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14608,7 +14608,7 @@
           "ete_ms": 6535.313
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780588184560,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14644,7 +14644,7 @@
           "ete_ms": 4105.567
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780590598979,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14668,7 +14668,7 @@
           "ete_ms": 4756.547
         },
         {
-          "timestamp_ms": 1780544625344,
+          "timestamp_ms": 1780588222956,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14680,7 +14680,7 @@
           "ete_ms": 5623.56
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780592985058,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14692,7 +14692,7 @@
           "ete_ms": 5938.348
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780587988843,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14704,7 +14704,7 @@
           "ete_ms": 6007.399
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780593022812,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14716,7 +14716,7 @@
           "ete_ms": 6033.698
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780593042255,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14740,7 +14740,7 @@
           "ete_ms": 2946.005
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780593080757,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14764,7 +14764,7 @@
           "ete_ms": 3754.869
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780590786787,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14776,7 +14776,7 @@
           "ete_ms": 3666.403
         },
         {
-          "timestamp_ms": 1780544764766,
+          "timestamp_ms": 1780593138027,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14788,7 +14788,7 @@
           "ete_ms": 5060.426
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780587549515,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14800,7 +14800,7 @@
           "ete_ms": 5487.562
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780587356147,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14812,7 +14812,7 @@
           "ete_ms": 5897.917
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780590865435,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14824,7 +14824,7 @@
           "ete_ms": 7273.759
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780589688083,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14848,7 +14848,7 @@
           "ete_ms": 3744.072
         },
         {
-          "timestamp_ms": 1780543166308,
+          "timestamp_ms": 1780589629485,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14860,7 +14860,7 @@
           "ete_ms": 5653.955
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780593808607,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14872,7 +14872,7 @@
           "ete_ms": 3461.521
         },
         {
-          "timestamp_ms": 1780545552230,
+          "timestamp_ms": 1780587606218,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14896,7 +14896,7 @@
           "ete_ms": 3756.172
         },
         {
-          "timestamp_ms": 1780546015192,
+          "timestamp_ms": 1780589780219,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14908,7 +14908,7 @@
           "ete_ms": 6226.359
         },
         {
-          "timestamp_ms": 1780546246747,
+          "timestamp_ms": 1780589554011,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14920,7 +14920,7 @@
           "ete_ms": 5545.914
         },
         {
-          "timestamp_ms": 1780546477808,
+          "timestamp_ms": 1780588582855,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14932,7 +14932,7 @@
           "ete_ms": 3849.363
         },
         {
-          "timestamp_ms": 1780546697608,
+          "timestamp_ms": 1780587529328,
           "task_type": "ResNet50",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -14948,7 +14948,7 @@
     "YoloV5": {
       "ATLAS_H": [
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602163643,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -14960,7 +14960,7 @@
           "ete_ms": 2036.36
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602182169,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -14972,7 +14972,7 @@
           "ete_ms": 2128.353
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602200601,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -14984,7 +14984,7 @@
           "ete_ms": 2133.844
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602219015,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -14996,7 +14996,7 @@
           "ete_ms": 2124.649
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602256246,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15008,7 +15008,7 @@
           "ete_ms": 2571.782
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602274741,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15020,7 +15020,7 @@
           "ete_ms": 2624.806
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602292878,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15032,7 +15032,7 @@
           "ete_ms": 2627.439
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602311244,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15044,7 +15044,7 @@
           "ete_ms": 2453.235
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602329526,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15056,7 +15056,7 @@
           "ete_ms": 2625.245
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602348061,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15068,7 +15068,7 @@
           "ete_ms": 2463.522
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602366364,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15080,7 +15080,7 @@
           "ete_ms": 2573.917
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602384608,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15092,7 +15092,7 @@
           "ete_ms": 2509.034
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602403689,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15104,7 +15104,7 @@
           "ete_ms": 2545.771
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602421927,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15116,7 +15116,7 @@
           "ete_ms": 2558.215
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602441151,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15128,7 +15128,7 @@
           "ete_ms": 2521.844
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602459337,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15140,7 +15140,7 @@
           "ete_ms": 2487.266
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602477471,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15152,7 +15152,7 @@
           "ete_ms": 2610.975
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602496057,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15164,7 +15164,7 @@
           "ete_ms": 2750.061
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602532364,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15176,7 +15176,7 @@
           "ete_ms": 2593.718
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602550382,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15188,7 +15188,7 @@
           "ete_ms": 2692.157
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602569101,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15200,7 +15200,7 @@
           "ete_ms": 2783.638
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602587812,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15212,7 +15212,7 @@
           "ete_ms": 2704.511
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602605847,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15224,7 +15224,7 @@
           "ete_ms": 2570.424
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602624668,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15236,7 +15236,7 @@
           "ete_ms": 2416.787
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602642824,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15248,7 +15248,7 @@
           "ete_ms": 2531.574
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602661106,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15260,7 +15260,7 @@
           "ete_ms": 2215.582
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602679639,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15272,7 +15272,7 @@
           "ete_ms": 2473.619
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602697866,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15284,7 +15284,7 @@
           "ete_ms": 1976.131
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602716090,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15296,7 +15296,7 @@
           "ete_ms": 2666.097
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602734617,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15308,7 +15308,7 @@
           "ete_ms": 2540.685
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602753148,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15320,7 +15320,7 @@
           "ete_ms": 2600.486
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602771458,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15332,7 +15332,7 @@
           "ete_ms": 2765.776
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602807763,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15344,7 +15344,7 @@
           "ete_ms": 2624.362
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602826330,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15356,7 +15356,7 @@
           "ete_ms": 2545.953
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602844768,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15368,7 +15368,7 @@
           "ete_ms": 2639.228
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602863518,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15380,7 +15380,7 @@
           "ete_ms": 2821.816
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602881642,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15392,7 +15392,7 @@
           "ete_ms": 2579.106
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602899586,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15404,7 +15404,7 @@
           "ete_ms": 2562.673
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602917772,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15416,7 +15416,7 @@
           "ete_ms": 2777.174
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602936145,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15428,7 +15428,7 @@
           "ete_ms": 2764.362
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602954593,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15440,7 +15440,7 @@
           "ete_ms": 2557.322
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602972739,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15452,7 +15452,7 @@
           "ete_ms": 2627.476
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602991010,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15464,7 +15464,7 @@
           "ete_ms": 2602.146
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603009180,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15476,7 +15476,7 @@
           "ete_ms": 2792.302
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603027517,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15488,7 +15488,7 @@
           "ete_ms": 2607.808
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603046461,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15500,7 +15500,7 @@
           "ete_ms": 2675.212
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603083677,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15512,7 +15512,7 @@
           "ete_ms": 2633.826
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603102188,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15524,7 +15524,7 @@
           "ete_ms": 2508.464
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603120770,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15536,7 +15536,7 @@
           "ete_ms": 2590.746
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603139476,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15548,7 +15548,7 @@
           "ete_ms": 1794.94
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603158250,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15560,7 +15560,7 @@
           "ete_ms": 2239.525
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603177091,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15572,7 +15572,7 @@
           "ete_ms": 2947.995
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603195252,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15584,7 +15584,7 @@
           "ete_ms": 2958.54
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603213341,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15596,7 +15596,7 @@
           "ete_ms": 2650.719
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603231393,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15608,7 +15608,7 @@
           "ete_ms": 2636.016
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603249537,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15620,7 +15620,7 @@
           "ete_ms": 2346.616
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603267969,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15632,7 +15632,7 @@
           "ete_ms": 2964.422
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603286508,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15644,7 +15644,7 @@
           "ete_ms": 2832.305
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603305033,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15656,7 +15656,7 @@
           "ete_ms": 2765.252
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603323312,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15668,7 +15668,7 @@
           "ete_ms": 2545.855
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603360005,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15680,7 +15680,7 @@
           "ete_ms": 2920.885
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603378275,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15692,7 +15692,7 @@
           "ete_ms": 2935.167
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603396751,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15704,7 +15704,7 @@
           "ete_ms": 2751.694
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603414867,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15716,7 +15716,7 @@
           "ete_ms": 2663.826
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603433106,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15728,7 +15728,7 @@
           "ete_ms": 2729.126
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603451843,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15740,7 +15740,7 @@
           "ete_ms": 2736.792
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603469951,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15752,7 +15752,7 @@
           "ete_ms": 2548.83
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603488237,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15764,7 +15764,7 @@
           "ete_ms": 2667.917
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603506520,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15776,7 +15776,7 @@
           "ete_ms": 2298.32
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603525410,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15788,7 +15788,7 @@
           "ete_ms": 2597.149
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603543336,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15800,7 +15800,7 @@
           "ete_ms": 2475.294
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603561667,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15812,7 +15812,7 @@
           "ete_ms": 2707.26
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603580428,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15824,7 +15824,7 @@
           "ete_ms": 2160.196
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603598998,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15836,7 +15836,7 @@
           "ete_ms": 1866.898
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603635836,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15848,7 +15848,7 @@
           "ete_ms": 2965.548
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603654596,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15860,7 +15860,7 @@
           "ete_ms": 2960.294
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603673043,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15872,7 +15872,7 @@
           "ete_ms": 2403.767
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603691601,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15884,7 +15884,7 @@
           "ete_ms": 2151.653
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603710763,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15896,7 +15896,7 @@
           "ete_ms": 2761.069
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603729212,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15908,7 +15908,7 @@
           "ete_ms": 2922.944
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603747308,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15920,7 +15920,7 @@
           "ete_ms": 2742.919
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603765378,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15932,7 +15932,7 @@
           "ete_ms": 1963.57
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603783545,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15944,7 +15944,7 @@
           "ete_ms": 3233.113
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603801892,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15956,7 +15956,7 @@
           "ete_ms": 2964.748
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603820114,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15968,7 +15968,7 @@
           "ete_ms": 2660.262
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603838418,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15980,7 +15980,7 @@
           "ete_ms": 2312.685
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603856931,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -15992,7 +15992,7 @@
           "ete_ms": 2529.429
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603875344,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16004,7 +16004,7 @@
           "ete_ms": 2623.823
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603911871,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16016,7 +16016,7 @@
           "ete_ms": 2807.929
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603929725,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16028,7 +16028,7 @@
           "ete_ms": 2989.712
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603948568,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16040,7 +16040,7 @@
           "ete_ms": 2527.438
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603966834,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16052,7 +16052,7 @@
           "ete_ms": 2530.173
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603985730,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16064,7 +16064,7 @@
           "ete_ms": 2473.258
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604003953,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16076,7 +16076,7 @@
           "ete_ms": 2683.49
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604022418,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16088,7 +16088,7 @@
           "ete_ms": 2277.29
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604040695,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16100,7 +16100,7 @@
           "ete_ms": 2669.147
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604059216,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16112,7 +16112,7 @@
           "ete_ms": 2888.565
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604077555,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16124,7 +16124,7 @@
           "ete_ms": 2130.78
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604096035,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16136,7 +16136,7 @@
           "ete_ms": 2783.225
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604115111,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16148,7 +16148,7 @@
           "ete_ms": 2374.007
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604133471,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16160,7 +16160,7 @@
           "ete_ms": 2408.421
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604152217,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16172,7 +16172,7 @@
           "ete_ms": 2210.835
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604188940,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16184,7 +16184,7 @@
           "ete_ms": 2827.784
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604207525,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16196,7 +16196,7 @@
           "ete_ms": 2420.516
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604225754,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16208,7 +16208,7 @@
           "ete_ms": 2537.456
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780601940875,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16220,7 +16220,7 @@
           "ete_ms": 3016.884
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780601959118,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16232,7 +16232,7 @@
           "ete_ms": 2405.465
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780601977295,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16244,7 +16244,7 @@
           "ete_ms": 2805.388
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780601995823,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16256,7 +16256,7 @@
           "ete_ms": 1746.462
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602014439,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16268,7 +16268,7 @@
           "ete_ms": 2210.232
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602033244,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16280,7 +16280,7 @@
           "ete_ms": 2319.055
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602052546,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16292,7 +16292,7 @@
           "ete_ms": 2054.453
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602070827,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16304,7 +16304,7 @@
           "ete_ms": 2785.656
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602089478,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16316,7 +16316,7 @@
           "ete_ms": 2696.681
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602107904,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16328,7 +16328,7 @@
           "ete_ms": 2716.328
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602126177,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16340,7 +16340,7 @@
           "ete_ms": 2546.578
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602237579,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16352,7 +16352,7 @@
           "ete_ms": 2123.495
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602514299,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16364,7 +16364,7 @@
           "ete_ms": 2549.223
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602789477,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16376,7 +16376,7 @@
           "ete_ms": 2657.324
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603065177,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16388,7 +16388,7 @@
           "ete_ms": 2478.777
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603341571,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16400,7 +16400,7 @@
           "ete_ms": 2776.341
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603617363,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16412,7 +16412,7 @@
           "ete_ms": 2094.38
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780603893910,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16424,7 +16424,7 @@
           "ete_ms": 2424.195
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780604170579,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16436,7 +16436,7 @@
           "ete_ms": 2028.797
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780602144644,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_H",
           "device_type": "ATLAS_H",
@@ -16462,7 +16462,7 @@
           "ete_ms": 3772.8
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595780181,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -16486,7 +16486,7 @@
           "ete_ms": 4533.936
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596745197,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -16798,7 +16798,7 @@
           "ete_ms": 5059.14
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595192652,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -16906,7 +16906,7 @@
           "ete_ms": 4946.63
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597032531,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -16918,7 +16918,7 @@
           "ete_ms": 4873.734
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595305825,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17038,7 +17038,7 @@
           "ete_ms": 5728.946
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596163664,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17098,7 +17098,7 @@
           "ete_ms": 5168.147
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596181380,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17110,7 +17110,7 @@
           "ete_ms": 4662.037
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595404652,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17122,7 +17122,7 @@
           "ete_ms": 4623.833
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597147008,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17134,7 +17134,7 @@
           "ete_ms": 4540.402
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596236345,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17146,7 +17146,7 @@
           "ete_ms": 5444.611
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597184851,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17182,7 +17182,7 @@
           "ete_ms": 5122.167
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597241962,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17194,7 +17194,7 @@
           "ete_ms": 5696.139
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595439024,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17242,7 +17242,7 @@
           "ete_ms": 3704.757
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596349211,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17266,7 +17266,7 @@
           "ete_ms": 4442.587
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597298138,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17302,7 +17302,7 @@
           "ete_ms": 4962.653
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595479928,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17326,7 +17326,7 @@
           "ete_ms": 4761.066
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596404450,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17350,7 +17350,7 @@
           "ete_ms": 5357.864
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597301991,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17446,7 +17446,7 @@
           "ete_ms": 3699.78
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597373439,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17506,7 +17506,7 @@
           "ete_ms": 5028.782
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597467984,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17662,7 +17662,7 @@
           "ete_ms": 4894.835
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596613468,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17698,7 +17698,7 @@
           "ete_ms": 4804.432
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596669420,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17710,7 +17710,7 @@
           "ete_ms": 4804.77
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597582488,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17878,7 +17878,7 @@
           "ete_ms": 5080.12
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595476055,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17914,7 +17914,7 @@
           "ete_ms": 5268.759
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595723609,
           "task_type": "YoloV5",
           "target_global_id": "ATLAS_L",
           "device_type": "ATLAS_L",
@@ -17964,7 +17964,7 @@
           "ete_ms": 4167.875
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597699144,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18024,7 +18024,7 @@
           "ete_ms": 7776.882
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597719207,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18048,7 +18048,7 @@
           "ete_ms": 4850.288
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597757133,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18060,7 +18060,7 @@
           "ete_ms": 4904.751
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596860959,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18072,7 +18072,7 @@
           "ete_ms": 4523.449
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597777259,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18084,7 +18084,7 @@
           "ete_ms": 4502.862
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596899035,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18132,7 +18132,7 @@
           "ete_ms": 6589.929
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596918575,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18180,7 +18180,7 @@
           "ete_ms": 4011.862
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596956251,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18252,7 +18252,7 @@
           "ete_ms": 6306.68
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596975706,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18264,7 +18264,7 @@
           "ete_ms": 4307.87
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597014140,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18276,7 +18276,7 @@
           "ete_ms": 3909.361
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595991559,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18348,7 +18348,7 @@
           "ete_ms": 7626.941
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597018498,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18372,7 +18372,7 @@
           "ete_ms": 4058.357
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596049751,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18384,7 +18384,7 @@
           "ete_ms": 5115.43
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596069231,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18396,7 +18396,7 @@
           "ete_ms": 3949.668
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597071827,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18408,7 +18408,7 @@
           "ete_ms": 5925.804
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596107823,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18456,7 +18456,7 @@
           "ete_ms": 6458.625
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597091022,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18504,7 +18504,7 @@
           "ete_ms": 3989.044
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597128906,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18576,7 +18576,7 @@
           "ete_ms": 4537.241
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595382860,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18612,7 +18612,7 @@
           "ete_ms": 5567.939
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596273559,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18672,7 +18672,7 @@
           "ete_ms": 7150.311
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596292728,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18684,7 +18684,7 @@
           "ete_ms": 4114.768
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597261596,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18696,7 +18696,7 @@
           "ete_ms": 4507.738
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596330790,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18732,7 +18732,7 @@
           "ete_ms": 5678.354
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596386594,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18780,7 +18780,7 @@
           "ete_ms": 6844.96
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597317418,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18816,7 +18816,7 @@
           "ete_ms": 4232.396
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597355347,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18828,7 +18828,7 @@
           "ete_ms": 4799.968
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596442206,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18888,7 +18888,7 @@
           "ete_ms": 8531.123
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595554420,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18912,7 +18912,7 @@
           "ete_ms": 3887.073
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597411948,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18924,7 +18924,7 @@
           "ete_ms": 4795.097
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597431261,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18936,7 +18936,7 @@
           "ete_ms": 4041.283
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597453698,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -18996,7 +18996,7 @@
           "ete_ms": 7478.781
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597487745,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19044,7 +19044,7 @@
           "ete_ms": 4078.242
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597525422,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19104,7 +19104,7 @@
           "ete_ms": 6749.171
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780595669249,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19128,7 +19128,7 @@
           "ete_ms": 4787.082
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596633024,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19140,7 +19140,7 @@
           "ete_ms": 4445.979
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597567677,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19212,7 +19212,7 @@
           "ete_ms": 5973.697
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597602114,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19224,7 +19224,7 @@
           "ete_ms": 4751.734
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596688973,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19260,7 +19260,7 @@
           "ete_ms": 4535.294
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597640388,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19320,7 +19320,7 @@
           "ete_ms": 6294.141
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597660030,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19368,7 +19368,7 @@
           "ete_ms": 7140.626
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597204764,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19392,7 +19392,7 @@
           "ete_ms": 7546.072
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780596499988,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",
@@ -19404,7 +19404,7 @@
           "ete_ms": 5653.757
         },
         {
-          "timestamp_ms": 1780540181890,
+          "timestamp_ms": 1780597545091,
           "task_type": "YoloV5",
           "target_global_id": "RK3588",
           "device_type": "RK3588",

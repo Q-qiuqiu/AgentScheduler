@@ -439,6 +439,66 @@ python3 EdgeAgentBench/scripts/run_agent_selection_benchmark.py \
   --output EdgeAgentBench/results/agent_selection_smoke.csv
 ```
 
+## LLM 调用 schedule_on_node 工具测试
+
+`run_schedule_tool_agent_benchmark.py` 用于测试“LLM 选择工具参数 + 工具内部按 policy 调度并执行”的链路。它不会把 cluster resource 输入给 LLM，只给 LLM `schedule_on_node` 的工具描述，并在 prompt 中固定 `task_type` 和 `policy`，让 LLM 输出工具调用参数：
+
+```json
+{"tool":"schedule_on_node","arguments":{"task_type":"YoloV5","policy":"scheduler"}}
+```
+
+runner 随后调用 mock MCP 的 `schedule_on_node`，由工具内部读取当前 case 的节点状态、按指定 policy 选节点，并复用 `run_task_on_node` 的 mock 执行结果。
+
+先启动 mock case server：
+
+```bash
+cd /root/AgentScheduler
+python3 EdgeAgentBench/scripts/mock_case_server.py \
+  --case-dir EdgeAgentBench/cases \
+  --host 127.0.0.1 \
+  --port 18082
+```
+
+小规模 smoke test：
+
+```bash
+cd /root/AgentScheduler
+python3 EdgeAgentBench/scripts/run_schedule_tool_agent_benchmark.py \
+  --llm-url http://127.0.0.1:8081/v1/chat/completions \
+  --llm-model rkllm-default \
+  --case-server-url http://127.0.0.1:18082 \
+  --policy scheduler \
+  --case-pattern 'yolov5_001_*.json' \
+  --limit 5 \
+  --progress-every 1 \
+  --output EdgeAgentBench/results/schedule_tool_agent_smoke.csv
+```
+
+全量测试某个 policy：
+
+```bash
+cd /root/AgentScheduler
+python3 EdgeAgentBench/scripts/run_schedule_tool_agent_benchmark.py \
+  --llm-url http://127.0.0.1:8081/v1/chat/completions \
+  --llm-model rkllm-default \
+  --case-server-url http://127.0.0.1:18082 \
+  --policy scheduler \
+  --progress-every 100 \
+  --output EdgeAgentBench/results/schedule_tool_agent_scheduler_results.csv
+```
+
+可选 policy：
+
+```text
+ground_truth
+scheduler
+resource_average
+cpu_min
+npu_min
+mem_min
+container_first
+```
+
 ## latency_profiles.json 来源
 
 `config_files/latency_profiles.json` 由真实设备采样表转换生成。转换脚本在：

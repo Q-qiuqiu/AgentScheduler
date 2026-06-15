@@ -105,11 +105,18 @@ def selected_node_from_response(response: dict[str, Any]) -> str | None:
     trace = response.get("trace", [])
     if isinstance(trace, list):
         for item in reversed(trace):
-            if not isinstance(item, dict) or item.get("action") != "run_task_on_node":
+            if not isinstance(item, dict) or item.get("action") not in {"run_task_on_node", "schedule_on_node"}:
                 continue
             arguments = item.get("arguments") or {}
             if isinstance(arguments, dict):
-                return arguments.get("target_global_id")
+                selected = arguments.get("target_global_id") or arguments.get("scheduled_target_global_id")
+                if selected:
+                    return selected
+            result = item.get("result") or {}
+            if isinstance(result, dict):
+                selected = result.get("target_global_id") or result.get("scheduled_target_global_id")
+                if selected:
+                    return selected
 
     context = response.get("final_state_context", {})
     if isinstance(context, dict):
@@ -149,28 +156,65 @@ def response_timings(response: dict[str, Any]) -> dict[str, float | None]:
                 llm_values.append(model_ms)
                 if action == "select_task_type":
                     result["task_llm_ms"] = model_ms
-                elif action == "run_task_on_node":
+                elif action in {"run_task_on_node", "schedule_on_node"}:
                     result["dispatch_llm_ms"] = model_ms
             if tool_ms is not None:
                 if action == "get_dispatch_snapshot":
                     result["snapshot_tool_ms"] = tool_ms
-                elif action == "run_task_on_node":
+                elif action in {"run_task_on_node", "schedule_on_node"}:
                     result["run_tool_ms"] = tool_ms
     if llm_values:
         result["llm_total_ms"] = round(sum(llm_values), 3)
     return result
 
 
-def node_ete_ms(case: dict[str, Any], node_id: str | None) -> float | None:
-    if not node_id:
-        return None
+def node_allowed_by_constraints(node: dict[str, Any], constraints: dict[str, Any]) -> bool:
+    excluded = set((constraints or {}).get("exclude_nodes", []))
+    if node.get("node_id") in excluded or node.get("platform") in excluded:
+        return False
+    required = set((constraints or {}).get("require_nodes", []))
+    require_node = (constraints or {}).get("require_node")
+    if require_node:
+        required.add(require_node)
+    if required and node.get("node_id") not in required and node.get("platform") not in required:
+        return False
+    return True
+
+
+def eligible_node_ete_values(case: dict[str, Any]) -> list[float]:
+    constraints = case.get("constraints", {})
+    values = []
     for node in case.get("nodes", []):
-        if node.get("node_id") != node_id:
+        if not node.get("online", False):
+            continue
+        if not node_allowed_by_constraints(node, constraints):
             continue
         e2e_ms = node.get("latency_profile", {}).get("e2e_ms")
         if isinstance(e2e_ms, (int, float)) and e2e_ms >= 0:
+            values.append(float(e2e_ms))
+    return values
+
+
+def invalid_prediction_penalty_ete_ms(case: dict[str, Any]) -> float | None:
+    values = eligible_node_ete_values(case)
+    return max(values) if values else None
+
+
+def node_ete_ms(case: dict[str, Any], node_id: str | None) -> float | None:
+    if not node_id:
+        return invalid_prediction_penalty_ete_ms(case)
+    constraints = case.get("constraints", {})
+    for node in case.get("nodes", []):
+        if node.get("node_id") != node_id:
+            continue
+        if not node.get("online", False):
+            return invalid_prediction_penalty_ete_ms(case)
+        if not node_allowed_by_constraints(node, constraints):
+            return invalid_prediction_penalty_ete_ms(case)
+        e2e_ms = node.get("latency_profile", {}).get("e2e_ms")
+        if isinstance(e2e_ms, (int, float)) and e2e_ms >= 0:
             return float(e2e_ms)
-    return None
+    return invalid_prediction_penalty_ete_ms(case)
 
 
 def evaluate_case(
@@ -281,8 +325,8 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "accuracy": round(passed / total, 4) if total else 0,
         "latency_sample_count": len(latency_rows),
         "average_expected_ete_ms": round(
-            sum(row["expected_ete_ms"] for row in latency_rows) / len(latency_rows), 3
-        ) if latency_rows else None,
+            sum(row["expected_ete_ms"] for row in rows) / len(rows), 3
+        ) if rows else None,
         "average_predicted_ete_ms": round(
             sum(row["predicted_ete_ms"] for row in latency_rows) / len(latency_rows), 3
         ) if latency_rows else None,
@@ -304,8 +348,10 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "task_average_ete_ms": {
             task: {
                 "average_expected_ete_ms": round(
-                    sum(row["expected_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
-                ) if item["rows"] else None,
+                    sum(row["expected_ete_ms"] for row in (
+                        row for row in rows if row["task_type"] == task
+                    )) / item["total"], 3
+                ) if item["total"] else None,
                 "average_predicted_ete_ms": round(
                     sum(row["predicted_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
                 ) if item["rows"] else None,
@@ -322,8 +368,10 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "accuracy": round(item["passed"] / item["total"], 4) if item["total"] else 0,
                 "latency_sample_count": len(item["rows"]),
                 "average_expected_ete_ms": round(
-                    sum(row["expected_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
-                ) if item["rows"] else None,
+                    sum(row["expected_ete_ms"] for row in (
+                        row for row in rows if row["task_type"] == task
+                    )) / item["total"], 3
+                ) if item["total"] else None,
                 "average_predicted_ete_ms": round(
                     sum(row["predicted_ete_ms"] for row in item["rows"]) / len(item["rows"]), 3
                 ) if item["rows"] else None,

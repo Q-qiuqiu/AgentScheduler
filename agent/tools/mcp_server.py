@@ -8,6 +8,7 @@ from get_task_catalog_tool import get_task_catalog
 from get_task_overhead_tool import get_task_overhead
 from run_task_auto_schedule_tool import run_task_auto_schedule
 from run_task_on_node_tool import run_task_on_node
+from schedule_on_node_tool import schedule_on_node
 from schedule_task_tool import schedule_task
 
 
@@ -18,6 +19,7 @@ GET_TASK_OVERHEAD_TOOL = "get_task_overhead"
 SCHEDULE_TASK_TOOL = "schedule_task"
 RUN_TASK_ON_NODE_TOOL = "run_task_on_node"
 RUN_TASK_AUTO_SCHEDULE_TOOL = "run_task_auto_schedule"
+SCHEDULE_ON_NODE_TOOL = "schedule_on_node"
 
 
 def make_response(request_id: Any, result: dict[str, Any]) -> dict[str, Any]:
@@ -161,6 +163,46 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                     },
                 },
                 {
+                    "name": SCHEDULE_ON_NODE_TOOL,
+                    "description": "Select a target board with a named local baseline policy, then run the configured task on that selected board. This combines schedule_task-style policy selection with run_task_on_node execution.",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "task_type": {"type": "string"},
+                            "policy": {
+                                "type": "string",
+                                "enum": [
+                                    "scheduler",
+                                    "resource_average",
+                                    "cpu_min",
+                                    "npu_min",
+                                    "mem_min",
+                                    "container_first",
+                                ],
+                                "default": "scheduler",
+                            },
+                            "exclude_nodes": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
+                            "require_node": {"type": "string"},
+                            "require_nodes": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
+                            "input_path": {"type": "string"},
+                            "real_url": {"type": "string", "default": "predict"},
+                            "file_field_name": {"type": "string", "default": "image"},
+                            "fields": {
+                                "type": "object",
+                                "additionalProperties": {"type": "string"},
+                            },
+                        },
+                        "required": ["task_type", "policy"],
+                        "additionalProperties": False,
+                    },
+                },
+                {
                     "name": RUN_TASK_ON_NODE_TOOL,
                     "description": "Run a configured task tool on a specific board. Prefer run_task_auto_schedule unless the target_global_id is explicitly required.",
                     "inputSchema": {
@@ -217,6 +259,8 @@ def handle_tools_call(request_id: Any, params: dict[str, Any]) -> dict[str, Any]
             return tool_response_text(schedule_task(arguments), request_id)
         if name == RUN_TASK_AUTO_SCHEDULE_TOOL:
             return tool_response_text(run_task_auto_schedule(arguments), request_id)
+        if name == SCHEDULE_ON_NODE_TOOL:
+            return tool_response_text(schedule_on_node(arguments), request_id)
         if name == RUN_TASK_ON_NODE_TOOL:
             return tool_response_text(run_task_on_node(arguments), request_id)
         return make_error(request_id, -32602, f"unknown tool: {name}")

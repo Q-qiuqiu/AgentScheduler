@@ -9,6 +9,7 @@ Minimal MCP server over `stdio` that exposes tools backed by separate modules:
 - `get_dispatch_snapshot`
 - `get_task_overhead`
 - `schedule_task`
+- `schedule_on_node`
 - `run_task_auto_schedule`
 - `run_task_on_node`
 
@@ -18,6 +19,7 @@ Implementation modules:
 - `get_task_catalog_tool.py`
 - `get_task_overhead_tool.py`
 - `schedule_task_tool.py`
+- `schedule_on_node_tool.py`
 - `run_task_auto_schedule_tool.py`
 - `run_task_on_node_tool.py`
 
@@ -74,6 +76,15 @@ Optional scheduling constraints:
 - `exclude_nodes`: node ids or device types that must not be selected, such as `RK3588` or `ATLAS_L`
 - `require_node`: one node id or device type that must be selected from, such as `ATLAS_H`
 - `require_nodes`: a list of allowed node ids or device types
+
+`schedule_on_node` first selects a target node locally with a named baseline policy, then calls the same execution path as `run_task_on_node`.
+
+Required arguments:
+
+- `task_type`
+- `policy`: one of `scheduler`, `resource_average`, `cpu_min`, `npu_min`, `mem_min`, or `container_first`
+
+Optional arguments are the same execution fields as `run_task_on_node`, plus the same scheduling constraints as `schedule_task`.
 
 `run_task_auto_schedule` calls the gateway `/quest` endpoint. The caller only supplies the task payload; gateway scheduling chooses the target board and starts or reuses the tool container.
 
