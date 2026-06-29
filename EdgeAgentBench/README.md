@@ -227,6 +227,16 @@ python3 EdgeAgentBench/scripts/run_benchmark.py --policy ground_truth --strict
 (cpu_after + mem_after + npu_after) / 3
 ```
 
+`weight_schedule`
+
+只使用当前资源状态进行加权，不使用 `base_latency_ms`：
+
+```text
+5 * cpu_after + 17 * npu_after + 39 * mem_after
+```
+
+CPU、NPU、MEM 使用 case 中的 0-1 比例值，选择得分最低的合法在线节点。该整数权重是在当前 bench 上对 `1-40` 范围内互质正整数权重进行遍历后，准确率最高的全局组合。
+
 `cpu_min`、`npu_min`、`mem_min`
 
 分别选择 CPU、NPU、内存占用最低的可行节点。
@@ -349,6 +359,19 @@ EDGE_BENCH_CASE_SERVER_URL=http://127.0.0.1:18082 \
 MCP_SERVER_PATH=/root/AgentScheduler/EdgeAgentBench/scripts/mock_mcp_server.py \
 python3 agent/server/agent.py --host 0.0.0.0 --port 8082
 ```
+
+无当前资源状态消融实验启动 Agent：
+
+```bash
+cd /root/AgentScheduler
+EDGE_BENCH_CASE_SERVER_URL=http://127.0.0.1:18082 \
+MCP_SERVER_PATH=/root/AgentScheduler/EdgeAgentBench/scripts/mock_mcp_server.py \
+DISPATCH_INCLUDE_RESOURCE_STATE=0 \
+DISPATCH_HISTORY_ENABLED=0 \
+python3 agent/server/agent.py --host 0.0.0.0 --port 8082
+```
+
+`DISPATCH_INCLUDE_RESOURCE_STATE=0` 时，调度 prompt 中的节点表只包含 `id` 和 `base_latency`，不再包含当前 `cpu/npu/mem`。建议同时设置 `DISPATCH_HISTORY_ENABLED=0`，避免历史匹配逻辑间接使用当前资源状态。
 
 另开一个终端运行真实 Agent 选择评测：
 

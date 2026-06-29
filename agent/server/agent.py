@@ -28,6 +28,7 @@ DEFAULT_STATIC_INFO_PATH = os.path.join(REPO_ROOT, "config_files", "static_info.
 DEFAULT_DISPATCH_HISTORY_PATH = os.path.join(REPO_ROOT, "config_files", "dispatch_history.json")
 DISPATCH_HISTORY_ENABLED = os.environ.get("DISPATCH_HISTORY_ENABLED", "1").lower() not in {"0", "false", "no", "off"}
 HISTORY_RESOURCE_TOLERANCE_PERCENT = float(os.environ.get("DISPATCH_HISTORY_TOLERANCE_PERCENT", "1.0"))
+DISPATCH_INCLUDE_RESOURCE_STATE = os.environ.get("DISPATCH_INCLUDE_RESOURCE_STATE", "1").lower() not in {"0", "false", "no", "off"}
 
 lock = threading.Lock()
 is_blocking = False
@@ -589,18 +590,22 @@ def build_history_dispatch_context(selected_task_type, candidate_nodes):
     }
 
 
-def compact_dispatch_node(candidate):
+def compact_dispatch_node(candidate, include_resource_state=True):
     current = candidate.get("current_resource_percent", {}) if isinstance(candidate, dict) else {}
     base_latency_ms = candidate.get("base_latency_ms")
     if not isinstance(base_latency_ms, (int, float)):
         base_latency_ms = 0
-    return [
+    node = [
         candidate.get("target_global_id"),
         round(base_latency_ms, 3),
-        round(current.get("cpu_percent"), 3) if isinstance(current.get("cpu_percent"), (int, float)) else 100,
-        round(current.get("npu_percent"), 3) if isinstance(current.get("npu_percent"), (int, float)) else 100,
-        round(current.get("mem_percent"), 3) if isinstance(current.get("mem_percent"), (int, float)) else 100,
     ]
+    if include_resource_state:
+        node.extend([
+            round(current.get("cpu_percent"), 3) if isinstance(current.get("cpu_percent"), (int, float)) else 100,
+            round(current.get("npu_percent"), 3) if isinstance(current.get("npu_percent"), (int, float)) else 100,
+            round(current.get("mem_percent"), 3) if isinstance(current.get("mem_percent"), (int, float)) else 100,
+        ])
+    return node
 
 
 def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, static_info):
@@ -626,11 +631,23 @@ def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, static_
 
 
 def build_dispatch_context(selected_task_type, candidate_nodes):
+    if not DISPATCH_INCLUDE_RESOURCE_STATE:
+        return {
+            "task_type": selected_task_type,
+            "resource_state_included": False,
+            "policy": "minimize base_latency",
+            "columns": ["id", "base_latency"],
+            "nodes": [
+                compact_dispatch_node(candidate, include_resource_state=False)
+                for candidate in candidate_nodes
+            ],
+        }
     return {
         "task_type": selected_task_type,
+        "resource_state_included": True,
         "policy": "minimize 3*base_latency + 1*cpu + 80*npu + 200*mem",
         "columns": ["id", "base_latency", "cpu", "npu", "mem"],
-        "nodes": [compact_dispatch_node(candidate) for candidate in candidate_nodes],
+        "nodes": [compact_dispatch_node(candidate, include_resource_state=True) for candidate in candidate_nodes],
     }
 
 
@@ -701,6 +718,12 @@ def build_direct_selection_messages(
         system_content = (
             f"Task type is fixed: {selected_task_type}. Choose the node with the smallest latency_ms.\n"
             "Use only latency_ms values in user.nodes; do not use resources or formulas.\n"
+            "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
+        )
+    elif dispatch_context.get("resource_state_included") is False:
+        system_content = (
+            f"Task type is fixed: {selected_task_type}. Choose one node by minimizing policy.\n"
+            "Use only base_latency from user.nodes and select the smallest value.\n"
             "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
         )
     else:

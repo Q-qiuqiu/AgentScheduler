@@ -82,7 +82,7 @@ Optional scheduling constraints:
 Required arguments:
 
 - `task_type`
-- `policy`: one of `scheduler`, `resource_average`, `cpu_min`, `npu_min`, `mem_min`, or `container_first`
+- `policy`: one of `scheduler`, `weight_schedule`, `resource_average`, `cpu_min`, `npu_min`, `mem_min`, or `container_first`
 
 Optional arguments are the same execution fields as `run_task_on_node`, plus the same scheduling constraints as `schedule_task`.
 

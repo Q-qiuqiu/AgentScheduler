@@ -19,6 +19,11 @@ SCHEDULER_WEIGHTS = {
     "mem_after": 2.0,
     "npu_after": 0.8,
 }
+WEIGHT_SCHEDULE_WEIGHTS = {
+    "cpu_after": 5.0,
+    "npu_after": 17.0,
+    "mem_after": 39.0,
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -252,6 +257,14 @@ def select_scheduled_candidate(candidates: list[dict[str, Any]], policy: str) ->
         elif policy == "resource_average":
             score = avg_load
             sort_key = (score, node_id)
+        elif policy == "weight_schedule":
+            score = round(
+                WEIGHT_SCHEDULE_WEIGHTS["cpu_after"] * detail["cpu_after"]
+                + WEIGHT_SCHEDULE_WEIGHTS["npu_after"] * detail["npu_after"]
+                + WEIGHT_SCHEDULE_WEIGHTS["mem_after"] * detail["mem_after"],
+                6,
+            )
+            sort_key = (score, node_id)
         elif policy == "cpu_min":
             score = detail["cpu_after"]
             sort_key = (score, node_id)
@@ -351,6 +364,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                                 "enum": [
                                     "ground_truth",
                                     "scheduler",
+                                    "weight_schedule",
                                     "resource_average",
                                     "cpu_min",
                                     "npu_min",

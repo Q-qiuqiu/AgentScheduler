@@ -173,6 +173,7 @@ def handle_tools_list(request_id: Any) -> dict[str, Any]:
                                 "type": "string",
                                 "enum": [
                                     "scheduler",
+                                    "weight_schedule",
                                     "resource_average",
                                     "cpu_min",
                                     "npu_min",

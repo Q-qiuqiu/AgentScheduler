@@ -85,6 +85,7 @@ score = 3*base + 1*cpu + 80*npu + 200*mem
 - 严格历史模式下，Agent 只发送每个开发板的历史 `latency_ms`，不再发送资源信息和权重公式。
 - 如果任意候选节点缺少相近历史，Agent 会回退到普通权重公式上下文。
 - 历史开关默认开启；做无历史消融实验时可以设置 `DISPATCH_HISTORY_ENABLED=0`。
+- 调度 prompt 默认包含当前资源状态；做无资源状态消融实验时可以设置 `DISPATCH_INCLUDE_RESOURCE_STATE=0`，此时保留节点 ID 和基础时延，不发送当前 CPU/NPU/MEM。
 - 默认相近阈值是 CPU/MEM/NPU 三个指标各自最大偏差不超过 `1.0` 个百分点，可用环境变量调整：
 
 ```bash
@@ -92,6 +93,7 @@ DISPATCH_HISTORY_ENABLED=1
 DISPATCH_HISTORY_TOLERANCE_PERCENT=1.0
 DISPATCH_HISTORY_PATH=/root/AgentScheduler/config_files/dispatch_history.json
 DISPATCH_HISTORY_MAX_RECORDS=5000
+DISPATCH_INCLUDE_RESOURCE_STATE=1
 ```
 
 所有候选都有历史时，发给大模型的是：

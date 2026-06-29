@@ -22,6 +22,7 @@ DEFAULT_MCP_SERVER_PATH = BENCH_ROOT / "scripts" / "mock_mcp_server.py"
 POLICIES = {
     "ground_truth",
     "scheduler",
+    "weight_schedule",
     "resource_average",
     "cpu_min",
     "npu_min",

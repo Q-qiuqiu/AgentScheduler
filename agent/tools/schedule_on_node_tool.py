@@ -11,6 +11,11 @@ SCHEDULER_WEIGHTS = {
     "mem_after": 2.0,
     "npu_after": 0.8,
 }
+WEIGHT_SCHEDULE_WEIGHTS = {
+    "cpu_after": 5.0,
+    "npu_after": 17.0,
+    "mem_after": 39.0,
+}
 
 
 def normalize_platform(platform: str | None) -> str | None:
@@ -122,6 +127,14 @@ def select_candidate(candidates: list[dict[str, Any]], policy: str) -> dict[str,
             sort_key = (score, node_id)
         elif policy == "resource_average":
             score = avg_load
+            sort_key = (score, node_id)
+        elif policy == "weight_schedule":
+            score = round(
+                WEIGHT_SCHEDULE_WEIGHTS["cpu_after"] * detail["cpu_after"]
+                + WEIGHT_SCHEDULE_WEIGHTS["npu_after"] * detail["npu_after"]
+                + WEIGHT_SCHEDULE_WEIGHTS["mem_after"] * detail["mem_after"],
+                6,
+            )
             sort_key = (score, node_id)
         elif policy == "cpu_min":
             score = detail["cpu_after"]

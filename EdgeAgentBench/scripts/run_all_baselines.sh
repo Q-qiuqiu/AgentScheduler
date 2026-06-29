@@ -5,6 +5,7 @@ mkdir -p EdgeAgentBench/results
 
 policies=(
   scheduler
+  weight_schedule
   resource_average
   mem_min
   cpu_min
