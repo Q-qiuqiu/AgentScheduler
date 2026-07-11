@@ -221,6 +221,40 @@ def parse_bool_form_value(value):
     return value.strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
+def split_node_list(value):
+    if isinstance(value, list):
+        items = value
+    elif isinstance(value, str):
+        items = re.split(r"[,，\s]+", value.strip())
+    else:
+        return []
+    return [str(item).strip() for item in items if str(item).strip()]
+
+
+def infer_user_constraints(user_text, text_fields):
+    device_ids = ["ATLAS_H", "ATLAS_L", "RK3588"]
+    constraints = {
+        "exclude_nodes": split_node_list(text_fields.get("exclude_nodes")),
+        "require_nodes": split_node_list(text_fields.get("require_nodes")),
+    }
+    require_node = text_fields.get("require_node")
+    if require_node:
+        constraints["require_nodes"].extend(split_node_list(require_node))
+
+    normalized = user_text or ""
+    for node_id in device_ids:
+        if re.search(rf"(不要|不能|禁止|排除|别用|不使用)[^。；;,.，]*{re.escape(node_id)}", normalized, re.IGNORECASE):
+            constraints["exclude_nodes"].append(node_id)
+        if re.search(rf"(只用|只使用|仅用|仅使用|必须使用|指定)[^。；;,.，]*{re.escape(node_id)}", normalized, re.IGNORECASE):
+            constraints["require_nodes"].append(node_id)
+
+    constraints["exclude_nodes"] = sorted(set(constraints["exclude_nodes"]))
+    constraints["require_nodes"] = sorted(set(constraints["require_nodes"]))
+    if not constraints["exclude_nodes"] and not constraints["require_nodes"]:
+        return {}
+    return constraints
+
+
 def save_uploaded_file(uploaded_file):
     suffix = os.path.splitext(uploaded_file.filename or "")[1] or ".bin"
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
@@ -565,7 +599,7 @@ def nearest_history_record(task_type, candidate, history, tolerance_percent=HIST
     return {**matches[0][2], "distance": distance}
 
 
-def build_history_dispatch_context(selected_task_type, candidate_nodes):
+def build_history_dispatch_context(selected_task_type, candidate_nodes, user_constraints=None):
     if not DISPATCH_HISTORY_ENABLED:
         return None
     history = load_dispatch_history()
@@ -585,6 +619,7 @@ def build_history_dispatch_context(selected_task_type, candidate_nodes):
         "task_type": selected_task_type,
         "history_policy": "choose min latency_ms",
         "history_coverage": "full",
+        "user_constraints": user_constraints or {},
         "columns": ["id", "latency_ms"],
         "nodes": matched_nodes,
     }
@@ -630,11 +665,12 @@ def candidate_nodes_for_task(cluster_resources, task_catalog, task_type, static_
     return candidates
 
 
-def build_dispatch_context(selected_task_type, candidate_nodes):
+def build_dispatch_context(selected_task_type, candidate_nodes, user_constraints=None):
     if not DISPATCH_INCLUDE_RESOURCE_STATE:
         return {
             "task_type": selected_task_type,
             "resource_state_included": False,
+            "user_constraints": user_constraints or {},
             "policy": "minimize base_latency",
             "columns": ["id", "base_latency"],
             "nodes": [
@@ -645,6 +681,7 @@ def build_dispatch_context(selected_task_type, candidate_nodes):
     return {
         "task_type": selected_task_type,
         "resource_state_included": True,
+        "user_constraints": user_constraints or {},
         "policy": "minimize 3*base_latency + 1*cpu + 80*npu + 200*mem",
         "columns": ["id", "base_latency", "cpu", "npu", "mem"],
         "nodes": [compact_dispatch_node(candidate, include_resource_state=True) for candidate in candidate_nodes],
@@ -715,10 +752,16 @@ def build_direct_selection_messages(
 ):
     selected_task_type = dispatch_context.get("task_type", "")
     if dispatch_context.get("history_policy"):
+        constraints = dispatch_context.get("user_constraints") or {}
+        excluded = constraints.get("exclude_nodes") or []
+        required = constraints.get("require_nodes") or []
         system_content = (
-            f"Task type is fixed: {selected_task_type}. Choose the node with the smallest latency_ms.\n"
-            "Use only latency_ms values in user.nodes; do not use resources or formulas.\n"
-            "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
+            f"Task type is fixed: {selected_task_type}.\n"
+            "Rules:\n"
+            "1. Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}; target_global_id must be one string, not an array.\n"
+            f"2. Exclude forbidden ids: {json.dumps(excluded, ensure_ascii=False)}; "
+            f"if allowed ids is non-empty, use only: {json.dumps(required, ensure_ascii=False)}.\n"
+            "3. From remaining rows, choose the smallest latency_ms in user.nodes [id, latency_ms]."
         )
     elif dispatch_context.get("resource_state_included") is False:
         system_content = (
@@ -765,6 +808,10 @@ def choose_direct_execution(
     task_type = selection.get("task_type")
     target_global_id = selection.get("target_global_id")
     selected_task_type = dispatch_context.get("task_type")
+    if not isinstance(task_type, str):
+        raise RuntimeError(f"model selected invalid task_type: {task_type}")
+    if not isinstance(target_global_id, str):
+        raise RuntimeError(f"model selected invalid target_global_id: {target_global_id}")
     if selected_task_type and task_type != selected_task_type:
         raise RuntimeError(f"model selected task_type {task_type}, but selected task_type is {selected_task_type}")
     if task_type not in task_types_from_catalog(task_catalog):
@@ -845,6 +892,8 @@ def extract_ete_ms(payload):
 
 
 def record_dispatch_history(task_type, target_global_id, selected_node, candidate_nodes, tool_result):
+    if not DISPATCH_HISTORY_ENABLED:
+        return None
     ete_ms = extract_ete_ms(tool_result)
     if ete_ms is None:
         return None
@@ -979,10 +1028,16 @@ def run_direct_agent_execution(user_text, has_file, input_path, text_fields, for
     if not candidate_nodes:
         raise RuntimeError(f"no online candidate nodes support task_type: {selected_task_type}")
 
-    history_dispatch_context = build_history_dispatch_context(selected_task_type, candidate_nodes)
+    user_constraints = infer_user_constraints(user_text, text_fields)
+    history_dispatch_context = build_history_dispatch_context(
+        selected_task_type,
+        candidate_nodes,
+        user_constraints,
+    )
     dispatch_context = history_dispatch_context or build_dispatch_context(
         selected_task_type,
         candidate_nodes,
+        user_constraints,
     )
     if len(candidate_nodes) == 1:
         selection = choose_single_candidate_execution(

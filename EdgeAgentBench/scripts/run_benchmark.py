@@ -21,6 +21,12 @@ WEIGHT_SCHEDULE_WEIGHTS = {
     "npu_after": 17.0,
     "mem_after": 39.0,
 }
+BASE_OASIS_WEIGHTS = {
+    "base_latency": 3,
+    "cpu": 1,
+    "npu": 80,
+    "mem": 200,
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -164,6 +170,42 @@ def scheduler_prediction(
             4,
         )
         ranked.append((score, node, detail))
+
+    ranked.sort(key=lambda item: (item[0], item[1].get("node_id", "")))
+    if not ranked:
+        return {"selected_node": None, "selected_platform": None, "score": None, "eligible_nodes": []}
+    score, node, detail = ranked[0]
+    return {
+        "selected_node": node.get("node_id"),
+        "selected_platform": node.get("platform"),
+        "score": score,
+        "eligible_nodes": [item[1].get("node_id") for item in ranked],
+        "detail": detail,
+    }
+
+
+def base_oasis_prediction(
+    case: dict[str, Any],
+    state: dict[str, Any],
+    static_info: dict[str, Any],
+    honor_constraints: bool,
+) -> dict[str, Any]:
+    ranked = []
+    for item in feasible_scheduler_candidates(case, state, static_info, honor_constraints):
+        node = item["node"]
+        detail = item["detail"]
+        base_latency = round(float(detail["base_latency_ms"]), 3)
+        cpu = round(float(detail["cpu_after"]) * 100, 3)
+        npu = round(float(detail["npu_after"]) * 100, 3)
+        mem = round(float(detail["mem_after"]) * 100, 3)
+        score = round(
+            BASE_OASIS_WEIGHTS["base_latency"] * base_latency
+            + BASE_OASIS_WEIGHTS["cpu"] * cpu
+            + BASE_OASIS_WEIGHTS["npu"] * npu
+            + BASE_OASIS_WEIGHTS["mem"] * mem,
+            3,
+        )
+        ranked.append((score, node, {**detail, "base_oasis_weights": BASE_OASIS_WEIGHTS}))
 
     ranked.sort(key=lambda item: (item[0], item[1].get("node_id", "")))
     if not ranked:
@@ -351,6 +393,8 @@ def evaluate_case(
         prediction = ground_truth_prediction(case)
     elif policy == "scheduler":
         prediction = scheduler_prediction(case, state, static_info, honor_constraints)
+    elif policy == "base-oasis":
+        prediction = base_oasis_prediction(case, state, static_info, honor_constraints)
     elif policy == "random":
         prediction = random_prediction(
             case,
@@ -504,6 +548,7 @@ def main() -> int:
         choices=[
             "ground_truth",
             "scheduler",
+            "base-oasis",
             "random",
             "round_robin",
             "resource_average",

@@ -168,6 +168,82 @@ def response_timings(response: dict[str, Any]) -> dict[str, float | None]:
     return result
 
 
+def selection_prompt_from_dispatch_context(dispatch_context: dict[str, Any]) -> list[dict[str, str]]:
+    selected_task_type = dispatch_context.get("task_type", "")
+    if dispatch_context.get("history_policy"):
+        constraints = dispatch_context.get("user_constraints") or {}
+        excluded = constraints.get("exclude_nodes") or []
+        required = constraints.get("require_nodes") or []
+        system_content = (
+            f"Task type is fixed: {selected_task_type}.\n"
+            "Rules:\n"
+            "1. Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}; target_global_id must be one string, not an array.\n"
+            f"2. Exclude forbidden ids: {json.dumps(excluded, ensure_ascii=False)}; "
+            f"if allowed ids is non-empty, use only: {json.dumps(required, ensure_ascii=False)}.\n"
+            "3. From remaining rows, choose the smallest latency_ms in user.nodes [id, latency_ms]."
+        )
+    elif dispatch_context.get("resource_state_included") is False:
+        system_content = (
+            f"Task type is fixed: {selected_task_type}. Choose one node by minimizing policy.\n"
+            "Use only base_latency from user.nodes and select the smallest value.\n"
+            "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
+        )
+    else:
+        system_content = (
+            f"Task type is fixed: {selected_task_type}. Choose one node by minimizing policy.\n"
+            "You must calculate with the exact formula in user.policy and select the smallest value.\n"
+            "Return JSON only: {\"task_type\":\"<task_type>\",\"target_global_id\":\"<id>\"}."
+        )
+    return [
+        {"role": "system", "content": system_content},
+        {"role": "user", "content": json.dumps(dispatch_context, ensure_ascii=False)},
+    ]
+
+
+def prompt_log_record(
+    case: dict[str, Any],
+    response: dict[str, Any],
+    predicted_node: str | None,
+    error: str,
+) -> dict[str, Any]:
+    final_context = response.get("final_state_context", {}) if isinstance(response, dict) else {}
+    dispatch_context = final_context.get("dispatch_context", {}) if isinstance(final_context, dict) else {}
+    trace = response.get("trace", []) if isinstance(response, dict) else []
+    model_response = None
+    if isinstance(trace, list):
+        for item in reversed(trace):
+            if isinstance(item, dict) and item.get("action") in {"run_task_on_node", "schedule_on_node"}:
+                arguments = item.get("arguments")
+                if isinstance(arguments, dict):
+                    model_response = {
+                        "task_type": arguments.get("task_type"),
+                        "target_global_id": arguments.get("target_global_id")
+                        or arguments.get("scheduled_target_global_id"),
+                    }
+                break
+    prompt_messages = (
+        selection_prompt_from_dispatch_context(dispatch_context)
+        if isinstance(dispatch_context, dict) and dispatch_context
+        else []
+    )
+    return {
+        "case_id": case.get("case_id"),
+        "task_type": case.get("task_type"),
+        "expected_node": case.get("ground_truth", {}).get("node_id"),
+        "predicted_node": predicted_node,
+        "error": error,
+        "history_used": bool(isinstance(dispatch_context, dict) and dispatch_context.get("history_policy")),
+        "resource_state_included": (
+            dispatch_context.get("resource_state_included")
+            if isinstance(dispatch_context, dict)
+            else None
+        ),
+        "dispatch_context": dispatch_context,
+        "selection_prompt": prompt_messages,
+        "model_selection": model_response,
+    }
+
+
 def node_allowed_by_constraints(node: dict[str, Any], constraints: dict[str, Any]) -> bool:
     excluded = set((constraints or {}).get("exclude_nodes", []))
     if node.get("node_id") in excluded or node.get("platform") in excluded:
@@ -260,7 +336,7 @@ def evaluate_case(
         latency_regret_ms = round(predicted_ete_ms - expected_ete_ms, 3)
         latency_ratio = round(predicted_ete_ms / expected_ete_ms, 4) if expected_ete_ms > 0 else None
     passed = predicted_node == expected_node
-    return {
+    row = {
         "case_id": case.get("case_id"),
         "task_type": task_type,
         "status": "PASS" if passed else "FAIL",
@@ -274,6 +350,8 @@ def evaluate_case(
         "elapsed_ms": elapsed_ms,
         **timings,
     }
+    row["_prompt_log_record"] = prompt_log_record(case, response, predicted_node, error)
+    return row
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -298,9 +376,18 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         "run_tool_ms",
     ]
     with path.open("w", encoding="utf-8", newline="") as file_obj:
-        writer = csv.DictWriter(file_obj, fieldnames=fields)
+        writer = csv.DictWriter(file_obj, fieldnames=fields, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
+
+
+def write_prompt_log(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as file_obj:
+        for row in rows:
+            record = row.get("_prompt_log_record")
+            if isinstance(record, dict):
+                file_obj.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -429,6 +516,10 @@ def main() -> int:
     parser.add_argument("--progress-every", type=int, default=100)
     parser.add_argument("--no-progress", action="store_true")
     parser.add_argument("--no-force-task-type", action="store_true")
+    parser.add_argument(
+        "--prompt-log",
+        help="Optional JSONL path for per-case dispatch_context and reconstructed selection prompt.",
+    )
     parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
 
@@ -468,6 +559,8 @@ def main() -> int:
         **summarize(rows),
     }
     write_csv(output_path, rows)
+    if args.prompt_log:
+        write_prompt_log(Path(args.prompt_log), rows)
     summary_output_path.parent.mkdir(parents=True, exist_ok=True)
     summary_output_path.write_text(json.dumps(summary_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
